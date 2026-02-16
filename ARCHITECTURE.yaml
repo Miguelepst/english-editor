@@ -1,0 +1,39 @@
+
+# ARCHITECTURE.yaml — Mapa del scaffold inicial
+# Este archivo describe la INTENCIÓN ARQUITECTÓNICA del scaffold.
+# NO describe tu dominio de negocio — eso emerge en modules/
+
+project:
+  name: "Modular Monolith Scaffold"
+  philosophy: "Vertical Slice Architecture con Clean Architecture pura"
+
+core:
+  purpose: "Building blocks universales reusables en CUALQUIER dominio"
+  contains:
+    - "Value Objects matemáticos/lógicos (PositiveValue, NonEmptyString)"
+    - "Tipos primitivos validados"
+    - "Helpers genéricos SIN dependencia de negocio"
+  does_not_contain:
+    - "Entidades específicas del dominio (AudioSegment, User, Payment)"
+    - "Reglas de negocio (NormalizeAudio, ProcessPayment)"
+    - "Cualquier concepto que solo tenga sentido en un proyecto específico"
+  rule: "Si no podrías reusar este código en un sistema de pagos O un e-commerce, NO pertenece aquí"
+
+modules:
+  purpose: "Bounded contexts específicos del negocio (vacío inicialmente)"
+  state: "Vacío — los módulos emergen del dominio mediante add_module.py"
+  structure_per_module:
+    domain:
+      purpose: "Entidades y reglas del subdominio (dominio puro, sin dependencias)"
+    application:
+      purpose: "Casos de uso y puertos abstractos (orquestación, sin infraestructura)"
+    infrastructure:
+      purpose: "Adaptadores concretos (implementaciones de puertos, con I/O real)"
+  rule: "Cada módulo es un bounded context independiente — evita shared_kernel/ a menos que haya acuerdo explícito entre equipos"
+
+evolution:
+  step_1: "Validar scaffold con pruebas en core/ (ya hecho)"
+  step_2: "Agregar primer bounded context con: python add_module.py <proyecto> <modulo>"
+  step_3: "Implementar lógica de dominio en modules/<modulo>/domain/"
+  step_4: "Definir casos de uso en modules/<modulo>/application/"
+  step_5: "Implementar adaptadores en modules/<modulo>/infrastructure/ SOLO cuando necesites I/O real"

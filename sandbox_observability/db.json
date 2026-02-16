@@ -1,0 +1,16 @@
+{
+  "jobs": {
+    "7816ff87d7a45be6a6eba74a28b597a0c2bf2f233dfae397bea4ca510612d92d": {
+      "job_id": "c23aab46-3c16-4c1a-9bc2-8541268306cf",
+      "filename": "test_obs.mp4",
+      "file_size": 4000,
+      "content_hash": "7816ff87d7a45be6a6eba74a28b597a0c2bf2f233dfae397bea4ca510612d92d",
+      "output_path": "/content/english-editor/sandbox_observability/outputs/test_obs_editado.mp4",
+      "status": "PENDING",
+      "checkpoints": [],
+      "created_at": "2026-02-15T21:27:47.029579",
+      "updated_at": "2026-02-15T21:27:47.029587",
+      "error_message": null
+    }
+  }
+}

@@ -1,0 +1,116 @@
+
+# ============================================================
+# 📦 METADATOS DEL BUILD SYSTEM
+# Define cómo setuptools construye tu paquete desde el código fuente.
+# ============================================================
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]      # Dependencias para construir el paquete
+build-backend = "setuptools.build_meta"       # Backend estándar de Python moderno
+
+# ============================================================
+# 🧩 METADATOS DEL PROYECTO
+# Información esencial para pip, PyPI y herramientas de packaging.
+# ⚠️ IMPORTANTE: 'name' usa guiones bajos (_) para evitar conflictos
+#    con el sistema de imports de Python (PEP 508).
+#    Ej: "english-editor" → "english_editor" en imports.
+# ============================================================
+[project]
+name = "english_editor"                        # ✅ Normalizado: guiones → guiones bajos
+version = "0.1.0"
+description = "Modular Monolith Scaffold — Vertical Slice Architecture"
+readme = "README.md"
+requires-python = ">=3.9"                      # Versión mínima de Python requerida
+license = {text = "MIT"}                     # Licencia estándar para proyectos abiertos
+authors = [
+  {name = "Developer", email = "developer@example.com"}
+]
+dependencies = []                              # Dependencias de producción (vacío inicial)
+optional-dependencies.dev = [                  # Dependencias de desarrollo (opcionales)
+  "pytest>=7.0",                               # Framework de testing estándar industria
+  "pytest-cov>=4.0",                           # Cobertura de código integrada
+  "pytest-sugar>=0.9",                         # Mejora visual de salida (opcional)
+  "ruff>=0.1",                                 # Linter + formateador moderno (100x más rápido)
+  "mypy>=1.0",                                 # Type checking estático estricto
+#  "rich>=13.0",                                # Salida de consola bonita para demos
+]
+
+# ============================================================
+# 🔍 DESCUBRIMIENTO DE PAQUETES
+# Indica a setuptools dónde buscar el código fuente.
+# Patrón 'src/' layout: código en src/<package_name>/
+# ============================================================
+[tool.setuptools.packages.find]
+where = ["src"]                                # Buscar paquetes dentro de src/
+
+# ============================================================
+# 🧪 CONFIGURACIÓN DE PYTEST
+# Opciones predeterminadas para ejecución de tests.
+# ============================================================
+[tool.pytest.ini_options]
+pythonpath = ["src"]                           # Agrega src/ al PYTHONPATH automáticamente
+testpaths = ["tests"]                          # Directorios donde buscar tests
+addopts = [
+  "-v",                                        # Modo verbose (muestra nombre de cada test)
+#  "--strict-markers",                          # Requiere que todos los markers estén definidos
+#  "--tb=short",                                # Traceback conciso en fallos
+#  "--cov=src/english_editor",                  # Medir cobertura solo en código fuente
+#  "--cov-report=term-missing",                 # Mostrar líneas no cubiertas en terminal
+#  "--cov-report=html:htmlcov",                 # Generar reporte HTML interactivo
+#  "--cov-fail-under=80"                        # Fallar si cobertura < 80%
+]
+console_output_style = "progress"              # Barra de progreso visual durante tests
+xfail_strict = true                            # Tests marcados xfail deben fallar explícitamente
+
+# ============================================================
+# 🧹 LINTING CON RUFF
+# Reemplaza flake8 + black + isort en una sola herramienta rápida.
+# ============================================================
+#[tool.ruff]
+#line-length = 88                               # Estándar PEP 8 (compatible con Black)
+#target-version = "py39"                        # Versión mínima de Python a soportar
+#select = ["E", "F", "W", "I", "UP", "C4", "TID", "RUF"]  # Reglas activas:
+                                                   # E/F/W: Errores Pyflakes/PyCodeStyle
+                                                   # I: Import sorting (isort)
+                                                   # UP: Pyupgrade (moderniza sintaxis)
+                                                   # C4: Comprehension mejoradas
+                                                   # TID: Clean code (nombres, etc.)
+                                                   # RUF: Reglas específicas de Ruff
+#ignore = ["E501"]                              # Ignorar longitud de línea (Ruff la formatea)
+
+#[tool.ruff.format]
+#quote-style = "double"                         # Comillas dobles consistentes
+#indent-style = "space"                         # Espacios (no tabs)
+#skip-magic-trailing-comma = false              # Mantener comas finales para diffs limpios
+
+# ============================================================
+# 🔤 TYPE CHECKING CON MYPY
+# Fuerza type hints desde el inicio para código mantenible.
+# ============================================================
+#[tool.mypy]
+#python_version = "3.9"
+#warn_return_any = true                         # Advertir si una función retorna 'Any'
+#warn_unused_configs = true                     # Detectar configuración mypy no usada
+#disallow_untyped_defs = true                   # Requerir type hints en todas las funciones
+#check_untyped_defs = true                      # Verificar cuerpo de funciones sin hints
+#no_implicit_optional = true                    # Requerir Optional[T] explícito
+#strict_equality = true                         # Advertir comparaciones de tipos incompatibles
+
+# ============================================================
+# 📊 CONFIGURACIÓN DE COBERTURA
+# Reglas avanzadas para medición de cobertura de código.
+# ============================================================
+#[tool.coverage.run]
+#source = ["src/english_editor"]                # Solo medir código fuente (no tests)
+#branch = true                                  # Medir cobertura de branches (if/else)
+#parallel = true                                # Soporte para tests paralelos
+
+#[tool.coverage.report]
+#fail_under = 80                                # Fallar si cobertura total < 80%
+#show_missing = true                            # Mostrar líneas no cubiertas
+#skip_covered = true                            # Ocultar archivos 100% cubiertos
+#exclude_lines = [
+#  "pragma: no cover",                          # Excluir bloques marcados explícitamente
+#  "if __name__ == .__main__.:",
+#  "raise NotImplementedError",
+#]
+

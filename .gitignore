@@ -1,0 +1,138 @@
+# .gitignore para english-editor — Clean Architecture + Google Colab
+
+
+# ========================================
+# 🐍 Python Cache & Bytecode
+# ========================================
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+venv/
+env/
+ENV/
+
+# Archivos de Colab
+.ipynb_checkpoints/
+*.ipynb
+
+
+# ========================================
+# 📦 Distribución & Build Artifacts
+# ========================================
+*.egg-info/
+*.egg
+dist/
+build/
+*.whl
+*.tar.gz
+
+# ========================================
+# 🧪 Testing & Coverage
+# ========================================
+.coverage
+htmlcov/
+.coverage.*
+coverage.xml
+.pytest_cache/
+
+# ========================================
+# 💾 Logs & Runtime Artifacts (Google Colab)
+# ========================================
+system_execution.log
+*.log
+.colab_safe_to_modify
+.colab_env_restored
+
+# ========================================
+# 🔄 Checkpoints Temporales (NO ignorar checkpoints.json intencionales)
+# ========================================
+# ✅ MANTENER: checkpoints.json en sandbox_* (son parte del flujo controlado)
+# ❌ IGNORAR: checkpoints temporales o derivados
+checkpoints_*.json
+*.checkpoint
+*.tmp
+*.temp
+
+# ========================================
+# 📁 Assets & Media Generados
+# ========================================
+# ✅ MANTENER: assets/hello_world_2.mp4 (ejemplo documentado)
+# ❌ IGNORAR: outputs generados en sandboxes   
+sandbox_*/outputs/
+sandbox_*/inputs/*.processed.*
+sandbox_*/inputs/*_editado.*
+
+
+# Archivos grandes/temporales de audio
+*.wav
+*.mp3
+*.mp4
+output/
+temp/
+
+
+# ========================================
+# ☁️ Google Drive Sync (Colab)
+# ========================================
+.gdrive/
+.drive_sync/
+
+# ========================================
+# 🖼️ IDE / Editor Files
+# ========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ========================================
+# 🔒 Secrets & Credentials
+# ========================================
+.env
+*.env
+secrets/
+credentials.json
+token.pickle
+
+# ========================================
+# 📊 Datos de Prueba Temporales
+# ========================================
+# ✅ MANTENER: sample_data/ (dataset documentado para ejemplos)
+# ❌ IGNORAR: datos generados durante ejecución
+*.npy
+*.npz
+*.h5
+*.hdf5
+
+# ========================================
+# 🧹 Archivos de Sistema
+# ========================================
+*.bak
+*.orig
+*.rej
+*~
+
+# ========================================
+# ✅ EXCEPCIONES EXPLÍCITAS (NO ignorar)
+# ========================================  
+!sandbox_demo/checkpoints.json
+!sandbox_observability/checkpoints.json
+!assets/hello_world_2.mp4
+!sample_data/
+!sample_data/*.csv
+!sample_data/*.json
+!sample_data/README.md
+
+# ========================================
+# 💡 Notas de Mantenimiento
+# ========================================
+# - Los checkpoints.json en sandboxes son parte del flujo controlado y deben versionarse.
+# - Los outputs/ generados NO deben versionarse (son artefactos derivados).
+# - Los assets de ejemplo documentados (hello_world_2.mp4) se mantienen para reproducibilidad.
+# - sample_data/ contiene datasets de referencia para pruebas documentadas.
+# ========================================
