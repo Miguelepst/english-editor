@@ -1,10 +1,10 @@
 {
   "jobs": {
-    "ce4805ea5cea9fbe9a30eb1d3f61a6cb759aef36f10cc93cb03c0f33013ae203": {
-      "job_id": "8f76399d-3eb8-4d90-8e50-3185049a5ad4",
+    "159c8d5cf9eb5b5eae2380ecbc7c7cfbd13349d605d2b2c8f7d46def6218b104": {
+      "job_id": "345a4035-fd8d-4a66-af6e-6104d7ef246a",
       "filename": "clase_01.mp4",
       "file_size": 1048576,
-      "content_hash": "ce4805ea5cea9fbe9a30eb1d3f61a6cb759aef36f10cc93cb03c0f33013ae203",
+      "content_hash": "159c8d5cf9eb5b5eae2380ecbc7c7cfbd13349d605d2b2c8f7d46def6218b104",
       "output_path": "/content/english-editor/sandbox_demo/outputs/clase_01_editado.mp4",
       "status": "IN_PROGRESS",
       "checkpoints": [
@@ -13,32 +13,32 @@
           "end": 300.0
         }
       ],
-      "created_at": "2026-02-15T21:27:26.353973",
-      "updated_at": "2026-02-15T21:27:26.363042",
+      "created_at": "2026-02-16T20:38:29.102349",
+      "updated_at": "2026-02-16T20:38:29.103533",
       "error_message": null
     },
-    "4a1b91e385c2148d4c48f7ebd5b0664d6095050cb8e0490c5dcdd4e5f2aa4a3c": {
-      "job_id": "0ff3571d-cbd4-4670-86ea-1585bed53046",
+    "175459f7b564af7eb0dcafe8c7900d5ce856a94671f2bedac362a460b076cfdb": {
+      "job_id": "fa6fb867-a2a9-47c9-9e35-8ca6c371040c",
       "filename": "clase_02.mp4",
       "file_size": 1048576,
-      "content_hash": "4a1b91e385c2148d4c48f7ebd5b0664d6095050cb8e0490c5dcdd4e5f2aa4a3c",
+      "content_hash": "175459f7b564af7eb0dcafe8c7900d5ce856a94671f2bedac362a460b076cfdb",
       "output_path": "/content/english-editor/sandbox_demo/outputs/clase_02_editado.mp4",
       "status": "PENDING",
       "checkpoints": [],
-      "created_at": "2026-02-15T21:27:27.375226",
-      "updated_at": "2026-02-15T21:27:27.375234",
+      "created_at": "2026-02-16T20:38:30.105022",
+      "updated_at": "2026-02-16T20:38:30.105027",
       "error_message": null
     },
-    "9e12312813ceb172fe6448e097e91e3f74a666663b0510efbf90b07a57f52d4e": {
-      "job_id": "8838964e-3c8c-4a20-80ed-4ab9a085cceb",
+    "ea812c18bf3fe157e92f79614187ae22c63e386516a7cffae2d5c98e5866793a": {
+      "job_id": "66c61fd5-e372-494d-8da0-b4e2a01d950c",
       "filename": "clase_03.mp4",
       "file_size": 1048576,
-      "content_hash": "9e12312813ceb172fe6448e097e91e3f74a666663b0510efbf90b07a57f52d4e",
+      "content_hash": "ea812c18bf3fe157e92f79614187ae22c63e386516a7cffae2d5c98e5866793a",
       "output_path": "/content/english-editor/sandbox_demo/outputs/clase_03_editado.mp4",
       "status": "PENDING",
       "checkpoints": [],
-      "created_at": "2026-02-15T21:27:39.130690",
-      "updated_at": "2026-02-15T21:27:39.130694",
+      "created_at": "2026-02-16T20:40:25.055956",
+      "updated_at": "2026-02-16T20:40:25.055962",
       "error_message": null
     }
   }
