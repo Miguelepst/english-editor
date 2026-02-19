@@ -59,7 +59,7 @@ checkpoints_*.json
 # 📁 Assets & Media Generados
 # ========================================
 # ✅ MANTENER: assets/hello_world_2.mp4 (ejemplo documentado)
-# ❌ IGNORAR: outputs generados en sandboxes   
+# ❌ IGNORAR: outputs generados en sandboxes
 sandbox_*/outputs/
 sandbox_*/inputs/*.processed.*
 sandbox_*/inputs/*_editado.*
@@ -119,7 +119,7 @@ token.pickle
 
 # ========================================
 # ✅ EXCEPCIONES EXPLÍCITAS (NO ignorar)
-# ========================================  
+# ========================================
 !sandbox_demo/checkpoints.json
 !sandbox_observability/checkpoints.json
 !assets/hello_world_2.mp4
@@ -127,6 +127,36 @@ token.pickle
 !sample_data/*.csv
 !sample_data/*.json
 !sample_data/README.md
+
+
+
+# ========================================
+# ✅ New to order
+# ========================================
+
+  # Add 1:
+output/*.wav
+output/*.mp3
+output/temp_*
+  #__pycache__/
+*.pyc
+  #.pytest_cache/
+  #.coverage
+
+
+
+  
+  # Add 2:
+  
+  #*.py[cod]       # “Ignora cualquier archivo .pyc, .pyo o .pyd”.
+  #*.egg-info/     # real
+  #dist/
+  #build/
+  
+  
+
+
+
 
 # ========================================
 # 💡 Notas de Mantenimiento
