@@ -1,4 +1,3 @@
-
 # ============================================================
 # 📦 METADATOS DEL BUILD SYSTEM
 # Define cómo setuptools construye tu paquete desde el código fuente.
@@ -15,24 +14,33 @@ build-backend = "setuptools.build_meta"       # Backend estándar de Python mode
 #    Ej: "english-editor" → "english_editor" en imports.
 # ============================================================
 [project]
-name = "english_editor"                        # ✅ Normalizado: guiones → guiones bajos
+name = "english_editor"                        # ✅ Normalizado: guiones → guiones bajos # name = "english_editor"
 version = "0.1.0"
 description = "Modular Monolith Scaffold — Vertical Slice Architecture"
 readme = "README.md"
 requires-python = ">=3.9"                      # Versión mínima de Python requerida
-license = {text = "MIT"}                     # Licencia estándar para proyectos abiertos
+license = {text = "MIT"}                     # Licencia estándar para proyectos abiertos, ✅ Las llaves dobles se convierten en literales en el output
 authors = [
   {name = "Developer", email = "developer@example.com"}
 ]
-dependencies = []                              # Dependencias de producción (vacío inicial)
+dependencies = [
+    "librosa>=0.10.0",
+    "numpy>=1.24.0",
+    "soundfile>=0.12.0",
+]                              # Dependencias de producción (vacío inicial)
+
+
 optional-dependencies.dev = [                  # Dependencias de desarrollo (opcionales)
-  "pytest>=7.0",                               # Framework de testing estándar industria
+  "pytest>=8.0.0",                             # Framework de testing estándar industria
   "pytest-cov>=4.0",                           # Cobertura de código integrada
   "pytest-sugar>=0.9",                         # Mejora visual de salida (opcional)
+  "pytest-mock>=3.12.0",
+  "pytest-timeout>=2.3.0",
   "ruff>=0.1",                                 # Linter + formateador moderno (100x más rápido)
   "mypy>=1.0",                                 # Type checking estático estricto
-#  "rich>=13.0",                                # Salida de consola bonita para demos
+  "rich>=13.0",                                # Salida de consola bonita para demos
 ]
+
 
 # ============================================================
 # 🔍 DESCUBRIMIENTO DE PAQUETES
@@ -49,8 +57,16 @@ where = ["src"]                                # Buscar paquetes dentro de src/
 [tool.pytest.ini_options]
 pythonpath = ["src"]                           # Agrega src/ al PYTHONPATH automáticamente
 testpaths = ["tests"]                          # Directorios donde buscar tests
+markers = [
+  "unit: Tests unitarios rápidos (mocks, sin I/O real)",
+  "integration: Tests de integración (lentos, requieren ML y dependencias externas)",
+  "e2e: pruebas end-to-end", 
+  "slow: Tests que tardan más de 1 segundo",
+  "performance: Benchmarks y pruebas de carga o recursos"  # <--- AGREGAR ESTA
+]
+
 addopts = [
-  "-v",                                        # Modo verbose (muestra nombre de cada test)
+  "-v",                                         # Modo verbose (muestra nombre de cada test)
 #  "--strict-markers",                          # Requiere que todos los markers estén definidos
 #  "--tb=short",                                # Traceback conciso en fallos
 #  "--cov=src/english_editor",                  # Medir cobertura solo en código fuente
@@ -60,6 +76,16 @@ addopts = [
 ]
 console_output_style = "progress"              # Barra de progreso visual durante tests
 xfail_strict = true                            # Tests marcados xfail deben fallar explícitamente
+
+# Timeout global para tests (evita tests infinitos)
+timeout = 300
+
+
+# Ignorar advertencias específicas
+filterwarnings = [
+    "ignore::UserWarning:huggingface_hub.utils._auth",
+    "ignore::DeprecationWarning",
+]
 
 # ============================================================
 # 🧹 LINTING CON RUFF
@@ -113,4 +139,3 @@ xfail_strict = true                            # Tests marcados xfail deben fall
 #  "if __name__ == .__main__.:",
 #  "raise NotImplementedError",
 #]
-
