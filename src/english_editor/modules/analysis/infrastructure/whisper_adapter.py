@@ -5,10 +5,10 @@ Adaptador de infraestructura para Whisper (OpenAI).
 Arquitectura: Infrastructure Layer
 Responsabilidad: Implementar SpeechAnalysisEngine usando Whisper localmente.
 """
+
 from __future__ import annotations
 from typing import List
 from pathlib import Path
-import math
 
 # Imports de terceros (Solo permitidos en capa de infraestructura)
 try:
@@ -18,16 +18,22 @@ try:
     import numpy as np
 except ImportError:
     # Fallback para que el código sea importable sin dependencias instaladas (CI/CD)
-    whisper = None
-    torch = None
-    librosa = None
-    np = None
+    # whisper = None
+    whisper = None  # type: ignore[assignment]
+    # torch = None
+    torch = None  # type: ignore[assignment]
+    # librosa = None
+    librosa = None  # type: ignore[assignment]
+    # np = None
+    np = None  # type: ignore[assignment]
 
-from english_editor.modules.analysis.domain.ports.engine import SpeechAnalysisEngine
 from english_editor.modules.analysis.domain.value_objects import TimeRange
 from english_editor.modules.analysis.domain.exceptions import (
-    AudioFileError, EngineRuntimeError, MemoryLimitExceeded
+    AudioFileError,
+    EngineRuntimeError,
+    MemoryLimitExceeded,
 )
+
 
 class WhisperLocalAdapter:
     """
@@ -37,11 +43,13 @@ class WhisperLocalAdapter:
 
     # Configuración de chunking (Constantes de Infraestructura)
     CHUNK_DURATION_SEC = 600  # 10 minutos por ventana (balance RAM/CPU)
-    OVERLAP_SEC = 30          # 30 segundos de solapamiento para continuidad
+    OVERLAP_SEC = 30  # 30 segundos de solapamiento para continuidad
 
     def __init__(self, model_size: str = "tiny.en"):
         if whisper is None:
-            raise EngineRuntimeError("Las librerías 'whisper', 'librosa' o 'torch' no están instaladas.")
+            raise EngineRuntimeError(
+                "Las librerías 'whisper', 'librosa' o 'torch' no están instaladas."
+            )
 
         self.model_size = model_size
         self._model = None  # Lazy loading
@@ -79,7 +87,9 @@ class WhisperLocalAdapter:
         current_start = 0.0
         while current_start < total_duration:
             # Calcular ventana actual
-            duration_to_load = min(self.CHUNK_DURATION_SEC, total_duration - current_start)
+            duration_to_load = min(
+                self.CHUNK_DURATION_SEC, total_duration - current_start
+            )
 
             try:
                 # Carga PARCIAL del audio (streaming desde disco -> RAM baja)
@@ -88,7 +98,7 @@ class WhisperLocalAdapter:
                     audio_path,
                     sr=16000,
                     offset=current_start,
-                    duration=duration_to_load
+                    duration=duration_to_load,
                 )
             except Exception as e:
                 raise EngineRuntimeError(f"Error leyendo chunk {current_start}s: {e}")
@@ -96,11 +106,11 @@ class WhisperLocalAdapter:
             # 3. Inferencia (Transcribe)
             # fp16=False necesario en CPU
             try:
-                result = self._model.transcribe(
-                    audio_chunk,
-                    fp16=False,
-                    language="en",
-                    verbose=False
+
+                # result = self._model.transcribe(
+                # ✅ DESPUÉS
+                result = self._model.transcribe(  # type: ignore[attr-defined]
+                    audio_chunk, fp16=False, language="en", verbose=False
                 )
             except RuntimeError as e:
                 if "memory" in str(e).lower():
@@ -120,7 +130,9 @@ class WhisperLocalAdapter:
                 # Crear VO y añadir a la lista cruda
                 # Validamos que no sean micro-alucinaciones (< 0.1s)
                 if seg_end - seg_start > 0.1:
-                    raw_ranges.append(TimeRange(round(global_start, 2), round(global_end, 2)))
+                    raw_ranges.append(
+                        TimeRange(round(global_start, 2), round(global_end, 2))
+                    )
 
             # Avanzar ventana
             current_start += step

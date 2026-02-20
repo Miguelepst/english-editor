@@ -5,13 +5,14 @@ Adaptadores de Infraestructura para Análisis de Audio.
 Arquitectura: Infrastructure Layer
 Responsabilidad: Implementar puertos del dominio usando tecnologías concretas (o Fakes).
 """
+
 from __future__ import annotations
 from typing import List, Optional
 from pathlib import Path
 
-from english_editor.modules.analysis.domain.ports.engine import SpeechAnalysisEngine
 from english_editor.modules.analysis.domain.value_objects import TimeRange
 from english_editor.modules.analysis.domain.exceptions import AudioFileError
+
 
 class FakeSpeechEngine:
     """

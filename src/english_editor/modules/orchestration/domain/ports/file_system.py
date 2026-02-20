@@ -6,9 +6,11 @@ Arquitectura: Modular Monolith
 Capa: Domain -> Ports
 Responsabilidad: Abstraer verificación de existencia y cálculo de integridad.
 """
+
 from abc import ABC, abstractmethod
 from typing import List
 from english_editor.modules.orchestration.domain.value_objects import SourceFingerprint
+
 
 class FileSystemPort(ABC):
     """

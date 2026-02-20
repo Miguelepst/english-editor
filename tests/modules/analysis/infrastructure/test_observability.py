@@ -7,14 +7,17 @@ Validación Completa:
   2. Manejo de Errores (Exceptions)
   3. Métricas SRE (Latency + RAM Saturation)
 """
+
 import pytest
 import json
-import time
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 # Import del SUT
-from english_editor.modules.analysis.infrastructure.observability import ObservabilityService
+from english_editor.modules.analysis.infrastructure.observability import (
+    ObservabilityService,
+)
+
 
 class TestObservabilityService:
 
@@ -50,7 +53,7 @@ class TestObservabilityService:
         """
         # Arrange: Simulamos consumo de RAM (100 MB)
         process_mock = MagicMock()
-        process_mock.memory_info.return_value.rss = 104857600 # 100 MB en bytes
+        process_mock.memory_info.return_value.rss = 104857600  # 100 MB en bytes
         mock_psutil.Process.return_value = process_mock
 
         @ObservabilityService.measure_latency("sre_op")
@@ -77,7 +80,9 @@ class TestObservabilityService:
 
     @patch("english_editor.modules.analysis.infrastructure.observability.psutil")
     @patch("english_editor.modules.analysis.infrastructure.observability.logger")
-    def test_measure_latency_should_reraise_and_log_crash_ram(self, mock_logger, mock_psutil):
+    def test_measure_latency_should_reraise_and_log_crash_ram(
+        self, mock_logger, mock_psutil
+    ):
         """
         Error Path SRE:
         Si falla, debe loguear cuánta RAM había al momento del crash y re-lanzar error.
@@ -85,7 +90,7 @@ class TestObservabilityService:
         # Arrange: ¡AQUÍ ESTABA EL ERROR!
         # Debemos configurar el mock igual que arriba para que devuelva un float.
         process_mock = MagicMock()
-        process_mock.memory_info.return_value.rss = 52428800 # 50 MB en bytes
+        process_mock.memory_info.return_value.rss = 52428800  # 50 MB en bytes
         mock_psutil.Process.return_value = process_mock
 
         @ObservabilityService.measure_latency("fail_op")
@@ -113,8 +118,10 @@ class TestObservabilityService:
     @patch("english_editor.modules.analysis.infrastructure.observability.logger")
     def test_context_extraction(self, mock_logger):
         """Si se pasa un Path, debe salir en los logs."""
+
         @ObservabilityService.measure_latency("file_op")
-        def read_file(f): pass
+        def read_file(f):
+            pass
 
         read_file(Path("video.mp4"))
 

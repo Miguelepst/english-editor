@@ -1,0 +1,40 @@
+name: Quality Contract (CI)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout del código
+      uses: actions/checkout@v3
+
+    - name: Configurar Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: Instalar dependencias de validación
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest black ruff mypy
+
+    - name: 🎨 Verificación de Formato (Black)
+      run: black --check src/ tests/
+
+    - name: 🔍 Análisis Estático (Ruff)
+      run: ruff check src/ tests/
+
+    - name: 🛡️ Verificación de Tipos (Mypy)
+      run: mypy src/ --ignore-missing-imports
+
+    - name: 🧪 Tests Unitarios del Dominio y Aplicación
+      run: |
+        # Solo ejecutamos unit tests en CI rápido. 
+        # Integración/E2E se pueden mover a un job nocturno o manual si requieren dependencias pesadas (Whisper/Torch)
+        pytest tests/modules/analysis/domain tests/modules/analysis/application -v

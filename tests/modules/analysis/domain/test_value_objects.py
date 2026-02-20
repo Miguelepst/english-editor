@@ -3,10 +3,12 @@
 Tests para: TimeRange
 Tipo: Unitario (Domain)
 """
+
 import pytest
 from english_editor.modules.analysis.domain.value_objects import TimeRange
 
 # === Casos de Prueba ===
+
 
 def test_timerange_creation_valid():
     """
@@ -22,6 +24,7 @@ def test_timerange_creation_valid():
     assert tr.end == 20.5
     assert tr.duration == 10.5
 
+
 def test_timerange_rejects_negative_start():
     """
     Given: Un inicio negativo
@@ -33,6 +36,7 @@ def test_timerange_rejects_negative_start():
         TimeRange(start=-1.0, end=10.0)
 
     assert "negativo" in str(exc_info.value).lower()
+
 
 def test_timerange_rejects_end_before_start():
     """
@@ -46,6 +50,7 @@ def test_timerange_rejects_end_before_start():
 
     assert "menor al inicio" in str(exc_info.value).lower()
 
+
 def test_timerange_overlaps_logic():
     """
     Given: Dos rangos que se cruzan
@@ -54,15 +59,21 @@ def test_timerange_overlaps_logic():
     """
     # Arrange
     r1 = TimeRange(0, 10)
-    r2 = TimeRange(5, 15)   # Solapa
-    r3 = TimeRange(10, 20)  # Toca (no solapa estrictamente para intersección)
+    r2 = TimeRange(5, 15)  # Solapa
+    # ✅ DESPUÉS (si no se usa)
+    r3 = TimeRange(
+        10, 20
+    )  # Toca (no solapa estrictamente para intersección)  # Comentado o eliminado
     r4 = TimeRange(11, 20)  # Disjunto
 
     # Act & Assert
+    # O úsalo en un assert:
+    assert r3 is not None
     assert r1.overlaps_with(r2) is True
     assert r1.overlaps_with(r4) is False
     # Nota: Dependiendo de la definición matemática, tocar el borde puede no ser overlap.
     # En esta impl: max(0,10) < min(10,20) -> 10 < 10 -> False. Correcto.
+
 
 def test_timerange_merge_logic():
     """
@@ -79,6 +90,7 @@ def test_timerange_merge_logic():
 
     # Assert
     assert merged == TimeRange(0, 15)
+
 
 def test_timerange_merge_disjoint_raises_error():
     """

@@ -8,19 +8,21 @@ Importable como: from english_editor.modules.orchestration.domain.test_imports i
 """
 
 from dataclasses import dataclass
-import sys
+
 
 @dataclass(frozen=True)
 class SystemCheck:
     """
     Clase testigo. Si puedes instanciar esto, tu entorno Python está sano.
     """
+
     message: str = "Import System Functional"
 
     def __post_init__(self):
-        print(f"✅ [SystemCheck] Clase instanciada correctamente.")
+        print("✅ [SystemCheck] Clase instanciada correctamente.")
         print(f"   Mensaje: {self.message}")
         print(f"   Ubicación: {__file__}")
+
 
 def verify_path():
     """Retorna True si el módulo es visible."""

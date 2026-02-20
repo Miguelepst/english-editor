@@ -3,9 +3,9 @@
 Tests para: AnalyzeAudio (Use Case)
 Tipo: Unitario (Application)
 """
+
 import pytest
 from pathlib import Path
-from unittest.mock import Mock
 
 from english_editor.modules.analysis.application.use_cases import AnalyzeAudio
 from english_editor.modules.analysis.infrastructure.adapters import FakeSpeechEngine
@@ -14,17 +14,21 @@ from english_editor.modules.analysis.domain.exceptions import AudioFileError
 
 # === Fixtures ===
 
+
 @pytest.fixture
 def fake_engine():
     """Retorna un motor fake limpio para cada test."""
     return FakeSpeechEngine()
+
 
 @pytest.fixture
 def use_case(fake_engine):
     """Inyecta el motor fake en el caso de uso."""
     return AnalyzeAudio(engine=fake_engine)
 
+
 # === Casos de Prueba ===
+
 
 def test_analyze_audio_success(use_case, tmp_path):
     """
@@ -45,6 +49,7 @@ def test_analyze_audio_success(use_case, tmp_path):
     assert len(result) == 1
     assert result[0] == TimeRange(0.0, 10.0)
 
+
 def test_analyze_audio_fails_if_file_missing(use_case):
     """
     Given: Una ruta a un archivo inexistente
@@ -60,6 +65,7 @@ def test_analyze_audio_fails_if_file_missing(use_case):
 
     assert "no existe" in str(exc.value).lower()
 
+
 def test_analyze_audio_propagates_engine_errors(use_case, tmp_path):
     """
     Given: Un archivo que provoca error en el motor (simulado con 'error' en nombre)
@@ -73,6 +79,7 @@ def test_analyze_audio_propagates_engine_errors(use_case, tmp_path):
     # Act & Assert
     with pytest.raises(AudioFileError):
         use_case.execute(corrupted_file)
+
 
 def test_analyze_audio_with_fixed_result(tmp_path):
     """

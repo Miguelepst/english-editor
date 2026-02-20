@@ -29,9 +29,9 @@ def test_fingerprint_should_detect_corruption_same_filename():
     )
 
     # Act & Assert
-    assert not original.matches(corrupted), (
-        "Debe detectar cambio de contenido aunque el nombre sea igual"
-    )
+    assert not original.matches(
+        corrupted
+    ), "Debe detectar cambio de contenido aunque el nombre sea igual"
     assert original != corrupted
 
 
@@ -49,9 +49,9 @@ def test_fingerprint_should_recognize_renamed_file():
     )
 
     # Act & Assert
-    assert file_a.matches(file_b), (
-        "Debe identificar que es el mismo contenido subyacente"
-    )
+    assert file_a.matches(
+        file_b
+    ), "Debe identificar que es el mismo contenido subyacente"
 
 
 def test_fingerprint_validation_rules():

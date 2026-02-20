@@ -6,6 +6,7 @@ Arquitectura: Modular Monolith
 Capa: Domain
 Responsabilidad: Gestionar el ciclo de vida y estado mutable de un trabajo de procesamiento.
 """
+
 from __future__ import annotations
 import uuid
 from dataclasses import dataclass, field
@@ -19,12 +20,14 @@ from .value_objects import SourceFingerprint, JobStatus
 # ✅ IDENTIDAD: Las entidades se comparan por ID, no por atributos.
 # ✅ ESTADO: Mutan de forma controlada a través de métodos (no setters directos).
 
+
 @dataclass
 class ProcessingJob:
     """
     Agregado Raíz (Root Aggregate) que representa un trabajo de edición en curso.
     Controla la consistencia entre el archivo fuente, el estado y los checkpoints.
     """
+
     job_id: str
     source: SourceFingerprint
     output_path: str
@@ -43,7 +46,7 @@ class ProcessingJob:
             job_id=str(uuid.uuid4()),
             source=source,
             output_path=output_path,
-            created_at=datetime.now()
+            created_at=datetime.now(),
         )
 
     def mark_segment_processed(self, start_time: float, end_time: float) -> None:
@@ -52,9 +55,9 @@ class ProcessingJob:
         Idempotente: Si el segmento ya existe, no duplica lógica (aunque aquí simplificamos).
         """
         if self.status in (JobStatus.COMPLETED, JobStatus.FAILED):
-             # Reactivar si estaba fallido, o loggear si estaba completo?
-             # Por simplicidad, si agregamos progreso, vuelve a IN_PROGRESS
-             self.status = JobStatus.IN_PROGRESS
+            # Reactivar si estaba fallido, o loggear si estaba completo?
+            # Por simplicidad, si agregamos progreso, vuelve a IN_PROGRESS
+            self.status = JobStatus.IN_PROGRESS
 
         # Validar integridad básica del segmento
         if start_time < 0 or end_time <= start_time:
@@ -73,9 +76,9 @@ class ProcessingJob:
     def complete_job(self) -> None:
         """Finaliza el trabajo exitosamente."""
         if not self._checkpoints and self.source.file_size_bytes > 0:
-             # Regla de negocio: No se puede completar sin procesar nada (salvo archivos vacíos)
-             # (Esta es una regla simplificada, en realidad dependería del dominio)
-             pass
+            # Regla de negocio: No se puede completar sin procesar nada (salvo archivos vacíos)
+            # (Esta es una regla simplificada, en realidad dependería del dominio)
+            pass
 
         self.status = JobStatus.COMPLETED
         self.updated_at = datetime.now()

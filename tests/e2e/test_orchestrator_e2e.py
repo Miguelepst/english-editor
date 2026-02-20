@@ -51,9 +51,9 @@ def test_performance_on_huge_files(tmp_path, big_file_factory):
     assert len(jobs) == 1
     # IMPORTANTE: Si lee todo el archivo, tardaría >10s. Si tarda <1s, la optimización funciona.
     print(f"\n⏱️ Tiempo de procesamiento para 5GB: {duration:.4f}s")
-    assert duration < 1.0, (
-        "El sistema es demasiado lento, parece estar leyendo el archivo completo."
-    )
+    assert (
+        duration < 1.0
+    ), "El sistema es demasiado lento, parece estar leyendo el archivo completo."
     assert (
         jobs[0].source.file_size_bytes > 5 * 10**9
     )  # Confirmar que detecta el tamaño correcto
@@ -89,9 +89,9 @@ def test_integrity_check_tail_mutation(tmp_path, big_file_factory):
 
     # Assert
     assert fp_original.file_size_bytes == fp_modified.file_size_bytes
-    assert fp_original.content_hash != fp_modified.content_hash, (
-        "El hash no cambió tras modificar el final del archivo. ¿Estamos leyendo la cola?"
-    )
+    assert (
+        fp_original.content_hash != fp_modified.content_hash
+    ), "El hash no cambió tras modificar el final del archivo. ¿Estamos leyendo la cola?"
 
 
 def test_full_lifecycle_crash_recovery(tmp_path):

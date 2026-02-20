@@ -6,6 +6,7 @@ Arquitectura: Modular Monolith
 Capa: Application
 Responsabilidad: Coordinar la creación, recuperación y filtrado de trabajos (Batch/Idempotencia).
 """
+
 from typing import Iterator, List
 import os
 import logging
@@ -18,11 +19,10 @@ from english_editor.modules.orchestration.domain.ports.file_system import FileSy
 """
 Casos de Uso con Logging Estructurado.
 """
-#import logging
+# import logging
 
 # Logger específico para la capa de aplicación
 logger = logging.getLogger("orchestrator.app")
-
 
 
 class JobOrchestrator:
@@ -39,7 +39,9 @@ class JobOrchestrator:
         self.repo = repository
         self.fs = file_system
 
-    def prepare_jobs(self, input_path: str, output_dir: str, force: bool = False) -> Iterator[ProcessingJob]:
+    def prepare_jobs(
+        self, input_path: str, output_dir: str, force: bool = False
+    ) -> Iterator[ProcessingJob]:
         """
         Analiza la entrada y genera un flujo de trabajos.
         """
@@ -75,17 +77,21 @@ class JobOrchestrator:
             existing_job = self.repo.find_last_by_fingerprint(fingerprint)
 
             if existing_job and existing_job.status.can_resume() and not force:
-                logger.info(f"[RESUME] Job encontrado para: {filename} (ID: {existing_job.job_id})")
+                logger.info(
+                    f"[RESUME] Job encontrado para: {filename} (ID: {existing_job.job_id})"
+                )
                 stats["resumed"] += 1
                 # REANUDAR: Devolvemos el trabajo con su progreso guardado
                 yield existing_job
             else:
                 if existing_job:
-                    logger.info(f"[RESTART] Job previo terminado o inválido, iniciando nuevo para: {filename}")
+                    logger.info(
+                        f"[RESTART] Job previo terminado o inválido, iniciando nuevo para: {filename}"
+                    )
 
                 # NUEVO: Creamos un trabajo limpio
                 new_job = ProcessingJob.create_new(fingerprint, expected_output)
-                self.repo.save(new_job) # Persistir estado inicial inmediatamente
+                self.repo.save(new_job)  # Persistir estado inicial inmediatamente
                 logger.info(f"[NEW] Job creado: {new_job.job_id} para {filename}")
                 stats["new"] += 1
                 yield new_job
@@ -93,7 +99,6 @@ class JobOrchestrator:
             stats["processed"] += 1
 
         logger.info(f"Resumen de Batch: {stats}")
-
 
     def _resolve_input_files(self, path: str) -> List[str]:
         """Helper para aplanar directorios o validar archivos individuales."""
@@ -104,8 +109,10 @@ class JobOrchestrator:
 
         # Simplificación: Asumimos que FileSystemPort.list_files maneja la lógica de descubrimiento
         # Si es un archivo directo, lo devolvemos en lista.
-        if path.endswith(('.mp4', '.mp3', '.wav')): # Extensiones harcodeadas por brevedad, ideal config
+        if path.endswith(
+            (".mp4", ".mp3", ".wav")
+        ):  # Extensiones harcodeadas por brevedad, ideal config
             return [path]
 
         # Si es directorio (asumimos por falta de extensión o lógica de negocio), pedimos listar.
-        return self.fs.list_files(path, extensions=['.mp4', '.mp3', '.wav'])
+        return self.fs.list_files(path, extensions=[".mp4", ".mp3", ".wav"])

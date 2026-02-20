@@ -3,6 +3,7 @@
 Tests para: FakeSpeechEngine
 Tipo: Unitario (Infrastructure)
 """
+
 import pytest
 from pathlib import Path
 from english_editor.modules.analysis.infrastructure.adapters import FakeSpeechEngine
@@ -10,6 +11,7 @@ from english_editor.modules.analysis.domain.value_objects import TimeRange
 from english_editor.modules.analysis.domain.exceptions import AudioFileError
 
 # === Casos de Prueba ===
+
 
 def test_fake_engine_returns_default_range():
     """
@@ -28,6 +30,7 @@ def test_fake_engine_returns_default_range():
     assert len(result) == 1
     assert result[0] == TimeRange(0.0, 10.0)
 
+
 def test_fake_engine_simulates_silence():
     """
     Given: Un archivo con 'silence' en el nombre
@@ -44,6 +47,7 @@ def test_fake_engine_simulates_silence():
     # Assert
     assert result == []
 
+
 def test_fake_engine_simulates_error():
     """
     Given: Un archivo con 'error' en el nombre
@@ -57,6 +61,7 @@ def test_fake_engine_simulates_error():
     # Act & Assert
     with pytest.raises(AudioFileError):
         engine.detect_voice_activity(path)
+
 
 def test_fake_engine_respects_injected_result():
     """

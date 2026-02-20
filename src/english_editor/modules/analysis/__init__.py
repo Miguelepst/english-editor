@@ -2,6 +2,7 @@
 """
 Módulo de Análisis de Audio.
 """
+
 from __future__ import annotations
 
 # Domain

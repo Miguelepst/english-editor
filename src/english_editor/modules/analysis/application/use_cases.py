@@ -5,6 +5,7 @@ Casos de Uso para el Análisis de Audio.
 Arquitectura: Application Layer
 Responsabilidad: Orquestar la detección de voz delegando en la infraestructura.
 """
+
 from __future__ import annotations
 from typing import List
 from pathlib import Path
@@ -14,7 +15,10 @@ from english_editor.modules.analysis.domain.ports.engine import SpeechAnalysisEn
 from english_editor.modules.analysis.domain.exceptions import AudioFileError
 
 # ✅ Nuevo Import de Infraestructura (Observabilidad)
-from english_editor.modules.analysis.infrastructure.observability import ObservabilityService
+from english_editor.modules.analysis.infrastructure.observability import (
+    ObservabilityService,
+)
+
 
 class AnalyzeAudio:
     """
@@ -51,7 +55,7 @@ class AnalyzeAudio:
             raise AudioFileError(f"El archivo no existe: {file_path}")
 
         if not file_path.is_file():
-             raise AudioFileError(f"La ruta no es un archivo: {file_path}")
+            raise AudioFileError(f"La ruta no es un archivo: {file_path}")
 
         # 2. Delegación al Dominio/Infraestructura
         # Nota: El motor (whisper) se encargará del chunking y la RAM internamente.

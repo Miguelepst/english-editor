@@ -8,6 +8,7 @@ Responsabilidad:
     2. Instanciar el Composition Root.
     3. Formatear la salida (JSON/Texto).
 """
+
 import argparse
 import sys
 import json
@@ -17,27 +18,30 @@ from pathlib import Path
 # Imports del núcleo (asumiendo ejecución como módulo o con PYTHONPATH correcto)
 # Si se ejecuta directamente, el path debe estar configurado externamente o aquí.
 try:
-    from english_editor.modules.analysis.infrastructure.whisper_adapter import WhisperLocalAdapter
+    from english_editor.modules.analysis.infrastructure.whisper_adapter import (
+        WhisperLocalAdapter,
+    )
     from english_editor.modules.analysis.application.use_cases import AnalyzeAudio
     from english_editor.modules.analysis.domain.exceptions import AnalysisError
 except ImportError:
     # Hack para desarrollo local si no está instalado como paquete
     sys.path.append(str(Path(__file__).resolve().parents[4]))
-    from english_editor.modules.analysis.infrastructure.whisper_adapter import WhisperLocalAdapter
+    from english_editor.modules.analysis.infrastructure.whisper_adapter import (
+        WhisperLocalAdapter,
+    )
     from english_editor.modules.analysis.application.use_cases import AnalyzeAudio
     from english_editor.modules.analysis.domain.exceptions import AnalysisError
+
 
 def setup_parser() -> argparse.ArgumentParser:
     """Configura los argumentos aceptados por la herramienta."""
     parser = argparse.ArgumentParser(
         description="🇬🇧 English Editor - Speech Analysis Tool",
-        epilog="Ejemplo: python -m english_editor.modules.analysis.presentation.cli input.wav --json"
+        epilog="Ejemplo: python -m english_editor.modules.analysis.presentation.cli input.wav --json",
     )
 
     parser.add_argument(
-        "input_file",
-        type=Path,
-        help="Ruta al archivo de audio (.wav, .mp3, etc.)"
+        "input_file", type=Path, help="Ruta al archivo de audio (.wav, .mp3, etc.)"
     )
 
     parser.add_argument(
@@ -45,22 +49,24 @@ def setup_parser() -> argparse.ArgumentParser:
         type=str,
         default="tiny.en",
         choices=["tiny.en", "base.en", "small.en"],
-        help="Tamaño del modelo Whisper (default: tiny.en)"
+        help="Tamaño del modelo Whisper (default: tiny.en)",
     )
 
     parser.add_argument(
         "--json",
         action="store_true",
-        help="Salida en formato JSON (útil para tuberías/pipes)"
+        help="Salida en formato JSON (útil para tuberías/pipes)",
     )
 
     parser.add_argument(
-        "--verbose", "-v",
+        "--verbose",
+        "-v",
         action="store_true",
-        help="Muestra logs detallados de progreso"
+        help="Muestra logs detallados de progreso",
     )
 
     return parser
+
 
 def format_output_text(segments, duration_sec: float):
     """Presentación amigable para humanos."""
@@ -73,10 +79,13 @@ def format_output_text(segments, duration_sec: float):
         print("   (Sin actividad de voz detectada)")
     else:
         for i, seg in enumerate(segments, 1):
-            print(f"{i:<4} | {seg.start:>8.2f}s | {seg.end:>8.2f}s | {seg.duration:>8.2f}s")
+            print(
+                f"{i:<4} | {seg.start:>8.2f}s | {seg.end:>8.2f}s | {seg.duration:>8.2f}s"
+            )
 
     print("=" * 60)
     print(f"Total segmentos: {len(segments)}")
+
 
 def format_output_json(segments):
     """Presentación para máquinas (Machine Readable)."""
@@ -85,6 +94,7 @@ def format_output_json(segments):
         for seg in segments
     ]
     print(json.dumps(data, indent=2))
+
 
 def main():
     parser = setup_parser()
@@ -106,7 +116,7 @@ def main():
 
         # 3. Ejecución
         if args.verbose:
-            print(f"🚀 Procesando audio...")
+            print("🚀 Procesando audio...")
 
         start_time = time.time()
         segments = use_case.execute(args.input_file)
@@ -129,6 +139,7 @@ def main():
         # Errores inesperados (Bugs)
         print(f"❌ Error Crítico: {e}", file=sys.stderr)
         sys.exit(3)
+
 
 if __name__ == "__main__":
     main()
