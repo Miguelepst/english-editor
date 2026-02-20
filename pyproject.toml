@@ -36,10 +36,15 @@ optional-dependencies.dev = [                  # Dependencias de desarrollo (opc
   "pytest-sugar>=0.9",                         # Mejora visual de salida (opcional)
   "pytest-mock>=3.12.0",
   "pytest-timeout>=2.3.0",
+  "pytest-benchmark>=5.2.3",                   # Pruebas de rendimiento, # Dejarlo libre obliga a pip a traer la más actual compatible
+                                               # (>=5.2.3) proteger tu proyecto de car al futuro. 
+                                               # Ahora sí tienes un valor real y justificado
+
   "ruff>=0.1",                                 # Linter + formateador moderno (100x más rápido)
   "mypy>=1.0",                                 # Type checking estático estricto
   "rich>=13.0",                                # Salida de consola bonita para demos
 ]
+
 
 
 # ============================================================
@@ -60,7 +65,7 @@ testpaths = ["tests"]                          # Directorios donde buscar tests
 markers = [
   "unit: Tests unitarios rápidos (mocks, sin I/O real)",
   "integration: Tests de integración (lentos, requieren ML y dependencias externas)",
-  "e2e: pruebas end-to-end", 
+  "e2e: pruebas end-to-end",
   "slow: Tests que tardan más de 1 segundo",
   "performance: Benchmarks y pruebas de carga o recursos"  # <--- AGREGAR ESTA
 ]
