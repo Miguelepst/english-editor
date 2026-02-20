@@ -14,6 +14,7 @@ import time
 import psutil
 from pathlib import Path
 
+
 # === 🧪 Protocolos de Calidad Obligatorios ===
 # 🔒 DOMINIO PURO: Tests sin I/O ni mocks. Solo lógica de negocio.
 # 🧪 AISLAMIENTO: Cada test es independiente (no comparte estado con otros tests).
@@ -32,7 +33,35 @@ if str(SRC_PATH) not in sys.path:
 # === Imports del SUT (System Under Test) ===
 from english_editor.modules.analysis.infrastructure.whisper_adapter import WhisperLocalAdapter
 
-pytestmark = pytest.mark.performance
+# === CONFIGURACIÓN: Detección de dependencias para tests de performance ===
+def _check_performance_deps() -> bool:
+    """
+    Verifica que las librerías necesarias para benchmarks de Whisper estén instaladas.
+    
+    Returns:
+        bool: True si todas las deps están disponibles, False en caso contrario.
+    """
+    try:
+        import whisper      # openai-whisper
+        import librosa      # procesamiento de audio
+        import torch        # backend de ML
+        import psutil       # monitoreo de recursos (ya lo usas en ResourceMonitor)
+        return True
+    except ImportError:
+        return False
+    except Exception:
+        return False
+
+# Skip automático si faltan dependencias críticas
+pytestmark = [
+    pytest.mark.performance,
+    pytest.mark.skipif(
+        not _check_performance_deps(),
+        reason="Requiere whisper, librosa, torch y psutil instalados"
+    )
+]
+
+#pytestmark = pytest.mark.performance
 
 # === Utilidades y Monitores (Sin Regresión) ===
 TEST_DURATION_MINUTES = 1  # 1 min para el benchmark
@@ -79,24 +108,25 @@ def generate_stress_audio(filename: Path, duration_min: int):
 
 # === Casos de Prueba ===
 
-def test_whisper_engine_should_process_audio_within_benchmark_limits(benchmark):
+def test_whisper_engine_should_process_audio_within_benchmark_limits(benchmark, tmp_path):
     """
     Given: Un archivo de audio de estrés generado y el adaptador Whisper inicializado.
     When:  Se ejecuta la detección de actividad de voz midiendo con el fixture 'benchmark'.
     Then:  El resultado es válido y el consumo de RAM no excede el límite permitido.
-    
+
     Regla de negocio validada: DR-03 Límite de Memoria y Rendimiento
     """
     # ─── ARRANGE ────────────────────────────────────────────────────────────────
-    audio_path = Path("stress_test.wav")
+    #audio_path = Path("stress_test.wav")       # ← Ruta relativa, puede colisionar
+    audio_path = tmp_path / "stress_test.wav"   # ← Aislado por pytest, se limpia automático
     if not audio_path.exists():
         generate_stress_audio(audio_path, TEST_DURATION_MINUTES)
-        
+
     monitor = ResourceMonitor()
     adapter = WhisperLocalAdapter(model_size="tiny.en")
-    
+
     monitor.start()
-    
+
     # ─── ACT ────────────────────────────────────────────────────────────────────
     try:
         # benchmark.pedantic nos permite controlar exactamente cuántas veces se ejecuta
@@ -110,13 +140,13 @@ def test_whisper_engine_should_process_audio_within_benchmark_limits(benchmark):
     finally:
         monitor.stop()
         monitor.join()
-        
+
     # ─── ASSERT ─────────────────────────────────────────────────────────────────
     assert result is not None, "El adaptador debe devolver un resultado válido"
-    
+
     # Verificamos la RAM usando el monitor original
     assert monitor.peak_ram_mb < 5000.0, f"Consumo de RAM excedido: {monitor.peak_ram_mb}MB > 5000MB"
-    
+
     # Limpieza
     if audio_path.exists():
         os.remove(audio_path)

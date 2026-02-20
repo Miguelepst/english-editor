@@ -14,6 +14,8 @@ import os
 import random
 from pathlib import Path
 
+
+"""
 # Facade Import
 try:
     from english_editor.modules.analysis import (
@@ -25,6 +27,35 @@ try:
     DEPS_INSTALLED = True
 except ImportError:
     DEPS_INSTALLED = False
+"""
+
+# === CONFIGURACIÓN: Detección robusta de dependencias externas ===
+def _check_external_deps() -> bool:
+    """
+    Verifica que las librerías externas críticas para tests E2E estén instaladas.
+    
+    Returns:
+        bool: True si todas las deps están disponibles, False en caso contrario.
+    """
+    try:
+        # Dependencias directas del adapter WhisperLocalAdapter
+        import whisper      # openai-whisper: modelo de transcripción
+        import librosa      # procesamiento de audio
+        import torch        # backend de ML
+        
+        # Validación opcional: verificar que whisper puede cargar un modelo mínimo
+        # (descomentar si quieres ser más estricto, pero ralentiza la importación del test)
+        # whisper.load_model("tiny", download_root="/tmp/whisper_cache", in_memory=True)
+        
+        return True
+    except ImportError:
+        return False
+    except Exception:
+        # Cualquier otro error (ej: CUDA sin GPU) también cuenta como "no disponible"
+        return False
+
+DEPS_INSTALLED = _check_external_deps()
+
 
 # === Fixtures ===
 
@@ -95,6 +126,12 @@ def pattern_audio_file(tmp_path):
 @pytest.mark.e2e
 @pytest.mark.skipif(not DEPS_INSTALLED, reason="Faltan dependencias")
 def test_e2e_separation_of_segments(pattern_audio_file):
+    # ─── IMPORTS LOCALES (solo si el test se ejecuta) ─────────────────────
+    from english_editor.modules.analysis.application.use_cases import AnalyzeAudio
+    from english_editor.modules.analysis.domain.value_objects import TimeRange
+    from english_editor.modules.analysis.infrastructure.whisper_adapter import WhisperLocalAdapter
+    # ─────────────────────────────────────────────────────────────────────
+
     # 1. Setup
     print("⚙️  [E2E] Inicializando Whisper (base.en)...")
     adapter = WhisperLocalAdapter(model_size="base.en")
