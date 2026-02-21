@@ -166,3 +166,6 @@ output/temp_*
 # - Los assets de ejemplo documentados (hello_world_2.mp4) se mantienen para reproducibilidad.
 # - sample_data/ contiene datasets de referencia para pruebas documentadas.
 # ========================================
+
+# Añadido por DependencySecurityManager (Auto-higiene)
+.security_backups/
