@@ -1,0 +1,54 @@
+# ==============================================================================
+# Makefile.security - Pipeline de DevSecOps Aislado
+# ==============================================================================
+.PHONY: install-tools secrets sast sca image-scan verify-all
+
+# ------------------------------------------------------------------------------
+# PREPARACIÓN DEL ENTORNO
+# ------------------------------------------------------------------------------
+install-tools:
+	@echo "📦 Instalando herramientas de seguridad (Gitleaks, Bandit, Pip-Audit, Trivy)..."
+	@if ! command -v gitleaks >/dev/null 2>&1; then \
+		wget -qO- https://github.com/gitleaks/gitleaks/releases/download/v8.18.2/gitleaks_8.18.2_linux_x64.tar.gz | tar xz -C /usr/local/bin gitleaks; \
+	fi
+	pip install bandit pip-audit -q
+	@if ! command -v trivy >/dev/null 2>&1; then \
+		wget -qO- https://github.com/aquasecurity/trivy/releases/download/v0.50.1/trivy_0.50.1_Linux-64bit.tar.gz | tar xz -C /usr/local/bin trivy; \
+	fi
+	@echo "✅ Herramientas instaladas correctamente."
+
+# ------------------------------------------------------------------------------
+# Fase 1: SECRETS (Evita catástrofes inmediatas)
+# ------------------------------------------------------------------------------
+secrets:
+	@echo "🔐 [Step 1] Escaneando secretos con Gitleaks..."
+	gitleaks detect -v --source . --no-git
+
+# ------------------------------------------------------------------------------
+# Fase 2: SAST (Corrige errores lógicos del desarrollador)
+# ------------------------------------------------------------------------------
+sast:
+	@echo "🧠 [Step 2] Ejecutando análisis SAST con Bandit sobre src/..."
+	python -m bandit -r src/ -ll -i
+
+# ------------------------------------------------------------------------------
+# Fase 3: SCA (Auditoría de Dependencias de Terceros)
+# ------------------------------------------------------------------------------
+sca:
+	@echo "📦 [Step 3] Escaneando dependencias vulnerables con pip-audit..."
+	python -m pip_audit || echo "⚠️ Revisa los avisos de SCA."
+
+# ------------------------------------------------------------------------------
+# Fase 4: IMAGE SCAN (Auditoría del Entorno/Contenedor)
+# ------------------------------------------------------------------------------
+image-scan:
+	@echo "🐳 [Step 4] Escaneando vulnerabilidades de SO y artefacto con Trivy..."
+	# En CI real (GitHub Actions), escanearíamos la imagen Docker: trivy image app:latest
+	# Aquí escaneamos el sistema de archivos (fs) buscando vulnerabilidades críticas
+	trivy fs . --severity HIGH,CRITICAL --no-progress
+
+# ------------------------------------------------------------------------------
+# VERIFICACIÓN COMPLETA DE SEGURIDAD
+# ------------------------------------------------------------------------------
+verify-all: secrets sast sca image-scan
+	@echo "✅ VALIDACIÓN DE SEGURIDAD (Fases 1 a 4) EJECUTADA."
