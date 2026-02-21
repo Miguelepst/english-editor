@@ -169,3 +169,8 @@ output/temp_*
 
 # Añadido por DependencySecurityManager (Auto-higiene)
 .security_backups/
+
+# 🛡️ DevSecOps Orchestrator - Auto-generated reports
+reports/
+security-report-*.json
+security-report-*.html

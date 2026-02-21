@@ -1,0 +1,118 @@
+audioread==3.1.0
+# via librosa
+certifi==2026.1.4
+# via requests
+cffi==2.0.0
+# via soundfile
+charset-normalizer==3.4.4
+# via requests
+coverage[toml]==7.13.4
+# via pytest-cov
+decorator==5.2.1
+# via librosa
+idna==3.11
+# via requests
+iniconfig==2.3.0
+# via pytest
+joblib==1.5.3
+# via
+#   librosa
+#   scikit-learn
+lazy-loader==0.4
+# via librosa
+librosa==0.11.0
+# via english_editor (/content/english-editor/pyproject.toml)
+librt==0.8.1
+# via mypy
+llvmlite==0.46.0
+# via numba
+markdown-it-py==4.0.0
+# via rich
+mdurl==0.1.2
+# via markdown-it-py
+msgpack==1.1.2
+# via librosa
+mypy==1.19.1
+# via english_editor (/content/english-editor/pyproject.toml)
+mypy-extensions==1.1.0
+# via mypy
+numba==0.64.0
+# via librosa
+numpy==2.4.2
+# via
+#   english_editor (/content/english-editor/pyproject.toml)
+#   librosa
+#   numba
+#   scikit-learn
+#   scipy
+#   soundfile
+#   soxr
+packaging==26.0
+# via
+#   lazy-loader
+#   pooch
+#   pytest
+pathspec==1.0.4
+# via mypy
+platformdirs==4.9.2
+# via pooch
+pluggy==1.6.0
+# via
+#   pytest
+#   pytest-cov
+pooch==1.9.0
+# via librosa
+py-cpuinfo==9.0.0
+# via pytest-benchmark
+pycparser==3.0
+# via cffi
+pygments==2.19.2
+# via
+#   pytest
+#   rich
+pytest==9.0.2
+# via
+#   english_editor (/content/english-editor/pyproject.toml)
+#   pytest-benchmark
+#   pytest-cov
+#   pytest-mock
+#   pytest-sugar
+#   pytest-timeout
+pytest-benchmark==5.2.3
+# via english_editor (/content/english-editor/pyproject.toml)
+pytest-cov==7.0.0
+# via english_editor (/content/english-editor/pyproject.toml)
+pytest-mock==3.15.1
+# via english_editor (/content/english-editor/pyproject.toml)
+pytest-sugar==1.1.1
+# via english_editor (/content/english-editor/pyproject.toml)
+pytest-timeout==2.4.0
+# via english_editor (/content/english-editor/pyproject.toml)
+requests==2.32.5
+# via pooch
+rich==14.3.3
+# via english_editor (/content/english-editor/pyproject.toml)
+ruff==0.15.2
+# via english_editor (/content/english-editor/pyproject.toml)
+scikit-learn==1.8.0
+# via librosa
+scipy==1.17.0
+# via
+#   librosa
+#   scikit-learn
+soundfile==0.13.1
+# via
+#   english_editor (/content/english-editor/pyproject.toml)
+#   librosa
+soxr==1.0.0
+# via librosa
+termcolor==3.3.0
+# via pytest-sugar
+threadpoolctl==3.6.0
+# via scikit-learn
+typing-extensions==4.15.0
+# via
+#   librosa
+#   mypy
+urllib3==2.6.3
+# via requests
