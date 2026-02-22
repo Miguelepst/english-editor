@@ -1,9 +1,17 @@
-# mypy: ignore-errors
-# src/english_editor/modules/analysis/infrastructure/observability.py
+"""Módulo de observabilidad para métricas y logging del sistema."""
 
 # Importe opcional con fallback para CI/CD
 try:
     import psutil
+
+    _PSUTIL_AVAILABLE = True
+except ImportError:
+    psutil = None
+    _PSUTIL_AVAILABLE = False
+
+try:
+    import psutil
+
     _PSUTIL_AVAILABLE = True
 except ImportError:
     psutil = None
