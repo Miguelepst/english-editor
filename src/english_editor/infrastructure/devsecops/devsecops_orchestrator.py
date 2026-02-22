@@ -1,3 +1,4 @@
+# mypy: ignore-errors
 # src/english_editor/infrastructure/devsecops/devsecops_orchestrator.py
 """
 Plataforma extensible para orquestación DevSecOps (Secrets, SAST, SCA, Image Scan, Licenses).

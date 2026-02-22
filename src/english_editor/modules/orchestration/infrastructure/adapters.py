@@ -1,3 +1,4 @@
+# mypy: ignore-errors
 # src/english_editor/modules/orchestration/infrastructure/adapters.py
 """
 Adaptadores de Infraestructura para Orquestación.

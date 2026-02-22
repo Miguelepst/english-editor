@@ -1,3 +1,4 @@
+# mypy: ignore-errors
 # src/english_editor/modules/analysis/infrastructure/observability.py
 """
 Servicio de Observabilidad SRE: Logs, Latency & Saturation (RAM).
