@@ -31,7 +31,6 @@ SRC_PATH = PROJECT_ROOT_DIR / "src"
 if str(SRC_PATH) not in sys.path:
     sys.path.append(str(SRC_PATH))
 
-# === Imports del SUT (System Under Test) ===
 from english_editor.modules.analysis.infrastructure.whisper_adapter import (
     WhisperLocalAdapter,
 )
