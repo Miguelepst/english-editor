@@ -1,5 +1,14 @@
 # mypy: ignore-errors
 # src/english_editor/modules/analysis/infrastructure/observability.py
+
+# Importe opcional con fallback para CI/CD
+try:
+    import psutil
+    _PSUTIL_AVAILABLE = True
+except ImportError:
+    psutil = None
+    _PSUTIL_AVAILABLE = False
+
 """
 Servicio de Observabilidad SRE: Logs, Latency & Saturation (RAM).
 Soporta modo "Pretty Print" para depuración visual.
