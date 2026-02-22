@@ -61,7 +61,7 @@ class WhisperLocalAdapter:
                 # Forzamos CPU según requerimiento
                 self._model = whisper.load_model(self.model_size, device="cpu")
             except Exception as e:
-                raise EngineRuntimeError(f"Error cargando modelo Whisper: {e}")
+                raise EngineRuntimeError(f"Error cargando modelo Whisper: {e}") from e
 
     def detect_voice_activity(self, audio_path: Path) -> list[TimeRange]:
         """
@@ -76,7 +76,7 @@ class WhisperLocalAdapter:
         try:
             total_duration = librosa.get_duration(path=audio_path)
         except Exception as e:
-            raise AudioFileError(f"No se pudo leer metadata del audio: {e}")
+            raise AudioFileError(f"No se pudo leer metadata del audio: {e}") from e
 
         raw_ranges: list[TimeRange] = []
 
@@ -101,7 +101,9 @@ class WhisperLocalAdapter:
                     duration=duration_to_load,
                 )
             except Exception as e:
-                raise EngineRuntimeError(f"Error leyendo chunk {current_start}s: {e}")
+                raise EngineRuntimeError(
+                    f"Error leyendo chunk {current_start}s: {e}"
+                ) from e
 
             # 3. Inferencia (Transcribe)
             # fp16=False necesario en CPU
@@ -114,8 +116,8 @@ class WhisperLocalAdapter:
                 )
             except RuntimeError as e:
                 if "memory" in str(e).lower():
-                    raise MemoryLimitExceeded(f"OOM durante inferencia: {e}")
-                raise EngineRuntimeError(f"Fallo en inferencia Whisper: {e}")
+                    raise MemoryLimitExceeded(f"OOM durante inferencia: {e}") from e
+                raise EngineRuntimeError(f"Fallo en inferencia Whisper: {e}") from e
 
             # 4. Mapeo de segmentos locales a globales
             for segment in result.get("segments", []):
