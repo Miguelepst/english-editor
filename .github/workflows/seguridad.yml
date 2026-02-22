@@ -1,0 +1,57 @@
+# 1. EL NOMBRE DEL ROBOT 🤖
+# Este es el título que verás en la pestaña "Actions" de tu GitHub.
+name: 🛡️ Pipeline de DevSecOps
+
+# 2. LOS GATILLOS (¿Cuándo se despierta la máquina?) ⏰
+# "on" significa "encendido" o "al ocurrir esto".
+on:
+  push:
+    branches: [ "main" ] # Despiértate cada vez que yo suba código nuevo a la rama principal ("main").
+  pull_request:
+    branches: [ "main" ] # Despiértate si alguien intenta mezclar código nuevo hacia "main".
+
+# 3. EL TRABAJO A REALIZAR 👷
+jobs:
+  ejecutar_pruebas_seguridad:
+    
+    # ¿QUÉ COMPUTADORA USAMOS? 💻
+    # Le pedimos a GitHub que nos preste un servidor con la última versión de Linux Ubuntu.
+    runs-on: ubuntu-latest
+
+    # 4. EL PASO A PASO (La receta) 📋
+    steps:
+      
+      # Paso 1: Por defecto, el servidor prestado está vacío. 
+      # Usamos una acción prefabricada de GitHub (checkout) para clonar tu código allí.
+      - name: 📥 Descargar el código de english-editor
+        uses: actions/checkout@v4
+
+      # Paso 2: El servidor necesita tener Python instalado para entender tu código.
+      - name: 🐍 Instalar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10" # Preparamos Python 3.10
+
+      # Paso 3: Instalar las herramientas de Application Security Testing (AST).
+      # "run" nos permite escribir comandos de terminal exactos como los usarías en Colab.
+      - name: 🛠️ Instalar herramientas (SAST, SCA, Secretos)
+        run: |
+          # 1. Instalamos Bandit (Análisis estático) y pip-licenses
+          pip install bandit pip-licenses
+          
+          # 2. Descargamos e instalamos Gitleaks (Para encontrar secretos expuestos)
+          wget https://github.com/gitleaks/gitleaks/releases/download/v8.18.2/gitleaks_8.18.2_linux_x64.tar.gz
+          tar -xzf gitleaks_8.18.2_linux_x64.tar.gz
+          sudo mv gitleaks /usr/local/bin/
+          
+          # 3. Instalamos Trivy (Para revisar vulnerabilidades de dependencias)
+          sudo apt-get install wget apt-transport-https gnupg lsb-release
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+          echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install trivy
+
+      # Paso 4: ¡La gran final! 
+      # Ejecutamos tu orquestador. Nota que la ruta apunta a donde tu plantilla Python lo guardó.
+      - name: 🚀 Ejecutar el Orquestador DevSecOps
+        run: python src/english_editor/infrastructure/devsecops/devsecops_orchestrator.py
