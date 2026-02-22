@@ -1,3 +1,4 @@
+# ruff: noqa: E402
 # tests/performance/test_benchmark_whisper.py
 """
 Tests para: benchmark_whisper.py
