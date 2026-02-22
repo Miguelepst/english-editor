@@ -20,13 +20,13 @@ try:
 except ImportError:
     # Fallback para que el código sea importable sin dependencias instaladas (CI/CD)
     # whisper = None
-    whisper = None[assignment]
+    whisper = None
     # torch = None
-    torch = None[assignment]
+    torch = None
     # librosa = None
-    librosa = None[assignment]
+    librosa = None
     # np = None
-    np = None[assignment]
+    np = None
 
 from english_editor.modules.analysis.domain.exceptions import (
     AudioFileError,
