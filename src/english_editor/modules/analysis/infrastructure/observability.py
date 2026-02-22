@@ -47,7 +47,7 @@ class ObservabilityService:
     def _get_ram_usage_mb() -> float:
         try:
             process = psutil.Process(os.getpid())
-            return round(process.memory_info().rss / 1024 / 1024, 2)
+            return round(process.memory_info().rss / 1024 / 1024, 2)  # type: ignore[no-any-return]
         except Exception:
             return 0.0
 
