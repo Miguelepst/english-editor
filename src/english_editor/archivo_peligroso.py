@@ -1,15 +1,11 @@
-def funcion_insegura():
-    # 🚨 VULNERABILIDAD 1 (SAST): Contraseña escrita directamente en el código (Hardcoded password)
-    # Bandit detectará esto y lanzará una alerta.
-    password_base_datos = "admin12345"
+import subprocess
+import yaml
+
+def ataque_critico(datos_usuario):
+    # 🚨 VULNERABILIDAD ALTA 1: Inyección de Comandos (Command Injection)
+    # Ejecutar comandos de consola concatenando texto de usuarios es letal.
+    subprocess.Popen(datos_usuario, shell=True)
     
-    # 🚨 VULNERABILIDAD 2 (SAST): Uso de eval()
-    # Ejecutar código como texto es una de las peores prácticas de seguridad en Python.
-    entrada_usuario = "2 + 2"
-    resultado = eval(entrada_usuario)
-    
-    # 🚨 VULNERABILIDAD 3 (Secretos): Un token falso de AWS.
-    # Gitleaks escanea buscando patrones matemáticos de tokens reales. Este es un patrón de prueba de AWS.
-    aws_access_key_id = "AKIAIOSFODNN7EXAMPLE"
-    
-    return resultado
+    # 🚨 VULNERABILIDAD ALTA 2: Deserialización Insegura
+    # Leer un YAML de esta forma permite a un atacante ejecutar código remoto.
+    yaml.load(datos_usuario)
