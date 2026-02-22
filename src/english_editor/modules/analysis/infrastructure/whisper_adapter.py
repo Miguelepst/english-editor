@@ -20,13 +20,13 @@ try:
 except ImportError:
     # Fallback para que el código sea importable sin dependencias instaladas (CI/CD)
     # whisper = None
-    whisper = None  [assignment]
+    whisper = None[assignment]
     # torch = None
-    torch = None  [assignment]
+    torch = None[assignment]
     # librosa = None
-    librosa = None  [assignment]
+    librosa = None[assignment]
     # np = None
-    np = None  [assignment]
+    np = None[assignment]
 
 from english_editor.modules.analysis.domain.exceptions import (
     AudioFileError,
@@ -110,9 +110,10 @@ class WhisperLocalAdapter:
             # fp16=False necesario en CPU
             try:
 
-                # result = self._model.transcribe(
-                # ✅ DESPUÉS
-                result = self._model.transcribe(  [attr-defined]
+                result = self._model.transcribe(
+                    audio_chunk, fp16=False, language="en", verbose=False
+                )
+                result = self._model.transcribe(
                     audio_chunk, fp16=False, language="en", verbose=False
                 )
             except RuntimeError as e:
