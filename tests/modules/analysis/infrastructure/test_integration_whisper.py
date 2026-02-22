@@ -4,6 +4,7 @@ Tests de Integración: WhisperLocalAdapter (Real)
 Tipo: Integración (Slow, I/O, ML Model)
 Objetivo: Validar que el adaptador real carga el modelo y procesa audio sin crashear.
 """
+
 import pytest
 import wave
 import struct
@@ -13,20 +14,26 @@ from pathlib import Path
 # Intentamos importar las dependencias reales.
 # Si no están, saltamos el test para no romper CI/CD básico.
 try:
-    #import whisper
+    # import whisper
     import whisper  # noqa: F401
-    #import librosa
+
+    # import librosa
     import librosa  # noqa: F401
-    #import torch
+
+    # import torch
     import torch  # noqa: F401
+
     DEPS_INSTALLED = True
 except ImportError:
     DEPS_INSTALLED = False
 
-from english_editor.modules.analysis.infrastructure.whisper_adapter import WhisperLocalAdapter
+from english_editor.modules.analysis.infrastructure.whisper_adapter import (
+    WhisperLocalAdapter,
+)
 from english_editor.modules.analysis.domain.value_objects import TimeRange
 
 # === Fixtures de Infraestructura ===
+
 
 @pytest.fixture
 def real_wav_file(tmp_path):
@@ -41,7 +48,7 @@ def real_wav_file(tmp_path):
     duration_sec = 2.0
     n_frames = int(sample_rate * duration_sec)
 
-    with wave.open(str(filename), 'w') as wav_file:
+    with wave.open(str(filename), "w") as wav_file:
         wav_file.setnchannels(1)
         wav_file.setsampwidth(2)  # 16-bit
         wav_file.setframerate(sample_rate)
@@ -49,23 +56,29 @@ def real_wav_file(tmp_path):
         # Generar datos: 1 seg silencio, 1 seg tono 440Hz
         data = []
         for i in range(n_frames):
-            if i < sample_rate: # Primer segundo: silencio
+            if i < sample_rate:  # Primer segundo: silencio
                 value = 0
-            else: # Segundo segundo: tono
+            else:  # Segundo segundo: tono
                 t = float(i) / sample_rate
                 value = int(32767.0 * math.sin(2.0 * math.pi * 440.0 * t))
 
-            data.append(struct.pack('<h', value))
+            data.append(struct.pack("<h", value))
 
-        wav_file.writeframes(b''.join(data))
+        wav_file.writeframes(b"".join(data))
 
     return filename
 
+
 # === Casos de Prueba de Integración ===
 
-@pytest.mark.skipif(not DEPS_INSTALLED, reason="Requiere whisper, torch y librosa instalados")
+
+@pytest.mark.skipif(
+    not DEPS_INSTALLED, reason="Requiere whisper, torch y librosa instalados"
+)
 @pytest.mark.integration
-@pytest.mark.timeout(60)  # Máximo 60 segundos # Agregar timeout para evitar tests infinitos
+@pytest.mark.timeout(
+    60
+)  # Máximo 60 segundos # Agregar timeout para evitar tests infinitos
 def test_real_whisper_pipeline_execution(real_wav_file):
     """
     Given: Un archivo WAV real generado en disco
@@ -91,14 +104,13 @@ def test_real_whisper_pipeline_execution(real_wav_file):
     if len(result) > 0:
         assert isinstance(result[0], TimeRange)
 
-
     # 2. Agregar más assert significativo
     assert len(result) >= 0, "Debería retornar al menos una lista vacía"
     # Opcional: verificar que detecta algo en el segundo con audio
     if len(result) > 0:
-        assert any(r.start >= 1.0 for r in result), "Debería detectar voz después del segundo 1"
-
-
+        assert any(
+            r.start >= 1.0 for r in result
+        ), "Debería detectar voz después del segundo 1"
 
     # 2. Validación de lógica básica
     # El archivo tiene audio en el segundo 1.0 - 2.0.
@@ -106,6 +118,7 @@ def test_real_whisper_pipeline_execution(real_wav_file):
     # Nota: No asertamos exactitud perfecta en un test de integración,
     # solo salud del sistema.
     print(f"[INTEGRATION] Resultado obtenido: {result}")
+
 
 @pytest.mark.skipif(not DEPS_INSTALLED, reason="Requiere dependencias reales")
 def test_real_adapter_fails_gracefully_on_missing_file():
