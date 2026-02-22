@@ -3,20 +3,23 @@
 Servicio de Observabilidad SRE: Logs, Latency & Saturation (RAM).
 Soporta modo "Pretty Print" para depuración visual.
 """
-import time
+import functools
 import json
 import logging
-import uuid
-import functools
 import os
-import psutil
-#from typing import Any, Callable, Dict
-from typing import Any, Callable, cast
+import time
+import uuid
 from pathlib import Path
 
+# from typing import Any, Callable, Dict
+from typing import Any, Callable, cast
+
+import psutil
+
 # Configuración básica
-logging.basicConfig(level=logging.INFO, format='%(message)s')
+logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger("english_editor")
+
 
 class ObservabilityService:
 
@@ -28,7 +31,6 @@ class ObservabilityService:
     def get_correlation_id() -> str:
         return str(uuid.uuid4())[:8]
 
-
     @staticmethod
     def _get_ram_usage_mb() -> float:
         try:
@@ -37,7 +39,6 @@ class ObservabilityService:
             return cast(float, process.memory_info().rss / 1024 / 1024)
         except Exception:
             return 0.0
-
 
     """
     @staticmethod
@@ -48,9 +49,14 @@ class ObservabilityService:
         except Exception:
             return 0.0
     """
-    
+
     @staticmethod
-    def log_event(event_name: str, correlation_id: str, payload: dict[str, Any], level: str = "INFO"):
+    def log_event(
+        event_name: str,
+        correlation_id: str,
+        payload: dict[str, Any],
+        level: str = "INFO",
+    ):
         """Emite un log estructurado en JSON (Horizontal o Vertical)."""
 
         log_entry = {
@@ -58,7 +64,7 @@ class ObservabilityService:
             "level": level,
             "event": event_name,
             "correlation_id": correlation_id,
-            "data": payload
+            "data": payload,
         }
 
         # 🎨 LÓGICA DE VISUALIZACIÓN
@@ -93,10 +99,7 @@ class ObservabilityService:
                 ObservabilityService.log_event(
                     event_name=f"{operation_name}.started",
                     correlation_id=correlation_id,
-                    payload={
-                        "target": file_context,
-                        "start_ram_mb": start_ram
-                    }
+                    payload={"target": file_context, "start_ram_mb": start_ram},
                 )
 
                 try:
@@ -113,8 +116,8 @@ class ObservabilityService:
                             "end_ram_mb": end_ram,
                             "ram_delta_mb": round(end_ram - start_ram, 2),
                             "target": file_context,
-                            "status": "success"
-                        }
+                            "status": "success",
+                        },
                     )
                     return result
 
@@ -130,10 +133,12 @@ class ObservabilityService:
                             "crash_ram_mb": crash_ram,
                             "target": file_context,
                             "error_type": type(e).__name__,
-                            "error_msg": str(e)
+                            "error_msg": str(e),
                         },
-                        level="ERROR"
+                        level="ERROR",
                     )
                     raise e
+
             return wrapper
+
         return decorator

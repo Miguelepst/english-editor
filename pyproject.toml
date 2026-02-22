@@ -37,7 +37,7 @@ optional-dependencies.dev = [                  # Dependencias de desarrollo (opc
   "pytest-mock>=3.12.0",
   "pytest-timeout>=2.3.0",
   "pytest-benchmark>=5.2.3",                   # Pruebas de rendimiento, # Dejarlo libre obliga a pip a traer la más actual compatible
-                                               # (>=5.2.3) proteger tu proyecto de car al futuro. 
+                                               # (>=5.2.3) proteger tu proyecto de car al futuro.
                                                # Ahora sí tienes un valor real y justificado
 
   "ruff>=0.1",                                 # Linter + formateador moderno (100x más rápido)

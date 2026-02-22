@@ -9,7 +9,7 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout del código
       uses: actions/checkout@v3
@@ -35,6 +35,6 @@ jobs:
 
     - name: 🧪 Tests Unitarios del Dominio y Aplicación
       run: |
-        # Solo ejecutamos unit tests en CI rápido. 
+        # Solo ejecutamos unit tests en CI rápido.
         # Integración/E2E se pueden mover a un job nocturno o manual si requieren dependencias pesadas (Whisper/Torch)
         pytest tests/modules/analysis/domain tests/modules/analysis/application -v
