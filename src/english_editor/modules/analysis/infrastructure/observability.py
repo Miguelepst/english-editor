@@ -11,7 +11,7 @@ import os
 import time
 import uuid
 from pathlib import Path
-from typing import Any, Callable, Dict
+from typing import Any, Callable
 
 import psutil
 
@@ -42,7 +42,7 @@ class ObservabilityService:
     def log_event(
         event_name: str,
         correlation_id: str,
-        payload: Dict[str, Any],
+        payload: dict[str, Any],
         level: str = "INFO",
     ):
         """Emite un log estructurado en JSON (Horizontal o Vertical)."""

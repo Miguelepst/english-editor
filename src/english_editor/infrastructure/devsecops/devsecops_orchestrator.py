@@ -22,7 +22,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from enum import Enum, auto
 from pathlib import Path
-from typing import Any, Optional, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 # rich para visualización profesional en terminal
 try:
@@ -37,9 +37,10 @@ try:
     RICH_AVAILABLE = True
 except ImportError:
     RICH_AVAILABLE = False
-    Console = lambda **kw: type(
-        "MockConsole", (), {"print": print, "rule": lambda *a, **k: None}
-    )()
+
+    def Console(**kw):
+        return type("MockConsole", (), {"print": print, "rule": lambda *a, **k: None})()
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CONFIGURACIÓN DE LOGGING
@@ -85,10 +86,10 @@ class SecurityFinding:
     title: str
     severity: TestSeverity
     description: str
-    location: Optional[str] = None
-    cve: Optional[str] = None
-    fix_recommendation: Optional[str] = None
-    raw_data: Optional[dict[str, Any]] = None
+    location: str | None = None
+    cve: str | None = None
+    fix_recommendation: str | None = None
+    raw_data: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -676,7 +677,7 @@ class ImageScanTest:
     name = "image-scan"
     description = "Audita vulnerabilidades en el entorno de ejecución o imagen Docker"
 
-    def __init__(self, mode: str = "fs", image_name: Optional[str] = None):
+    def __init__(self, mode: str = "fs", image_name: str | None = None):
         self.mode = mode  # "fs" o "image"
         self.image_name = image_name
 
@@ -797,7 +798,7 @@ class SecurityTestRegistry:
         return plugin_class
 
     @classmethod
-    def get(cls, name: str, **kwargs) -> Optional[SecurityTestPlugin]:
+    def get(cls, name: str, **kwargs) -> SecurityTestPlugin | None:
         """Instancia un plugin por nombre con configuración opcional"""
         plugin_class = cls._plugins.get(name)
         if not plugin_class:

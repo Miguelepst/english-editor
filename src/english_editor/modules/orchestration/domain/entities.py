@@ -12,7 +12,6 @@ from __future__ import annotations
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Dict, List, Optional
 
 # === Imports del Mismo Módulo ===
 from .value_objects import JobStatus, SourceFingerprint
@@ -36,8 +35,8 @@ class ProcessingJob:
 
     # Estado Mutable (Protegido por lógica de negocio)
     status: JobStatus = JobStatus.PENDING
-    _checkpoints: List[Dict[str, float]] = field(default_factory=list)
-    error_message: Optional[str] = None
+    _checkpoints: list[dict[str, float]] = field(default_factory=list)
+    error_message: str | None = None
     updated_at: datetime = field(default_factory=datetime.now)
 
     @classmethod
@@ -89,6 +88,6 @@ class ProcessingJob:
         """Métrica simple de progreso (número de segmentos procesados)."""
         return len(self._checkpoints)
 
-    def get_checkpoints_copy(self) -> List[Dict[str, float]]:
+    def get_checkpoints_copy(self) -> list[dict[str, float]]:
         """Devuelve una copia inmutable de los checkpoints para persistencia."""
         return list(self._checkpoints)

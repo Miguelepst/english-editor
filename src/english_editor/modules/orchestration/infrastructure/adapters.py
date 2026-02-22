@@ -13,7 +13,7 @@ import json
 import logging  # ← IMPORTS AL INICIO (orden estándar: stdlib → third-party → local)
 import os
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from english_editor.modules.orchestration.domain.entities import ProcessingJob
 from english_editor.modules.orchestration.domain.ports.file_system import FileSystemPort
@@ -98,7 +98,7 @@ class LocalFileSystemAdapter(FileSystemPort):
         #    content_hash=hasher.hexdigest()
         # )
 
-    def list_files(self, directory: str, extensions: List[str]) -> List[str]:
+    def list_files(self, directory: str, extensions: list[str]) -> list[str]:
         files = []
         if not os.path.isdir(directory):
             logger.warning(f"Directorio de entrada no existe: {directory}")
@@ -134,7 +134,7 @@ class JsonFileRepository(JobRepository):
             with open(self.db_path, "w") as f:
                 json.dump({"jobs": {}}, f)
 
-    def _load_db(self) -> Dict[str, Any]:
+    def _load_db(self) -> dict[str, Any]:
         try:
             with open(self.db_path) as f:
                 return json.load(f)
@@ -142,7 +142,7 @@ class JsonFileRepository(JobRepository):
             logger.error(f"DB corrupta en {self.db_path}, iniciando vacía.")
             return {"jobs": {}}
 
-    def _save_db(self, data: Dict[str, Any]):
+    def _save_db(self, data: dict[str, Any]):
         # Escritura atómica simulada (write + rename es mejor, pero simple aquí)
         with open(self.db_path, "w") as f:
             json.dump(data, f, indent=2, default=str)

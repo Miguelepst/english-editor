@@ -9,7 +9,6 @@ Responsabilidad: Implementar SpeechAnalysisEngine usando Whisper localmente.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import List
 
 # Imports de terceros (Solo permitidos en capa de infraestructura)
 try:
@@ -64,7 +63,7 @@ class WhisperLocalAdapter:
             except Exception as e:
                 raise EngineRuntimeError(f"Error cargando modelo Whisper: {e}")
 
-    def detect_voice_activity(self, audio_path: Path) -> List[TimeRange]:
+    def detect_voice_activity(self, audio_path: Path) -> list[TimeRange]:
         """
         Implementa la estrategia de chunking deslizante para VAD.
         """
@@ -79,7 +78,7 @@ class WhisperLocalAdapter:
         except Exception as e:
             raise AudioFileError(f"No se pudo leer metadata del audio: {e}")
 
-        raw_ranges: List[TimeRange] = []
+        raw_ranges: list[TimeRange] = []
 
         # 2. Iterar por ventanas (Chunking Strategy)
         # start va de 0 a total_duration, avanzando (CHUNK - OVERLAP)
@@ -145,7 +144,7 @@ class WhisperLocalAdapter:
         # 5. Reducción y Fusión (Merge Overlaps)
         return self._merge_overlapping_ranges(raw_ranges)
 
-    def _merge_overlapping_ranges(self, ranges: List[TimeRange]) -> List[TimeRange]:
+    def _merge_overlapping_ranges(self, ranges: list[TimeRange]) -> list[TimeRange]:
         """
         Fusiona rangos solapados o duplicados resultantes del chunking.
         Algoritmo O(N log N).

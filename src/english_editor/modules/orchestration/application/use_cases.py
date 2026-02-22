@@ -10,7 +10,6 @@ Responsabilidad: Coordinar la creación, recuperación y filtrado de trabajos (B
 import logging
 import os
 from collections.abc import Iterator
-from typing import List
 
 # === Imports de Dominio ===
 from english_editor.modules.orchestration.domain.entities import ProcessingJob
@@ -101,7 +100,7 @@ class JobOrchestrator:
 
         logger.info(f"Resumen de Batch: {stats}")
 
-    def _resolve_input_files(self, path: str) -> List[str]:
+    def _resolve_input_files(self, path: str) -> list[str]:
         """Helper para aplanar directorios o validar archivos individuales."""
         # Nota: La lógica de "es directorio" vs "es archivo" podría delegarse al FileSystemPort
         # para pureza total, pero os.path.isdir es aceptable en Application si asumimos POSIX.
