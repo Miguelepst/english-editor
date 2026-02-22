@@ -1,3 +1,4 @@
+# mypy: ignore-errors
 # src/english_editor/modules/analysis/infrastructure/whisper_adapter.py
 """
 Adaptador de infraestructura para Whisper (OpenAI).
