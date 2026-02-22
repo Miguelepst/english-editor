@@ -7,21 +7,22 @@ Capa: Infrastructure (Adapters)
 Responsabilidad: Implementar los puertos del dominio usando tecnologías concretas (JSON, OS).
 """
 
+import glob
+import hashlib
+import json
 import logging  # ← IMPORTS AL INICIO (orden estándar: stdlib → third-party → local)
 import os
-import json
-import hashlib
-import glob
-from typing import List, Optional, Dict, Any
 from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+from english_editor.modules.orchestration.domain.entities import ProcessingJob
+from english_editor.modules.orchestration.domain.ports.file_system import FileSystemPort
 
 # === Imports de Dominio ===
 from english_editor.modules.orchestration.domain.ports.repository import JobRepository
-from english_editor.modules.orchestration.domain.ports.file_system import FileSystemPort
-from english_editor.modules.orchestration.domain.entities import ProcessingJob
 from english_editor.modules.orchestration.domain.value_objects import (
-    SourceFingerprint,
     JobStatus,
+    SourceFingerprint,
 )
 from english_editor.modules.orchestration.infrastructure.observability import (
     measure_time,
@@ -69,7 +70,7 @@ class LocalFileSystemAdapter(FileSystemPort):
         hasher = hashlib.sha256()
 
         # 1. Hashear metadatos clave
-        hasher.update(f"{filename}-{file_size}".encode("utf-8"))
+        hasher.update(f"{filename}-{file_size}".encode())
 
         # 2. Hashear contenido parcial (Optimización)
         with open(path, "rb") as f:
@@ -135,7 +136,7 @@ class JsonFileRepository(JobRepository):
 
     def _load_db(self) -> Dict[str, Any]:
         try:
-            with open(self.db_path, "r") as f:
+            with open(self.db_path) as f:
                 return json.load(f)
         except json.JSONDecodeError:
             logger.error(f"DB corrupta en {self.db_path}, iniciando vacía.")

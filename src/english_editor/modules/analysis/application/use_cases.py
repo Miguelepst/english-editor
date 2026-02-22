@@ -7,12 +7,13 @@ Responsabilidad: Orquestar la detección de voz delegando en la infraestructura.
 """
 
 from __future__ import annotations
-from typing import List
-from pathlib import Path
 
-from english_editor.modules.analysis.domain.value_objects import TimeRange
-from english_editor.modules.analysis.domain.ports.engine import SpeechAnalysisEngine
+from pathlib import Path
+from typing import List
+
 from english_editor.modules.analysis.domain.exceptions import AudioFileError
+from english_editor.modules.analysis.domain.ports.engine import SpeechAnalysisEngine
+from english_editor.modules.analysis.domain.value_objects import TimeRange
 
 # ✅ Nuevo Import de Infraestructura (Observabilidad)
 from english_editor.modules.analysis.infrastructure.observability import (

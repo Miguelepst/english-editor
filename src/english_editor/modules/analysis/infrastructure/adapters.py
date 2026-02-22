@@ -7,11 +7,12 @@ Responsabilidad: Implementar puertos del dominio usando tecnologías concretas (
 """
 
 from __future__ import annotations
-from typing import List, Optional
-from pathlib import Path
 
-from english_editor.modules.analysis.domain.value_objects import TimeRange
+from pathlib import Path
+from typing import List, Optional
+
 from english_editor.modules.analysis.domain.exceptions import AudioFileError
+from english_editor.modules.analysis.domain.value_objects import TimeRange
 
 
 class FakeSpeechEngine:

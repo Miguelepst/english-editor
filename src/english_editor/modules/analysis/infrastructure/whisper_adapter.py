@@ -7,15 +7,16 @@ Responsabilidad: Implementar SpeechAnalysisEngine usando Whisper localmente.
 """
 
 from __future__ import annotations
-from typing import List
+
 from pathlib import Path
+from typing import List
 
 # Imports de terceros (Solo permitidos en capa de infraestructura)
 try:
-    import whisper
-    import torch
     import librosa
     import numpy as np
+    import torch
+    import whisper
 except ImportError:
     # Fallback para que el código sea importable sin dependencias instaladas (CI/CD)
     # whisper = None
@@ -27,12 +28,12 @@ except ImportError:
     # np = None
     np = None  # type: ignore[assignment]
 
-from english_editor.modules.analysis.domain.value_objects import TimeRange
 from english_editor.modules.analysis.domain.exceptions import (
     AudioFileError,
     EngineRuntimeError,
     MemoryLimitExceeded,
 )
+from english_editor.modules.analysis.domain.value_objects import TimeRange
 
 
 class WhisperLocalAdapter:

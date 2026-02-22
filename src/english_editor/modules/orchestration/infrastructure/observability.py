@@ -12,7 +12,7 @@ import logging
 import sys
 import time
 from functools import wraps
-from typing import Callable, Any
+from typing import Any, Callable
 
 # Configuración Global
 LOG_FILE = "system_execution.log"

@@ -7,8 +7,9 @@ Responsabilidad: Definir el contrato para la detección de actividad de voz (VAD
 """
 
 from __future__ import annotations
-from typing import Protocol, List
+
 from pathlib import Path
+from typing import List, Protocol
 
 from english_editor.modules.analysis.domain.value_objects import TimeRange
 

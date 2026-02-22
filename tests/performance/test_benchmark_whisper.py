@@ -6,14 +6,15 @@ Arquitectura: AAA (Arrange-Act-Assert) + Given-When-Then
 Protocolos: Aislamiento, Monitoreo de Recursos (RAM/CPU), Benchmarking de Tiempo
 """
 
-import pytest
-import sys
-import wave
 import os
+import sys
 import threading
 import time
-import psutil
+import wave
 from pathlib import Path
+
+import psutil
+import pytest
 
 # === 🧪 Protocolos de Calidad Obligatorios ===
 # 🔒 DOMINIO PURO: Tests sin I/O ni mocks. Solo lógica de negocio.
@@ -45,10 +46,10 @@ def _check_performance_deps() -> bool:
         bool: True si todas las deps están disponibles, False en caso contrario.
     """
     try:
-        import whisper  # openai-whisper
         import librosa  # procesamiento de audio
-        import torch  # backend de ML
         import psutil  # monitoreo de recursos (ya lo usas en ResourceMonitor)
+        import torch  # backend de ML
+        import whisper  # openai-whisper
 
         return True
     except ImportError:

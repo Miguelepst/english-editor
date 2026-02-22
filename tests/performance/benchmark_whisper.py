@@ -3,12 +3,12 @@
 Benchmark de Rendimiento: Speech Analysis Engine.
 """
 
+import os
+import struct
 import sys
+import threading
 import time
 import wave
-import struct
-import threading
-import os
 from pathlib import Path
 
 import pytest
@@ -27,13 +27,13 @@ if str(SRC_PATH) not in sys.path:
 
 try:
     import psutil
-    from english_editor.modules.analysis.infrastructure.whisper_adapter import (
-        WhisperLocalAdapter,
-    )
 
     # from english_editor.modules.analysis.domain.exceptions import MemoryLimitExceeded
     from english_editor.modules.analysis.domain.exceptions import (
         MemoryLimitExceeded,  # noqa: F401
+    )
+    from english_editor.modules.analysis.infrastructure.whisper_adapter import (
+        WhisperLocalAdapter,
     )
 
     # from english_editor.modules.analysis.domain.exceptions import MemoryLimitExceeded  # noqa: F401  # error de esta forma
@@ -113,7 +113,7 @@ def main():
     print("⚙️  Cargando modelo...")
     adapter = WhisperLocalAdapter(model_size="tiny.en")
 
-    print(f"\n⏱️  Procesando audio...")
+    print("\n⏱️  Procesando audio...")
     start_time = time.time()
     monitor.start()
 
@@ -156,7 +156,7 @@ def main():
     print(f"• Tiempo de Ejecución: {elapsed:.2f} seg")
     print("-" * 40)
     print(f"• Consumo RAM Pico:    {monitor.peak_ram_mb:.2f} MB")
-    print(f"• Límite (DR-03):      5000.00 MB")
+    print("• Límite (DR-03):      5000.00 MB")
     print(
         f"• Estado RAM:          {'✅ PASS' if monitor.peak_ram_mb < 5000 else '❌ FAIL'}"
     )

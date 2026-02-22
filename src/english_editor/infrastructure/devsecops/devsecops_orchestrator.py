@@ -14,9 +14,7 @@ import logging
 import os
 import subprocess
 import sys
-import tempfile
-from abc import ABC, abstractmethod
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 
 # 🔴 ANTES:
 # from datetime import datetime
@@ -24,17 +22,17 @@ from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
 from enum import Enum, auto
 from pathlib import Path
-from typing import Any, Optional, Protocol, runtime_checkable, TypeVar
+from typing import Any, Optional, Protocol, runtime_checkable
 
 # rich para visualización profesional en terminal
 try:
+    from rich import box  # 🟢 AGREGAR ESTA LÍNEA AQUÍ 🟢
     from rich.console import Console
-    from rich.table import Table
     from rich.panel import Panel
     from rich.progress import Progress, SpinnerColumn, TextColumn
-    from rich.tree import Tree
     from rich.syntax import Syntax
-    from rich import box  # 🟢 AGREGAR ESTA LÍNEA AQUÍ 🟢
+    from rich.table import Table
+    from rich.tree import Tree
 
     RICH_AVAILABLE = True
 except ImportError:
@@ -743,7 +741,7 @@ class ImageScanTest:
                                     description=vuln.get("Description", ""),
                                     location=f"{res.get('Target', 'unknown')}:{vuln.get('PkgName', '')}",
                                     cve=vuln.get("VulnerabilityID"),
-                                    fix_recommendation=f"Actualizar paquete o aplicar parche de seguridad",
+                                    fix_recommendation="Actualizar paquete o aplicar parche de seguridad",
                                     raw_data=vuln,
                                 )
                             )

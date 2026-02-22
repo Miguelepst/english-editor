@@ -8,13 +8,14 @@ Responsabilidad: Gestionar el ciclo de vida y estado mutable de un trabajo de pr
 """
 
 from __future__ import annotations
+
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List, Dict, Optional
+from typing import Dict, List, Optional
 
 # === Imports del Mismo Módulo ===
-from .value_objects import SourceFingerprint, JobStatus
+from .value_objects import JobStatus, SourceFingerprint
 
 # === Guía de Organización ===
 # ✅ IDENTIDAD: Las entidades se comparan por ID, no por atributos.

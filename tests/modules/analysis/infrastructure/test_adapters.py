@@ -4,11 +4,13 @@ Tests para: FakeSpeechEngine
 Tipo: Unitario (Infrastructure)
 """
 
-import pytest
 from pathlib import Path
-from english_editor.modules.analysis.infrastructure.adapters import FakeSpeechEngine
-from english_editor.modules.analysis.domain.value_objects import TimeRange
+
+import pytest
+
 from english_editor.modules.analysis.domain.exceptions import AudioFileError
+from english_editor.modules.analysis.domain.value_objects import TimeRange
+from english_editor.modules.analysis.infrastructure.adapters import FakeSpeechEngine
 
 # === Casos de Prueba ===
 

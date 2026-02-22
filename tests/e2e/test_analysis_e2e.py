@@ -7,13 +7,14 @@ Usamos oraciones largas para asegurar que Whisper no haga "early exit"
 y un silencio de 2s que fuerza la segmentación sin romper el contexto.
 """
 
-import pytest
-import wave
-import struct
 import math
 import os
 import random
+import struct
+import wave
 from pathlib import Path
+
+import pytest
 
 """
 # Facade Import
@@ -40,9 +41,9 @@ def _check_external_deps() -> bool:
     """
     try:
         # Dependencias directas del adapter WhisperLocalAdapter
-        import whisper  # openai-whisper: modelo de transcripción
         import librosa  # procesamiento de audio
         import torch  # backend de ML
+        import whisper  # openai-whisper: modelo de transcripción
 
         # Validación opcional: verificar que whisper puede cargar un modelo mínimo
         # (descomentar si quieres ser más estricto, pero ralentiza la importación del test)
@@ -71,9 +72,10 @@ def pattern_audio_file(tmp_path):
     sample_rate = 16000
 
     try:
-        from pydub import AudioSegment
-        from gtts import gTTS
         from io import BytesIO
+
+        from gtts import gTTS
+        from pydub import AudioSegment
 
         # Generador de ruido de fondo (Dither)
         def generate_silence(duration_ms):
@@ -153,7 +155,7 @@ def test_e2e_separation_of_segments(pattern_audio_file):
     use_case = AnalyzeAudio(engine=adapter)
 
     # 2. Execution
-    print(f"🚀 [E2E] Analizando...")
+    print("🚀 [E2E] Analizando...")
     segments = use_case.execute(pattern_audio_file)
     print(f"📊 [E2E] Resultado raw: {segments}")
 
@@ -177,7 +179,7 @@ def test_e2e_separation_of_segments(pattern_audio_file):
         # Significa que FALLÓ en separar (merged).
         if seg.end > (file_dur - 1.5):
             pytest.fail(
-                f"Fallo: El modelo fusionó las dos frases ignorando el silencio de 2s."
+                "Fallo: El modelo fusionó las dos frases ignorando el silencio de 2s."
             )
         else:
             # Si el segmento termina a la mitad, es 'Early Exit'.
