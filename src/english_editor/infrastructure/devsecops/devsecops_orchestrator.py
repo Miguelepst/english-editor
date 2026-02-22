@@ -14,9 +14,7 @@ import logging
 import os
 import subprocess
 import sys
-import tempfile
-from abc import ABC, abstractmethod
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 
 # 🔴 ANTES:
 # from datetime import datetime
@@ -24,24 +22,37 @@ from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
 from enum import Enum, auto
 from pathlib import Path
-from typing import Any, Optional, Protocol, runtime_checkable, TypeVar
+from typing import Any, Protocol, runtime_checkable
 
 # rich para visualización profesional en terminal
 try:
-    from rich.console import Console
-    from rich.table import Table
-    from rich.panel import Panel
-    from rich.progress import Progress, SpinnerColumn, TextColumn
-    from rich.tree import Tree
-    from rich.syntax import Syntax
     from rich import box  # 🟢 AGREGAR ESTA LÍNEA AQUÍ 🟢
+    from rich.console import Console
+    from rich.panel import Panel
+    from rich.progress import Progress, SpinnerColumn, TextColumn  # noqa: F401
+    from rich.syntax import Syntax  # noqa: F401
+    from rich.table import Table
+    from rich.tree import Tree  # noqa: F401
 
     RICH_AVAILABLE = True
 except ImportError:
     RICH_AVAILABLE = False
-    Console = lambda **kw: type(
-        "MockConsole", (), {"print": print, "rule": lambda *a, **k: None}
-    )()
+
+    # ❌ Antes ruffus lo identifica como error
+    # Console = lambda **kw: type('MockConsole', (), {'print': print, 'rule': lambda *a, **k: None})()
+
+    # ✅ Después
+    def _create_mock_console(**kw):
+        class MockConsole:
+            def print(self, *args, **kwargs):
+                print(*args, **kwargs)
+
+            def rule(self, *args, **kwargs):
+                pass
+
+        return MockConsole()
+
+    Console = _create_mock_console
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CONFIGURACIÓN DE LOGGING
@@ -87,10 +98,10 @@ class SecurityFinding:
     title: str
     severity: TestSeverity
     description: str
-    location: Optional[str] = None
-    cve: Optional[str] = None
-    fix_recommendation: Optional[str] = None
-    raw_data: Optional[dict[str, Any]] = None
+    location: str | None = None
+    cve: str | None = None
+    fix_recommendation: str | None = None
+    raw_data: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -678,7 +689,7 @@ class ImageScanTest:
     name = "image-scan"
     description = "Audita vulnerabilidades en el entorno de ejecución o imagen Docker"
 
-    def __init__(self, mode: str = "fs", image_name: Optional[str] = None):
+    def __init__(self, mode: str = "fs", image_name: str | None = None):
         self.mode = mode  # "fs" o "image"
         self.image_name = image_name
 
@@ -743,7 +754,7 @@ class ImageScanTest:
                                     description=vuln.get("Description", ""),
                                     location=f"{res.get('Target', 'unknown')}:{vuln.get('PkgName', '')}",
                                     cve=vuln.get("VulnerabilityID"),
-                                    fix_recommendation=f"Actualizar paquete o aplicar parche de seguridad",
+                                    fix_recommendation="Actualizar paquete o aplicar parche de seguridad",
                                     raw_data=vuln,
                                 )
                             )
@@ -799,7 +810,7 @@ class SecurityTestRegistry:
         return plugin_class
 
     @classmethod
-    def get(cls, name: str, **kwargs) -> Optional[SecurityTestPlugin]:
+    def get(cls, name: str, **kwargs) -> SecurityTestPlugin | None:
         """Instancia un plugin por nombre con configuración opcional"""
         plugin_class = cls._plugins.get(name)
         if not plugin_class:

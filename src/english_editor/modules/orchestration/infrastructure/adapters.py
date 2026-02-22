@@ -7,21 +7,22 @@ Capa: Infrastructure (Adapters)
 Responsabilidad: Implementar los puertos del dominio usando tecnologías concretas (JSON, OS).
 """
 
+import glob
+import hashlib
+import json
 import logging  # ← IMPORTS AL INICIO (orden estándar: stdlib → third-party → local)
 import os
-import json
-import hashlib
-import glob
-from typing import List, Optional, Dict, Any
 from datetime import datetime
+from typing import Any, Optional
+
+from english_editor.modules.orchestration.domain.entities import ProcessingJob
+from english_editor.modules.orchestration.domain.ports.file_system import FileSystemPort
 
 # === Imports de Dominio ===
 from english_editor.modules.orchestration.domain.ports.repository import JobRepository
-from english_editor.modules.orchestration.domain.ports.file_system import FileSystemPort
-from english_editor.modules.orchestration.domain.entities import ProcessingJob
 from english_editor.modules.orchestration.domain.value_objects import (
-    SourceFingerprint,
     JobStatus,
+    SourceFingerprint,
 )
 from english_editor.modules.orchestration.infrastructure.observability import (
     measure_time,
@@ -69,7 +70,7 @@ class LocalFileSystemAdapter(FileSystemPort):
         hasher = hashlib.sha256()
 
         # 1. Hashear metadatos clave
-        hasher.update(f"{filename}-{file_size}".encode("utf-8"))
+        hasher.update(f"{filename}-{file_size}".encode())
 
         # 2. Hashear contenido parcial (Optimización)
         with open(path, "rb") as f:
@@ -97,7 +98,7 @@ class LocalFileSystemAdapter(FileSystemPort):
         #    content_hash=hasher.hexdigest()
         # )
 
-    def list_files(self, directory: str, extensions: List[str]) -> List[str]:
+    def list_files(self, directory: str, extensions: list[str]) -> list[str]:
         files = []
         if not os.path.isdir(directory):
             logger.warning(f"Directorio de entrada no existe: {directory}")
@@ -133,15 +134,15 @@ class JsonFileRepository(JobRepository):
             with open(self.db_path, "w") as f:
                 json.dump({"jobs": {}}, f)
 
-    def _load_db(self) -> Dict[str, Any]:
+    def _load_db(self) -> dict[str, Any]:
         try:
-            with open(self.db_path, "r") as f:
+            with open(self.db_path) as f:
                 return json.load(f)
         except json.JSONDecodeError:
             logger.error(f"DB corrupta en {self.db_path}, iniciando vacía.")
             return {"jobs": {}}
 
-    def _save_db(self, data: Dict[str, Any]):
+    def _save_db(self, data: dict[str, Any]):
         # Escritura atómica simulada (write + rename es mejor, pero simple aquí)
         with open(self.db_path, "w") as f:
             json.dump(data, f, indent=2, default=str)

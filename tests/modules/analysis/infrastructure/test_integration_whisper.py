@@ -5,32 +5,32 @@ Tipo: Integración (Slow, I/O, ML Model)
 Objetivo: Validar que el adaptador real carga el modelo y procesa audio sin crashear.
 """
 
-import pytest
-import wave
-import struct
 import math
+import struct
+import wave
 from pathlib import Path
+
+import pytest
 
 # Intentamos importar las dependencias reales.
 # Si no están, saltamos el test para no romper CI/CD básico.
 try:
     # import whisper
-    import whisper  # noqa: F401
-
     # import librosa
     import librosa  # noqa: F401
 
     # import torch
     import torch  # noqa: F401
+    import whisper  # noqa: F401
 
     DEPS_INSTALLED = True
 except ImportError:
     DEPS_INSTALLED = False
 
+from english_editor.modules.analysis.domain.value_objects import TimeRange
 from english_editor.modules.analysis.infrastructure.whisper_adapter import (
     WhisperLocalAdapter,
 )
-from english_editor.modules.analysis.domain.value_objects import TimeRange
 
 # === Fixtures de Infraestructura ===
 

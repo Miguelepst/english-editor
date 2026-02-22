@@ -8,6 +8,7 @@ Responsabilidad: Representar un intervalo de tiempo validado e inmutable.
 """
 
 from __future__ import annotations
+
 from dataclasses import dataclass
 
 # === 🧭 Protocolos Arquitectónicos ===

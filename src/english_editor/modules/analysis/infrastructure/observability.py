@@ -4,15 +4,16 @@ Servicio de Observabilidad SRE: Logs, Latency & Saturation (RAM).
 Soporta modo "Pretty Print" para depuración visual.
 """
 
-import time
+import functools
 import json
 import logging
-import uuid
-import functools
 import os
-import psutil
-from typing import Any, Callable, Dict
+import time
+import uuid
 from pathlib import Path
+from typing import Any, Callable
+
+import psutil
 
 # Configuración básica
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -41,7 +42,7 @@ class ObservabilityService:
     def log_event(
         event_name: str,
         correlation_id: str,
-        payload: Dict[str, Any],
+        payload: dict[str, Any],
         level: str = "INFO",
     ):
         """Emite un log estructurado en JSON (Horizontal o Vertical)."""

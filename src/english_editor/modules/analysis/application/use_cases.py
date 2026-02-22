@@ -7,12 +7,12 @@ Responsabilidad: Orquestar la detección de voz delegando en la infraestructura.
 """
 
 from __future__ import annotations
-from typing import List
+
 from pathlib import Path
 
-from english_editor.modules.analysis.domain.value_objects import TimeRange
-from english_editor.modules.analysis.domain.ports.engine import SpeechAnalysisEngine
 from english_editor.modules.analysis.domain.exceptions import AudioFileError
+from english_editor.modules.analysis.domain.ports.engine import SpeechAnalysisEngine
+from english_editor.modules.analysis.domain.value_objects import TimeRange
 
 # ✅ Nuevo Import de Infraestructura (Observabilidad)
 from english_editor.modules.analysis.infrastructure.observability import (
@@ -36,7 +36,7 @@ class AnalyzeAudio:
 
     # ✅ Instrumentación: Medimos "Latency" y "Errors" automáticamente
     @ObservabilityService.measure_latency(operation_name="analyze_audio_use_case")
-    def execute(self, file_path: Path) -> List[TimeRange]:
+    def execute(self, file_path: Path) -> list[TimeRange]:
         """
         Ejecuta el análisis sobre el archivo indicado.
 

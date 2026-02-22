@@ -7,14 +7,14 @@ Capa: Application
 Responsabilidad: Coordinar la creación, recuperación y filtrado de trabajos (Batch/Idempotencia).
 """
 
-from typing import Iterator, List
-import os
 import logging
+import os
+from collections.abc import Iterator
 
 # === Imports de Dominio ===
 from english_editor.modules.orchestration.domain.entities import ProcessingJob
-from english_editor.modules.orchestration.domain.ports.repository import JobRepository
 from english_editor.modules.orchestration.domain.ports.file_system import FileSystemPort
+from english_editor.modules.orchestration.domain.ports.repository import JobRepository
 
 """
 Casos de Uso con Logging Estructurado.
@@ -100,7 +100,7 @@ class JobOrchestrator:
 
         logger.info(f"Resumen de Batch: {stats}")
 
-    def _resolve_input_files(self, path: str) -> List[str]:
+    def _resolve_input_files(self, path: str) -> list[str]:
         """Helper para aplanar directorios o validar archivos individuales."""
         # Nota: La lógica de "es directorio" vs "es archivo" podría delegarse al FileSystemPort
         # para pureza total, pero os.path.isdir es aceptable en Application si asumimos POSIX.

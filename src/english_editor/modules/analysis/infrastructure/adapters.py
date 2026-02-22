@@ -7,11 +7,11 @@ Responsabilidad: Implementar puertos del dominio usando tecnologías concretas (
 """
 
 from __future__ import annotations
-from typing import List, Optional
+
 from pathlib import Path
 
-from english_editor.modules.analysis.domain.value_objects import TimeRange
 from english_editor.modules.analysis.domain.exceptions import AudioFileError
+from english_editor.modules.analysis.domain.value_objects import TimeRange
 
 
 class FakeSpeechEngine:
@@ -25,7 +25,7 @@ class FakeSpeechEngine:
     - Por defecto, retorna un rango fijo [0.0, 10.0].
     """
 
-    def __init__(self, fixed_result: Optional[List[TimeRange]] = None):
+    def __init__(self, fixed_result: list[TimeRange] | None = None):
         """
         Args:
             fixed_result: Si se provee, siempre retornará esta lista.
@@ -33,7 +33,7 @@ class FakeSpeechEngine:
         """
         self._fixed_result = fixed_result
 
-    def detect_voice_activity(self, audio_path: Path) -> List[TimeRange]:
+    def detect_voice_activity(self, audio_path: Path) -> list[TimeRange]:
         """Simula la detección de voz."""
 
         # 1. Simular validación de existencia (aunque sea fake, debe parecer real)

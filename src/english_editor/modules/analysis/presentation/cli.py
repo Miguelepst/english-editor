@@ -10,27 +10,27 @@ Responsabilidad:
 """
 
 import argparse
-import sys
 import json
+import sys
 import time
 from pathlib import Path
 
 # Imports del núcleo (asumiendo ejecución como módulo o con PYTHONPATH correcto)
 # Si se ejecuta directamente, el path debe estar configurado externamente o aquí.
 try:
+    from english_editor.modules.analysis.application.use_cases import AnalyzeAudio
+    from english_editor.modules.analysis.domain.exceptions import AnalysisError
     from english_editor.modules.analysis.infrastructure.whisper_adapter import (
         WhisperLocalAdapter,
     )
-    from english_editor.modules.analysis.application.use_cases import AnalyzeAudio
-    from english_editor.modules.analysis.domain.exceptions import AnalysisError
 except ImportError:
     # Hack para desarrollo local si no está instalado como paquete
     sys.path.append(str(Path(__file__).resolve().parents[4]))
+    from english_editor.modules.analysis.application.use_cases import AnalyzeAudio
+    from english_editor.modules.analysis.domain.exceptions import AnalysisError
     from english_editor.modules.analysis.infrastructure.whisper_adapter import (
         WhisperLocalAdapter,
     )
-    from english_editor.modules.analysis.application.use_cases import AnalyzeAudio
-    from english_editor.modules.analysis.domain.exceptions import AnalysisError
 
 
 def setup_parser() -> argparse.ArgumentParser:

@@ -7,8 +7,9 @@ Responsabilidad: Definir el contrato para la detección de actividad de voz (VAD
 """
 
 from __future__ import annotations
-from typing import Protocol, List
+
 from pathlib import Path
+from typing import Protocol
 
 from english_editor.modules.analysis.domain.value_objects import TimeRange
 
@@ -22,7 +23,7 @@ class SpeechAnalysisEngine(Protocol):
     - FakeSpeechEngine (Testing)
     """
 
-    def detect_voice_activity(self, audio_path: Path) -> List[TimeRange]:
+    def detect_voice_activity(self, audio_path: Path) -> list[TimeRange]:
         """
         Analiza un archivo de audio y retorna los rangos de tiempo donde
         se detecta habla humana inteligible.

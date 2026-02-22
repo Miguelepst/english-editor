@@ -5,6 +5,7 @@ Tipo: Unitario (Domain)
 """
 
 import pytest
+
 from english_editor.modules.analysis.domain.value_objects import TimeRange
 
 # === Casos de Prueba ===

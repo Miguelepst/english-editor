@@ -6,14 +6,20 @@ Arquitectura: AAA (Arrange-Act-Assert) + Given-When-Then
 Protocolos: Aislamiento, Monitoreo de Recursos (RAM/CPU), Benchmarking de Tiempo
 """
 
-import pytest
-import sys
-import wave
 import os
+import sys
 import threading
 import time
-import psutil
+import wave
 from pathlib import Path
+
+import psutil
+import pytest
+
+# === Imports del SUT (System Under Test) ===
+from english_editor.modules.analysis.infrastructure.whisper_adapter import (
+    WhisperLocalAdapter,
+)
 
 # === 🧪 Protocolos de Calidad Obligatorios ===
 # 🔒 DOMINIO PURO: Tests sin I/O ni mocks. Solo lógica de negocio.
@@ -31,9 +37,7 @@ if str(SRC_PATH) not in sys.path:
     sys.path.append(str(SRC_PATH))
 
 # === Imports del SUT (System Under Test) ===
-from english_editor.modules.analysis.infrastructure.whisper_adapter import (
-    WhisperLocalAdapter,
-)
+# from english_editor.modules.analysis.infrastructure.whisper_adapter import WhisperLocalAdapter
 
 
 # === CONFIGURACIÓN: Detección de dependencias para tests de performance ===
@@ -45,10 +49,10 @@ def _check_performance_deps() -> bool:
         bool: True si todas las deps están disponibles, False en caso contrario.
     """
     try:
-        import whisper  # openai-whisper
         import librosa  # procesamiento de audio
-        import torch  # backend de ML
         import psutil  # monitoreo de recursos (ya lo usas en ResourceMonitor)
+        import torch  # backend de ML
+        import whisper  # openai-whisper
 
         return True
     except ImportError:

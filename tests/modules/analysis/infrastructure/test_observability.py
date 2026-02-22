@@ -8,10 +8,11 @@ Validación Completa:
   3. Métricas SRE (Latency + RAM Saturation)
 """
 
-import pytest
 import json
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 # Import del SUT
 from english_editor.modules.analysis.infrastructure.observability import (

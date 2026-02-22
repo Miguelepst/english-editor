@@ -8,7 +8,7 @@ Responsabilidad: Abstraer verificación de existencia y cálculo de integridad.
 """
 
 from abc import ABC, abstractmethod
-from typing import List
+
 from english_editor.modules.orchestration.domain.value_objects import SourceFingerprint
 
 
@@ -34,7 +34,7 @@ class FileSystemPort(ABC):
         pass
 
     @abstractmethod
-    def list_files(self, directory: str, extensions: List[str]) -> List[str]:
+    def list_files(self, directory: str, extensions: list[str]) -> list[str]:
         """
         Lista archivos en un directorio que coincidan con las extensiones.
         Uso: Batch processing.

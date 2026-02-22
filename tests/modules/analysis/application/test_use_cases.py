@@ -4,13 +4,14 @@ Tests para: AnalyzeAudio (Use Case)
 Tipo: Unitario (Application)
 """
 
-import pytest
 from pathlib import Path
 
+import pytest
+
 from english_editor.modules.analysis.application.use_cases import AnalyzeAudio
-from english_editor.modules.analysis.infrastructure.adapters import FakeSpeechEngine
-from english_editor.modules.analysis.domain.value_objects import TimeRange
 from english_editor.modules.analysis.domain.exceptions import AudioFileError
+from english_editor.modules.analysis.domain.value_objects import TimeRange
+from english_editor.modules.analysis.infrastructure.adapters import FakeSpeechEngine
 
 # === Fixtures ===
 

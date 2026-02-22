@@ -7,15 +7,15 @@ Responsabilidad: Implementar SpeechAnalysisEngine usando Whisper localmente.
 """
 
 from __future__ import annotations
-from typing import List
+
 from pathlib import Path
 
 # Imports de terceros (Solo permitidos en capa de infraestructura)
 try:
-    import whisper
-    import torch
     import librosa
     import numpy as np
+    import torch
+    import whisper
 except ImportError:
     # Fallback para que el código sea importable sin dependencias instaladas (CI/CD)
     # whisper = None
@@ -27,12 +27,12 @@ except ImportError:
     # np = None
     np = None  # type: ignore[assignment]
 
-from english_editor.modules.analysis.domain.value_objects import TimeRange
 from english_editor.modules.analysis.domain.exceptions import (
     AudioFileError,
     EngineRuntimeError,
     MemoryLimitExceeded,
 )
+from english_editor.modules.analysis.domain.value_objects import TimeRange
 
 
 class WhisperLocalAdapter:
@@ -61,9 +61,10 @@ class WhisperLocalAdapter:
                 # Forzamos CPU según requerimiento
                 self._model = whisper.load_model(self.model_size, device="cpu")
             except Exception as e:
-                raise EngineRuntimeError(f"Error cargando modelo Whisper: {e}")
+                # raise EngineRuntimeError(f"Error cargando modelo Whisper: {e}")
+                raise EngineRuntimeError(f"Error cargando modelo Whisper: {e}") from e
 
-    def detect_voice_activity(self, audio_path: Path) -> List[TimeRange]:
+    def detect_voice_activity(self, audio_path: Path) -> list[TimeRange]:
         """
         Implementa la estrategia de chunking deslizante para VAD.
         """
@@ -76,9 +77,10 @@ class WhisperLocalAdapter:
         try:
             total_duration = librosa.get_duration(path=audio_path)
         except Exception as e:
-            raise AudioFileError(f"No se pudo leer metadata del audio: {e}")
+            # raise AudioFileError(f"No se pudo leer metadata del audio: {e}")
+            raise AudioFileError(f"No se pudo leer metadata del audio: {e}") from e
 
-        raw_ranges: List[TimeRange] = []
+        raw_ranges: list[TimeRange] = []
 
         # 2. Iterar por ventanas (Chunking Strategy)
         # start va de 0 a total_duration, avanzando (CHUNK - OVERLAP)
@@ -101,7 +103,10 @@ class WhisperLocalAdapter:
                     duration=duration_to_load,
                 )
             except Exception as e:
-                raise EngineRuntimeError(f"Error leyendo chunk {current_start}s: {e}")
+                # raise EngineRuntimeError(f"Error leyendo chunk {current_start}s: {e}")
+                raise EngineRuntimeError(
+                    f"Error leyendo chunk {current_start}s: {e}"
+                ) from e
 
             # 3. Inferencia (Transcribe)
             # fp16=False necesario en CPU
@@ -114,8 +119,10 @@ class WhisperLocalAdapter:
                 )
             except RuntimeError as e:
                 if "memory" in str(e).lower():
-                    raise MemoryLimitExceeded(f"OOM durante inferencia: {e}")
-                raise EngineRuntimeError(f"Fallo en inferencia Whisper: {e}")
+                    # raise MemoryLimitExceeded(f"OOM durante inferencia: {e}")
+                    raise MemoryLimitExceeded(f"OOM durante inferencia: {e}") from e
+                # raise EngineRuntimeError(f"Fallo en inferencia Whisper: {e}")
+                raise EngineRuntimeError(f"Fallo en inferencia Whisper: {e}") from e
 
             # 4. Mapeo de segmentos locales a globales
             for segment in result.get("segments", []):
@@ -144,7 +151,7 @@ class WhisperLocalAdapter:
         # 5. Reducción y Fusión (Merge Overlaps)
         return self._merge_overlapping_ranges(raw_ranges)
 
-    def _merge_overlapping_ranges(self, ranges: List[TimeRange]) -> List[TimeRange]:
+    def _merge_overlapping_ranges(self, ranges: list[TimeRange]) -> list[TimeRange]:
         """
         Fusiona rangos solapados o duplicados resultantes del chunking.
         Algoritmo O(N log N).
