@@ -29,10 +29,7 @@ try:
     from rich import box  # 🟢 AGREGAR ESTA LÍNEA AQUÍ 🟢
     from rich.console import Console
     from rich.panel import Panel
-    from rich.progress import 
-    
     from rich.table import Table
-    
 
     RICH_AVAILABLE = True
 except ImportError:
