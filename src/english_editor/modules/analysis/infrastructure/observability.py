@@ -1,13 +1,13 @@
 """Módulo de observabilidad para métricas y logging del sistema."""
 
-from pathlib import Path
-from typing import Any, Callable
 import functools
 import json
 import logging
 import os
 import time
 import uuid
+from pathlib import Path
+from typing import Any, Callable
 
 # Fallback para entornos sin psutil (CI/CD, Colab Free)
 try:
