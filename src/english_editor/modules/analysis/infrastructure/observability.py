@@ -15,8 +15,7 @@ from pathlib import Path
 # from typing import Any, Callable, Dict
 from typing import Any, Callable, cast
 
-# import psutil
-
+import psutil  # No lazy, no esta dentro de la función que quiere esta dependencia, asi se use o no es cargada siempre.
 
 # Configuración básica
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -37,8 +36,7 @@ class ObservabilityService:
     def _get_ram_usage_mb() -> float:
         try:
             # ✅ DESPUÉS: Import lazy dentro de la función
-            import psutil
-
+            # import psutil
             process = psutil.Process(os.getpid())
             # ✅ Casting explícito para mypy: no-any-return
             return cast(float, process.memory_info().rss / 1024 / 1024)
