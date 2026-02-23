@@ -15,7 +15,8 @@ from pathlib import Path
 # from typing import Any, Callable, Dict
 from typing import Any, Callable, cast
 
-import psutil
+# import psutil
+
 
 # Configuración básica
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -35,6 +36,9 @@ class ObservabilityService:
     @staticmethod
     def _get_ram_usage_mb() -> float:
         try:
+            # ✅ DESPUÉS: Import lazy dentro de la función
+            import psutil
+
             process = psutil.Process(os.getpid())
             # ✅ Casting explícito para mypy: no-any-return
             return cast(float, process.memory_info().rss / 1024 / 1024)
