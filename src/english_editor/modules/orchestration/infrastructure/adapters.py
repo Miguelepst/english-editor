@@ -6,15 +6,16 @@ Arquitectura: Modular Monolith
 Capa: Infrastructure (Adapters)
 Responsabilidad: Implementar los puertos del dominio usando tecnologías concretas (JSON, OS).
 """
+
+# ✅ IMPORTS ORDENADOS: stdlib 'import' antes que 'from', alfabético por módulo
+
 import glob
 import hashlib
 import json
-import logging  # ← IMPORTS AL INICIO (orden estándar: stdlib → third-party → local)
+import logging
 import os
 from datetime import datetime
-
-# from typing import List, Optional, Dict, Any     #error
-from typing import Any, Optional, cast  # 1. Modernizar imports de typing
+from typing import Any, Optional, cast
 
 from english_editor.modules.orchestration.domain.entities import ProcessingJob
 from english_editor.modules.orchestration.domain.ports.file_system import FileSystemPort
@@ -28,6 +29,9 @@ from english_editor.modules.orchestration.domain.value_objects import (
 from english_editor.modules.orchestration.infrastructure.observability import (
     measure_time,
 )
+
+# ... (resto del código igual)
+
 
 """
 Adaptadores de Infraestructura con Telemetría.
@@ -70,7 +74,11 @@ class LocalFileSystemAdapter(FileSystemPort):
 
         hasher = hashlib.sha256()
 
+        # ❌ Antes:
         # 1. Hashear metadatos clave
+        # hasher.update(f"{filename}-{file_size}".encode('utf-8'))   # .encode("utf-8") es redundante (UTF-8 es default)
+
+        # ✅ Después:
         hasher.update(f"{filename}-{file_size}".encode())
 
         # 2. Hashear contenido parcial (Optimización)
@@ -138,7 +146,12 @@ class JsonFileRepository(JobRepository):
 
     def _load_db(self) -> dict[str, Any]:
         try:
-            with open(self.db_path) as f:
+            # ❌ Antes:
+            # with open(self.db_path, 'r') as f:
+            # ✅ Después:
+            with open(
+                self.db_path
+            ) as f:  # open(path, "r") no necesita "r" (es default)
                 # ✅ Casting explícito para mypy: no-any-return
                 return cast(dict[str, Any], json.load(f))
         except json.JSONDecodeError:
@@ -149,7 +162,8 @@ class JsonFileRepository(JobRepository):
     #def _load_db(self) -> Dict[str, Any]:
     def _load_db(self) -> dict[str, Any]:
         try:
-            with open(self.db_path, 'r') as f:
+            #with open(self.db_path, 'r') as f:
+            with open(self.db_path) as f:                        # open(path, "r") no necesita "r" (es default)
                 return json.load(f)
         except json.JSONDecodeError:
             logger.error(f"DB corrupta en {self.db_path}, iniciando vacía.")
