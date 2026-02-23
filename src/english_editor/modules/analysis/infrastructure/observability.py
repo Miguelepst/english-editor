@@ -3,6 +3,7 @@
 Servicio de Observabilidad SRE: Logs, Latency & Saturation (RAM).
 Soporta modo "Pretty Print" para depuración visual.
 """
+
 import functools
 import json
 import logging

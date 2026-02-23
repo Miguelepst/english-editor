@@ -5,9 +5,14 @@ Adaptador de infraestructura para Whisper (OpenAI).
 Arquitectura: Infrastructure Layer
 Responsabilidad: Implementar SpeechAnalysisEngine usando Whisper localmente.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
+
+# from typing import List  # (import deprecated)
+
+# import math
 
 # Imports de terceros (Solo permitidos en capa de infraestructura)
 try:
@@ -26,6 +31,7 @@ except ImportError:
     np = None
     # np = None       # type: ignore[assignment]
 
+# from english_editor.modules.analysis.domain.ports.engine import SpeechAnalysisEngine
 from english_editor.modules.analysis.domain.exceptions import (
     AudioFileError,
     EngineRuntimeError,
