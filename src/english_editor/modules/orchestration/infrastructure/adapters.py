@@ -8,7 +8,6 @@ Responsabilidad: Implementar los puertos del dominio usando tecnologías concret
 """
 
 # ✅ IMPORTS ORDENADOS: stdlib 'import' antes que 'from', alfabético por módulo
-
 import glob
 import hashlib
 import json
