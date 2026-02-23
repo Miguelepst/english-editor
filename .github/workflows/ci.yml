@@ -23,9 +23,9 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         # ✅ Instalar dependencias desde requirements.txt o pyproject.toml
-        if [ -f requirements.txt ]; then
-          pip install -r requirements.txt
-        fi
+        #if [ -f requirements.txt ]; then
+          #pip install -r requirements.txt
+        #fi
         # ✅ Instalar herramientas de validación
         pip install pytest black ruff mypy psutil charset-normalizer pyyaml
 
