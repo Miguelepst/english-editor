@@ -6,14 +6,15 @@ Estrategia: Frases Completas + Silencio Medio.
 Usamos oraciones largas para asegurar que Whisper no haga "early exit"
 y un silencio de 2s que fuerza la segmentación sin romper el contexto.
 """
-import pytest
-import wave
-import struct
+
 import math
 import os
 import random
+import struct
+import wave
 from pathlib import Path
 
+import pytest
 
 """
 # Facade Import
@@ -29,24 +30,25 @@ except ImportError:
     DEPS_INSTALLED = False
 """
 
+
 # === CONFIGURACIÓN: Detección robusta de dependencias externas ===
 def _check_external_deps() -> bool:
     """
     Verifica que las librerías externas críticas para tests E2E estén instaladas.
-    
+
     Returns:
         bool: True si todas las deps están disponibles, False en caso contrario.
     """
     try:
         # Dependencias directas del adapter WhisperLocalAdapter
-        import whisper      # openai-whisper: modelo de transcripción
-        import librosa      # procesamiento de audio
-        import torch        # backend de ML
-        
+        import librosa  # procesamiento de audio
+        import torch  # backend de ML
+        import whisper  # openai-whisper: modelo de transcripción
+
         # Validación opcional: verificar que whisper puede cargar un modelo mínimo
         # (descomentar si quieres ser más estricto, pero ralentiza la importación del test)
         # whisper.load_model("tiny", download_root="/tmp/whisper_cache", in_memory=True)
-        
+
         return True
     except ImportError:
         return False
@@ -54,10 +56,12 @@ def _check_external_deps() -> bool:
         # Cualquier otro error (ej: CUDA sin GPU) también cuenta como "no disponible"
         return False
 
+
 DEPS_INSTALLED = _check_external_deps()
 
 
 # === Fixtures ===
+
 
 @pytest.fixture
 def pattern_audio_file(tmp_path):
@@ -68,9 +72,10 @@ def pattern_audio_file(tmp_path):
     sample_rate = 16000
 
     try:
-        from pydub import AudioSegment
-        from gtts import gTTS
         from io import BytesIO
+
+        from gtts import gTTS
+        from pydub import AudioSegment
 
         # Generador de ruido de fondo (Dither)
         def generate_silence(duration_ms):
@@ -79,12 +84,14 @@ def pattern_audio_file(tmp_path):
             for _ in range(frames):
                 # Dither +/- 2 para evitar ceros absolutos
                 val = random.randint(-2, 2)
-                data.append(struct.pack('<h', val))
+                data.append(struct.pack("<h", val))
 
             noise_io = BytesIO()
-            with wave.open(noise_io, 'w') as wav:
-                wav.setnchannels(1); wav.setsampwidth(2); wav.setframerate(sample_rate)
-                wav.writeframes(b''.join(data))
+            with wave.open(noise_io, "w") as wav:
+                wav.setnchannels(1)
+                wav.setsampwidth(2)
+                wav.setframerate(sample_rate)
+                wav.writeframes(b"".join(data))
             noise_io.seek(0)
             return AudioSegment.from_wav(noise_io)
 
@@ -93,7 +100,7 @@ def pattern_audio_file(tmp_path):
         # Más de 3.0s -> Whisper suele abandonar (early exit).
         gap_duration = 2000
         silence_gap = generate_silence(gap_duration)
-        silence_pad = generate_silence(500) # Padding corto
+        silence_pad = generate_silence(500)  # Padding corto
 
         def text_to_audio(text):
             # Usamos frases completas para mantener la atención del modelo
@@ -112,16 +119,23 @@ def pattern_audio_file(tmp_path):
         # Concatenar
         full_audio = silence_pad + voice_1 + silence_gap + voice_2 + silence_pad
 
-        full_audio.export(str(filename), format="wav", parameters=["-ar", str(sample_rate)])
+        full_audio.export(
+            str(filename), format="wav", parameters=["-ar", str(sample_rate)]
+        )
 
-        print(f"✅ Audio generado: {len(full_audio)/1000:.2f}s (Gap: {gap_duration/1000}s)")
+        print(
+            f"✅ Audio generado: {len(full_audio)/1000:.2f}s (Gap: {gap_duration/1000}s)"
+        )
 
     except ImportError:
-        with open(filename, 'wb') as f: f.write(b'RIFF')
+        with open(filename, "wb") as f:
+            f.write(b"RIFF")
 
     return filename
 
+
 # === Test ===
+
 
 @pytest.mark.e2e
 @pytest.mark.skipif(not DEPS_INSTALLED, reason="Faltan dependencias")
@@ -129,7 +143,10 @@ def test_e2e_separation_of_segments(pattern_audio_file):
     # ─── IMPORTS LOCALES (solo si el test se ejecuta) ─────────────────────
     from english_editor.modules.analysis.application.use_cases import AnalyzeAudio
     from english_editor.modules.analysis.domain.value_objects import TimeRange
-    from english_editor.modules.analysis.infrastructure.whisper_adapter import WhisperLocalAdapter
+    from english_editor.modules.analysis.infrastructure.whisper_adapter import (
+        WhisperLocalAdapter,
+    )
+
     # ─────────────────────────────────────────────────────────────────────
 
     # 1. Setup
@@ -138,7 +155,7 @@ def test_e2e_separation_of_segments(pattern_audio_file):
     use_case = AnalyzeAudio(engine=adapter)
 
     # 2. Execution
-    print(f"🚀 [E2E] Analizando...")
+    print("🚀 [E2E] Analizando...")
     segments = use_case.execute(pattern_audio_file)
     print(f"📊 [E2E] Resultado raw: {segments}")
 
@@ -150,20 +167,27 @@ def test_e2e_separation_of_segments(pattern_audio_file):
 
         # Obtenemos duración real del archivo
         import wave
-        with wave.open(str(pattern_audio_file), 'rb') as f:
+
+        with wave.open(str(pattern_audio_file), "rb") as f:
             file_dur = f.getnframes() / f.getframerate()
 
-        print(f"⚠️ Un solo segmento detectado: {seg.start:.2f}s -> {seg.end:.2f}s (Total Audio: {file_dur:.2f}s)")
+        print(
+            f"⚠️ Un solo segmento detectado: {seg.start:.2f}s -> {seg.end:.2f}s (Total Audio: {file_dur:.2f}s)"
+        )
 
         # Si el segmento cubre TODO el audio (start cerca de 0, end cerca del final)
         # Significa que FALLÓ en separar (merged).
         if seg.end > (file_dur - 1.5):
-             pytest.fail(f"Fallo: El modelo fusionó las dos frases ignorando el silencio de 2s.")
+            pytest.fail(
+                "Fallo: El modelo fusionó las dos frases ignorando el silencio de 2s."
+            )
         else:
-             # Si el segmento termina a la mitad, es 'Early Exit'.
-             # Nota: Esto a veces pasa en CI/CD lento. Podemos ser permisivos o fallar.
-             # Para este test, vamos a fallar porque queremos garantizar robustness.
-             pytest.fail(f"Fallo: Early Exit. El modelo dejó de escuchar a los {seg.end}s y el audio dura {file_dur}s")
+            # Si el segmento termina a la mitad, es 'Early Exit'.
+            # Nota: Esto a veces pasa en CI/CD lento. Podemos ser permisivos o fallar.
+            # Para este test, vamos a fallar porque queremos garantizar robustness.
+            pytest.fail(
+                f"Fallo: Early Exit. El modelo dejó de escuchar a los {seg.end}s y el audio dura {file_dur}s"
+            )
 
     # Caso ideal: 2 o más segmentos
     assert len(segments) >= 2, "Debe detectar al menos 2 segmentos."
@@ -172,7 +196,7 @@ def test_e2e_separation_of_segments(pattern_audio_file):
     # Buscamos el mayor hueco entre segmentos consecutivos
     max_gap = 0
     for i in range(len(segments) - 1):
-        current_gap = segments[i+1].start - segments[i].end
+        current_gap = segments[i + 1].start - segments[i].end
         if current_gap > max_gap:
             max_gap = current_gap
 
@@ -180,6 +204,8 @@ def test_e2e_separation_of_segments(pattern_audio_file):
 
     # El silencio real es 2.0s. Whisper suele "comerse" un poco los bordes.
     # Un gap detectado de > 0.5s prueba que NO están pegados.
-    assert max_gap > 0.5, f"Fallo: Los segmentos están demasiado pegados (Gap: {max_gap}s)."
+    assert (
+        max_gap > 0.5
+    ), f"Fallo: Los segmentos están demasiado pegados (Gap: {max_gap}s)."
 
     print("✅ [E2E] Éxito: Frases correctamente separadas.")

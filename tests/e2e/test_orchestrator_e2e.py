@@ -3,15 +3,22 @@
 Tests End-to-End (E2E) para el subsistema de Orquestación.
 Objetivo: Validar comportamiento con archivos de gran tamaño y ciclos de vida completos.
 """
+
 import os
-import time
-#import pytest
+
+# import pytest
 import shutil
-from english_editor.modules.orchestration.infrastructure.adapters import JsonFileRepository, LocalFileSystemAdapter
+import time
+
 from english_editor.modules.orchestration.application.use_cases import JobOrchestrator
 from english_editor.modules.orchestration.domain.value_objects import JobStatus
+from english_editor.modules.orchestration.infrastructure.adapters import (
+    JsonFileRepository,
+    LocalFileSystemAdapter,
+)
 
 # === Escenarios E2E ===
+
 
 def test_performance_on_huge_files(tmp_path, big_file_factory):
     """
@@ -44,8 +51,13 @@ def test_performance_on_huge_files(tmp_path, big_file_factory):
     assert len(jobs) == 1
     # IMPORTANTE: Si lee todo el archivo, tardaría >10s. Si tarda <1s, la optimización funciona.
     print(f"\n⏱️ Tiempo de procesamiento para 5GB: {duration:.4f}s")
-    assert duration < 1.0, "El sistema es demasiado lento, parece estar leyendo el archivo completo."
-    assert jobs[0].source.file_size_bytes > 5 * 10**9 # Confirmar que detecta el tamaño correcto
+    assert (
+        duration < 1.0
+    ), "El sistema es demasiado lento, parece estar leyendo el archivo completo."
+    assert (
+        jobs[0].source.file_size_bytes > 5 * 10**9
+    )  # Confirmar que detecta el tamaño correcto
+
 
 def test_integrity_check_tail_mutation(tmp_path, big_file_factory):
     """
@@ -56,11 +68,11 @@ def test_integrity_check_tail_mutation(tmp_path, big_file_factory):
     # Arrange
     input_dir = tmp_path / "inputs"
     os.makedirs(input_dir)
-    #repo = JsonFileRepository(str(tmp_path / "db.json"))
+    # repo = JsonFileRepository(str(tmp_path / "db.json"))
     fs = LocalFileSystemAdapter()
 
     # 1. Crear archivo original
-    file_path = big_file_factory("video_large.mp4", size_gb=1.0) # 1GB
+    file_path = big_file_factory("video_large.mp4", size_gb=1.0)  # 1GB
     shutil.move(file_path, os.path.join(input_dir, "video_large.mp4"))
     full_path = os.path.join(input_dir, "video_large.mp4")
 
@@ -69,16 +81,18 @@ def test_integrity_check_tail_mutation(tmp_path, big_file_factory):
 
     # Act - Modificar el archivo al final (byte change)
     with open(full_path, "r+b") as f:
-        f.seek(-1, os.SEEK_END) # Ir al último byte
-        f.write(b"X") # Cambiarlo
+        f.seek(-1, os.SEEK_END)  # Ir al último byte
+        f.write(b"X")  # Cambiarlo
 
     # Calcular nuevo fingerprint
     fp_modified = fs.calculate_fingerprint(full_path)
 
     # Assert
     assert fp_original.file_size_bytes == fp_modified.file_size_bytes
-    assert fp_original.content_hash != fp_modified.content_hash, \
-        "El hash no cambió tras modificar el final del archivo. ¿Estamos leyendo la cola?"
+    assert (
+        fp_original.content_hash != fp_modified.content_hash
+    ), "El hash no cambió tras modificar el final del archivo. ¿Estamos leyendo la cola?"
+
 
 def test_full_lifecycle_crash_recovery(tmp_path):
     """
@@ -108,7 +122,7 @@ def test_full_lifecycle_crash_recovery(tmp_path):
     repo.save(job)
 
     # --- FASE 2: Reinicio (Nueva instancia de todo) ---
-    repo_2 = JsonFileRepository(db_path) # Carga desde disco
+    repo_2 = JsonFileRepository(db_path)  # Carga desde disco
     orchestrator_2 = JobOrchestrator(repo_2, fs)
 
     jobs_run2 = list(orchestrator_2.prepare_jobs(str(input_dir), str(output_dir)))

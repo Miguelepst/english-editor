@@ -4,15 +4,18 @@ Servicio de Observabilidad SRE: Logs, Latency & Saturation (RAM).
 Soporta modo "Pretty Print" para depuración visual.
 """
 
-import time
+import functools
 import json
 import logging
-import uuid
-import functools
 import os
-import psutil
-from typing import Any, Callable, Dict
+import time
+import uuid
 from pathlib import Path
+
+# from typing import Any, Callable, Dict
+from typing import Any, Callable, cast
+
+import psutil  # No lazy, no esta dentro de la función que quiere esta dependencia, asi se use o no es cargada siempre.
 
 # Configuración básica
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -32,16 +35,29 @@ class ObservabilityService:
     @staticmethod
     def _get_ram_usage_mb() -> float:
         try:
+            # ✅ DESPUÉS: Import lazy dentro de la función
+            # import psutil
+            process = psutil.Process(os.getpid())
+            # ✅ Casting explícito para mypy: no-any-return
+            return cast(float, process.memory_info().rss / 1024 / 1024)
+        except Exception:
+            return 0.0
+
+    """
+    @staticmethod
+    def _get_ram_usage_mb() -> float:
+        try:
             process = psutil.Process(os.getpid())
             return round(process.memory_info().rss / 1024 / 1024, 2)
         except Exception:
             return 0.0
+    """
 
     @staticmethod
     def log_event(
         event_name: str,
         correlation_id: str,
-        payload: Dict[str, Any],
+        payload: dict[str, Any],
         level: str = "INFO",
     ):
         """Emite un log estructurado en JSON (Horizontal o Vertical)."""
