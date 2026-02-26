@@ -1,3 +1,4 @@
+# ruff: noqa: E402
 # tests/performance/test_benchmark_whisper.py
 """
 Tests para: benchmark_whisper.py
@@ -16,11 +17,6 @@ from pathlib import Path
 import psutil
 import pytest
 
-# === Imports del SUT (System Under Test) ===
-from english_editor.modules.analysis.infrastructure.whisper_adapter import (
-    WhisperLocalAdapter,
-)
-
 # === 🧪 Protocolos de Calidad Obligatorios ===
 # 🔒 DOMINIO PURO: Tests sin I/O ni mocks. Solo lógica de negocio.
 # 🧪 AISLAMIENTO: Cada test es independiente (no comparte estado con otros tests).
@@ -36,8 +32,9 @@ SRC_PATH = PROJECT_ROOT_DIR / "src"
 if str(SRC_PATH) not in sys.path:
     sys.path.append(str(SRC_PATH))
 
-# === Imports del SUT (System Under Test) ===
-# from english_editor.modules.analysis.infrastructure.whisper_adapter import WhisperLocalAdapter
+from english_editor.modules.analysis.infrastructure.whisper_adapter import (
+    WhisperLocalAdapter,
+)
 
 
 # === CONFIGURACIÓN: Detección de dependencias para tests de performance ===

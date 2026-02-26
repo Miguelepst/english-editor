@@ -1,3 +1,5 @@
+#v1
+# /content/english-editor/.pre-commit-config.yaml
 # ╔══════════════════════════════════════════════════════════════════════════════╗
 # #  🛡️ PRE-COMMIT CONFIGURATION - english-editor Project                          #
 # #  Propósito: Verificar calidad de código ANTES de cada commit                 #
@@ -16,6 +18,79 @@
 # # ╚══════════════════════════════════════════════════════════════════════════════╝
 
 repos:
+  # ──────────────────────────────────────────────────────────────────────────────
+  # 🟢 FASE 1: PROTECCIÓN DE RAMAS (Local hook - Rápido <1 seg)
+  # ──────────────────────────────────────────────────────────────────────────────
+  # Hook personalizado para evitar commits accidentales en la rama main.
+  # Recomendado: ACTIVAR SIEMPRE en repositorios con ramas protegidas
+
+  - repo: local
+    hooks:
+      - id: protect-main-branch
+        name: "🔒 Evitar commits directos en main"
+        entry: python scripts/hooks/protect_main.py
+        language: system
+        pass_filenames: false
+        always_run: true  # ✅ CRUCIAL: Obliga al hook a correr siempre,
+                          # aunque no haya archivos en el "stage".
+        stages: [pre-commit]
+        # 📝 ¿Qué hace este hook?
+        #   • Detecta si estás intentando commitear en la rama 'main'
+        #   • Muestra una advertencia educativa con el flujo correcto
+        #   • (Opcional) Puede bloquear el commit si se configura en modo estricto
+        # 💡 Por qué es importante:
+        #   • 🎓 Educativo: Refuerza el flujo Git correcto (rama → PR → merge)
+        #   • 🛡️ Preventivo: Evita errores humanos de commitear en main local
+        #   • 🔗 Coherente: Alinea tu entorno local con la protección remota de GitHub
+        #   • ⚡ Ligero: Se ejecuta en <1 segundo, sin impacto en tu flujo
+        # 🔧 Configuración:
+        #   • Modo actual: SOLO AVISAR (return 0) → no bloquea, solo educa
+        #   • Para bloquear: cambiar 'return 0' por 'return 1' en el script
+        # 🚨 No interfiere con otros hooks porque:
+        #   • Usa 'repo: local' → es independiente de repos externos
+        #   • 'pass_filenames: false' → no procesa archivos, solo verifica contexto
+        #   • 'always_run: true' → garantiza que el aviso salga aunque hagas commit de nada
+        # 📁 Requiere: scripts/hooks/protect_main.py
+
+
+  #error
+  # ──────────────────────────────────────────────────────────────────────────────
+  # 🟢 FASE 1: PROTECCIÓN DE RAMAS (Local hook - Rápido <1 seg)
+  # ──────────────────────────────────────────────────────────────────────────────
+  # Hook personalizado para evitar commits accidentales en la rama main.
+  # Recomendado: ACTIVAR SIEMPRE en repositorios con ramas protegidas
+
+  #- repo: local
+    #hooks:
+      #- id: protect-main-branch
+        #name: "🔒 Evitar commits directos en main"
+        #entry: python scripts/hooks/protect_main.py
+        #language: system
+        #pass_filenames: false
+        #stages: [commit]
+        #stages: [pre-commit]  # ✅ Actualizado: era [commit] (deprecated)
+        # 📝 ¿Qué hace este hook?
+        #   • Detecta si estás intentando commitear en la rama 'main'
+        #   • Muestra una advertencia educativa con el flujo correcto
+        #   • (Opcional) Puede bloquear el commit si se configura en modo estricto
+        # 💡 Por qué es importante:
+        #   • 🎓 Educativo: Refuerza el flujo Git correcto (rama → PR → merge)
+        #   • 🛡️ Preventivo: Evita errores humanos de commitear en main local
+        #   • 🔗 Coherente: Alinea tu entorno local con la protección remota de GitHub
+        #   • ⚡ Ligero: Se ejecuta en <1 segundo, sin impacto en tu flujo
+        # 🔧 Configuración:
+        #   • Modo actual: SOLO AVISAR (return 0) → no bloquea, solo educa
+        #   • Para bloquear: cambiar 'return 0' por 'return 1' en el script
+        # 🚨 No interfiere con otros hooks porque:
+        #   • Usa 'repo: local' → es independiente de repos externos
+        #   • 'pass_filenames: false' → no procesa archivos, solo verifica contexto
+        #   • Se ejecuta en la fase 'commit' → mismo ciclo que los demás hooks
+        # 📁 Requiere: scripts/hooks/protect_main.py (creado aparte)
+        # 🚀 DESCOMENTAR CUANDO:
+        #   • Hayas creado el script protect_main.py
+        #   • Quieras reforzar el flujo de trabajo en equipo
+        #enabled: true  # ← Activado por defecto (quitar para desactivar) #no valida en hooks locales
+
   # ──────────────────────────────────────────────────────────────────────────────
   # 🟢 FASE 1: ESENCIALES (Activos por defecto - Rápidos <10 seg)
   # ──────────────────────────────────────────────────────────────────────────────

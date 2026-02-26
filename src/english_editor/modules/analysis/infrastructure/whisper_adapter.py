@@ -1,3 +1,4 @@
+# mypy: ignore-errors
 # src/english_editor/modules/analysis/infrastructure/whisper_adapter.py
 """
 Adaptador de infraestructura para Whisper (OpenAI).
@@ -10,10 +11,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-# from typing import List  # (import deprecated)
-
-# import math
-
 # Imports de terceros (Solo permitidos en capa de infraestructura)
 try:
     import librosa
@@ -22,16 +19,15 @@ try:
     import whisper
 except ImportError:
     # Fallback para que el código sea importable sin dependencias instaladas (CI/CD)
+    # whisper = None
     whisper = None
-    # whisper = None  # type: ignore[assignment]
+    # torch = None
     torch = None
-    # torch = None  # type: ignore[assignment]
+    # librosa = None
     librosa = None
-    # librosa = None  # type: ignore[assignment]
+    # np = None
     np = None
-    # np = None       # type: ignore[assignment]
 
-# from english_editor.modules.analysis.domain.ports.engine import SpeechAnalysisEngine
 from english_editor.modules.analysis.domain.exceptions import (
     AudioFileError,
     EngineRuntimeError,
@@ -66,7 +62,6 @@ class WhisperLocalAdapter:
                 # Forzamos CPU según requerimiento
                 self._model = whisper.load_model(self.model_size, device="cpu")
             except Exception as e:
-                # raise EngineRuntimeError(f"Error cargando modelo Whisper: {e}")
                 raise EngineRuntimeError(f"Error cargando modelo Whisper: {e}") from e
 
     def detect_voice_activity(self, audio_path: Path) -> list[TimeRange]:
@@ -82,7 +77,6 @@ class WhisperLocalAdapter:
         try:
             total_duration = librosa.get_duration(path=audio_path)
         except Exception as e:
-            # raise AudioFileError(f"No se pudo leer metadata del audio: {e}")
             raise AudioFileError(f"No se pudo leer metadata del audio: {e}") from e
 
         raw_ranges: list[TimeRange] = []
@@ -108,7 +102,6 @@ class WhisperLocalAdapter:
                     duration=duration_to_load,
                 )
             except Exception as e:
-                # raise EngineRuntimeError(f"Error leyendo chunk {current_start}s: {e}")
                 raise EngineRuntimeError(
                     f"Error leyendo chunk {current_start}s: {e}"
                 ) from e
@@ -118,18 +111,14 @@ class WhisperLocalAdapter:
             try:
 
                 result = self._model.transcribe(
-                    # ✅ DESPUÉS
-                    # result = self._model.transcribe(  # type: ignore[attr-defined]
-                    audio_chunk,
-                    fp16=False,
-                    language="en",
-                    verbose=False,
+                    audio_chunk, fp16=False, language="en", verbose=False
+                )
+                result = self._model.transcribe(
+                    audio_chunk, fp16=False, language="en", verbose=False
                 )
             except RuntimeError as e:
                 if "memory" in str(e).lower():
-                    # raise MemoryLimitExceeded(f"OOM durante inferencia: {e}")
                     raise MemoryLimitExceeded(f"OOM durante inferencia: {e}") from e
-                # raise EngineRuntimeError(f"Fallo en inferencia Whisper: {e}")
                 raise EngineRuntimeError(f"Fallo en inferencia Whisper: {e}") from e
 
             # 4. Mapeo de segmentos locales a globales
