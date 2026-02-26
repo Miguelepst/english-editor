@@ -30,16 +30,19 @@ dependencies = [
 ]                              # Dependencias de producción (vacío inicial)
 
 
+
+
 optional-dependencies.dev = [                  # Dependencias de desarrollo (opcionales)
   "pytest>=8.0.0",                             # Framework de testing estándar industria
   "pytest-cov>=4.0",                           # Cobertura de código integrada
+  "psutil>=5.9",                               # ← Agregar esta línea  
   "pytest-sugar>=0.9",                         # Mejora visual de salida (opcional)
   "pytest-mock>=3.12.0",
   "pytest-timeout>=2.3.0",
   "pytest-benchmark>=5.2.3",                   # Pruebas de rendimiento, # Dejarlo libre obliga a pip a traer la más actual compatible
-                                               # (>=5.2.3) proteger tu proyecto de car al futuro. 
+                                               # (>=5.2.3) proteger tu proyecto de car al futuro.
                                                # Ahora sí tienes un valor real y justificado
-
+  "pip-tools>=7.0",       # Si en el futuro quieres reproducibilidad exacta (como un lock file), puedes agregar pip-tools
   "ruff>=0.1",                                 # Linter + formateador moderno (100x más rápido)
   "mypy>=1.0",                                 # Type checking estático estricto
   "rich>=13.0",                                # Salida de consola bonita para demos

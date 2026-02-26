@@ -1,0 +1,4 @@
+# 🛡️ DevSecOps Orchestrator - Auto-generated reports
+reports/
+security-report-*.json
+security-report-*.html

@@ -1,3 +1,4 @@
+#/content/english-editor/requirements.txt
 audioread==3.1.0
 # via librosa
 certifi==2026.1.4

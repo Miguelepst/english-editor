@@ -145,15 +145,15 @@ output/temp_*
 
 
 
-  
+
   # Add 2:
-  
+
   #*.py[cod]       # “Ignora cualquier archivo .pyc, .pyo o .pyd”.
   #*.egg-info/     # real
   #dist/
   #build/
-  
-  
+
+
 
 
 
