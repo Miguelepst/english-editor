@@ -1,5 +1,5 @@
 #v1
-# /content/english-editor/.pre-commit-config.yaml
+#mg1 /content/english-editor/.pre-commit-config.yaml
 # ╔══════════════════════════════════════════════════════════════════════════════╗
 # #  🛡️ PRE-COMMIT CONFIGURATION - english-editor Project                          #
 # #  Propósito: Verificar calidad de código ANTES de cada commit                 #
