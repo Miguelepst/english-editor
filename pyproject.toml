@@ -63,6 +63,7 @@ dev = [
   "pre-commit>=3.6.0",        # 🛡️ Git Hooks: Automatiza la ejecución de linters y formateadores antes de permitir un commit.
   "psutil>=5.9",              # 📊 Monitoreo OS: Acceso a métricas del sistema (RAM, CPU) ideal para perfilar el rendimiento.
   "pip-tools>=7.0",           # 🔒 Lock files: Permite compilar dependencias exactas (requirements.txt) para despliegues reproducibles.
+  "black>=24.0.0",            # 🖤 Formateador de código: Aplica automáticamente un estilo consistente a todo el código Python (PEP 8), eliminando discusiones sobre formato y manteniendo el código limpio y uniforme.
   "ruff>=0.1",                # ⚡ Linter y Formateador ultra-rápido: Escrito en Rust, reemplaza a Flake8, Black e isort en una sola herramienta.
   "mypy>=1.0",                # 🔤 Type Checker: Analiza estáticamente el código buscando errores de tipo antes de la ejecución.
   "rich>=13.0",               # 🎨 Consola enriquecida: Renderiza tablas, barras de progreso y texto con formato/color en la terminal.
@@ -109,23 +110,6 @@ markers = [
 
 
 
-
-# ============================================================
-# 🧹 FORMATEO CON BLACK
-# Configuración explícita para garantizar consistencia entre entornos.
-# ============================================================
-[tool.black]
-target-version = ['py310']       # ← Define la versión mínima de compatibilidad
-line-length = 88                 # Longitud de línea estándar
-include = '\.pyi?$'              # Solo archivos .py y .pyi
-# skip-magic-trailing-comma = false  # Descomentar si prefieres sin comas mágicas
-
-
-
-
-
-
-
 addopts = [
   "-v",                        # Modo verboso para ver cada prueba individual
 #  "--strict-markers",         # Evita errores tipográficos al registrar marcadores
@@ -159,53 +143,63 @@ filterwarnings = [
 ]
 
 
+# ============================================================
+# ⚫ CONFIGURACIÓN DE BLACK (El Estandarizador) 🧹 FORMATEO CON BLACK
+# Configuración explícita para garantizar consistencia entre entornos.
+# ============================================================
+[tool.black]
+target-version = ['py310']       # ← Define la versión mínima de compatibilidad
+line-length = 88                 # Longitud de línea estándar
+include = '\.pyi?$'              # Solo archivos .py y .pyi
+# skip-magic-trailing-comma = false  # Descomentar si prefieres sin comas mágicas
 
 
-#filterwarnings = [
-#    "ignore::UserWarning:huggingface_hub.utils._auth",
-#    "ignore::DeprecationWarning",
-#]
 
 # ============================================================
-# 🧹 LINTING CON RUFF (Comentado para activación futura)
+# ⚡ LINTING CON RUFF (El Guardián Ultrarrápido) # 🧹 LINTING CON RUFF (Comentado para activación futura)
 # ============================================================
-#[tool.ruff]
-#line-length = 88
+[tool.ruff]
+line-length = 88
 #target-version = "py39"
-#select = ["E", "F", "W", "I", "UP", "C4", "TID", "RUF"]
-#ignore = ["E501"]
+target-version = "py310"
+# Reglas: Errores, Fallos, Warnings, Imports, PyUpgrade, Comprehensions, Tidy, Específicos de Ruff
+select = ["E", "F", "W", "I", "UP", "C4", "TID", "RUF"]
+ignore = ["E501"] # Ignorar límite de línea estricto (Black ya se encarga de eso)
 
-#[tool.ruff.format]
-#quote-style = "double"
-#indent-style = "space"
-#skip-magic-trailing-comma = false
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
 
 # ============================================================
 # 🔤 TYPE CHECKING CON MYPY (Comentado para activación futura)
 # ============================================================
-#[tool.mypy]
+[tool.mypy]
 #python_version = "3.9"
-#warn_return_any = true
-#warn_unused_configs = true
-#disallow_untyped_defs = true
-#check_untyped_defs = true
-#no_implicit_optional = true
-#strict_equality = true
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false  # Temporalmente en false para no bloquearte si no tienes tipado al 100%
+check_untyped_defs = true
+no_implicit_optional = true
+strict_equality = true
+ignore_missing_imports = true  # Vital para librerías de IA que no tienen tipados
 
 # ============================================================
 # 📊 CONFIGURACIÓN DE COBERTURA (Comentado para activación futura)
 # ============================================================
-#[tool.coverage.run]
-#source = ["src/english_editor"]
-#branch = true
-#parallel = true
+[tool.coverage.run]
+source = ["src/english_editor"]
+branch = true
+parallel = true
 
-#[tool.coverage.report]
-#fail_under = 80
-#show_missing = true
-#skip_covered = true
-#exclude_lines = [
-#  "pragma: no cover",
-#  "if __name__ == .__main__.:",
-#  "raise NotImplementedError",
-#]
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+skip_covered = true
+exclude_lines = [
+  "pragma: no cover",
+  "if __name__ == .__main__.:",
+  "raise NotImplementedError",
+]
