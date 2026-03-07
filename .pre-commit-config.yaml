@@ -101,14 +101,22 @@ repos:
         # Black formatea automáticamente tu código. No hay discusión de estilo.
         # Recomendado: ACTIVAR SIEMPRE
   - repo: https://github.com/psf/black
-    rev: 24.1.0
+    rev: 24.4.2  # Usa la versión específica que quieras estandarizar
     hooks:
       - id: black
-        # 📝 Formatea código Python automáticamente
-        # 💡 Por qué: Consistencia en todo el equipo, diffs más limpios
-        stages: [pre-commit]   #
-        language_version: python3.10  # ✅ Ajustar a tu versión de Python
-        args: [--line-length=88]  # 📏 Longitud máxima de línea (estándar Black)
+        stages: [pre-commit]
+        args: ['--target-version', 'py310']  # ← Forzar versión aquí también
+
+
+  #- repo: https://github.com/psf/black
+  #  rev: 24.1.0
+  #  hooks:
+  #    - id: black
+  #      # 📝 Formatea código Python automáticamente
+  #      # 💡 Por qué: Consistencia en todo el equipo, diffs más limpios
+  #      stages: [pre-commit]   #
+  #      language_version: python3.10  # ✅ Ajustar a tu versión de Python
+  #      args: [--line-length=88]  # 📏 Longitud máxima de línea (estándar Black)
 
         # ──────────────────────────────────────────────────────────────────────────────
         # 🟢 FASE 1: LINT + SEGURIDAD BÁSICA (Ruff - Rápido <10 seg)

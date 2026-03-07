@@ -107,6 +107,25 @@ markers = [
   "performance: Benchmarks y pruebas de carga o recursos"
 ]
 
+
+
+
+# ============================================================
+# 🧹 FORMATEO CON BLACK
+# Configuración explícita para garantizar consistencia entre entornos.
+# ============================================================
+[tool.black]
+target-version = ['py310']       # ← Define la versión mínima de compatibilidad
+line-length = 88                 # Longitud de línea estándar
+include = '\.pyi?$'              # Solo archivos .py y .pyi
+# skip-magic-trailing-comma = false  # Descomentar si prefieres sin comas mágicas
+
+
+
+
+
+
+
 addopts = [
   "-v",                        # Modo verboso para ver cada prueba individual
 #  "--strict-markers",         # Evita errores tipográficos al registrar marcadores
