@@ -1,5 +1,5 @@
 #v1
-#mg1 /content/english-editor/.pre-commit-config.yaml
+# /content/english-editor/.pre-commit-config.yaml
 # ╔══════════════════════════════════════════════════════════════════════════════╗
 # #  🛡️ PRE-COMMIT CONFIGURATION - english-editor Project                          #
 # #  Propósito: Verificar calidad de código ANTES de cada commit                 #
@@ -18,7 +18,7 @@
 # # ╚══════════════════════════════════════════════════════════════════════════════╝
 
 repos:
-  ## ──────────────────────────────────────────────────────────────────────────────
+  # ──────────────────────────────────────────────────────────────────────────────
   # 🟢 FASE 1: PROTECCIÓN DE RAMAS (Local hook - Rápido <1 seg)
   # ──────────────────────────────────────────────────────────────────────────────
   # Hook personalizado para evitar commits accidentales en la rama main.
@@ -34,69 +34,6 @@ repos:
         always_run: true  # ✅ CRUCIAL: Obliga al hook a correr siempre,
                           # aunque no haya archivos en el "stage".
         stages: [pre-commit]
-        # 📝 ¿Qué hace este hook?
-        #   • Detecta si estás intentando commitear en la rama 'main'
-        #   • Muestra una advertencia educativa con el flujo correcto
-        #   • (Opcional) Puede bloquear el commit si se configura en modo estricto
-        # 💡 Por qué es importante:
-        #   • 🎓 Educativo: Refuerza el flujo Git correcto (rama → PR → merge)
-        #   • 🛡️ Preventivo: Evita errores humanos de commitear en main local
-        #   • 🔗 Coherente: Alinea tu entorno local con la protección remota de GitHub
-        #   • ⚡ Ligero: Se ejecuta en <1 segundo, sin impacto en tu flujo
-        # 🔧 Configuración:
-        #   • Modo actual: SOLO AVISAR (return 0) → no bloquea, solo educa
-        #   • Para bloquear: cambiar 'return 0' por 'return 1' en el script
-        # 🚨 No interfiere con otros hooks porque:
-        #   • Usa 'repo: local' → es independiente de repos externos
-        #   • 'pass_filenames: false' → no procesa archivos, solo verifica contexto
-        #   • 'always_run: true' → garantiza que el aviso salga aunque hagas commit de nada
-        # 📁 Requiere: scripts/hooks/protect_main.py
-
-
-  #error
-  # ──────────────────────────────────────────────────────────────────────────────
-  # 🟢 FASE 1: PROTECCIÓN DE RAMAS (Local hook - Rápido <1 seg)
-  # ──────────────────────────────────────────────────────────────────────────────
-  # Hook personalizado para evitar commits accidentales en la rama main.
-  # Recomendado: ACTIVAR SIEMPRE en repositorios con ramas protegidas
-
-  #- repo: local
-    #hooks:
-      #- id: protect-main-branch
-        #name: "🔒 Evitar commits directos en main"
-        #entry: python scripts/hooks/protect_main.py
-        #language: system
-        #pass_filenames: false
-        #stages: [commit]
-        #stages: [pre-commit]  # ✅ Actualizado: era [commit] (deprecated)
-        # 📝 ¿Qué hace este hook?
-        #   • Detecta si estás intentando commitear en la rama 'main'
-        #   • Muestra una advertencia educativa con el flujo correcto
-        #   • (Opcional) Puede bloquear el commit si se configura en modo estricto
-        # 💡 Por qué es importante:
-        #   • 🎓 Educativo: Refuerza el flujo Git correcto (rama → PR → merge)
-        #   • 🛡️ Preventivo: Evita errores humanos de commitear en main local
-        #   • 🔗 Coherente: Alinea tu entorno local con la protección remota de GitHub
-        #   • ⚡ Ligero: Se ejecuta en <1 segundo, sin impacto en tu flujo
-        # 🔧 Configuración:
-        #   • Modo actual: SOLO AVISAR (return 0) → no bloquea, solo educa
-        #   • Para bloquear: cambiar 'return 0' por 'return 1' en el script
-        # 🚨 No interfiere con otros hooks porque:
-        #   • Usa 'repo: local' → es independiente de repos externos
-        #   • 'pass_filenames: false' → no procesa archivos, solo verifica contexto
-        #   • Se ejecuta en la fase 'commit' → mismo ciclo que los demás hooks
-        # 📁 Requiere: scripts/hooks/protect_main.py (creado aparte)
-        # 🚀 DESCOMENTAR CUANDO:
-        #   • Hayas creado el script protect_main.py
-        #   • Quieras reforzar el flujo de trabajo en equipo
-        #enabled: true  # ← Activado por defecto (quitar para desactivar) #no valida en hooks locales
-
-  # ──────────────────────────────────────────────────────────────────────────────
-  # 🟢 FASE 1: ESENCIALES (Activos por defecto - Rápidos <10 seg)
-  # ──────────────────────────────────────────────────────────────────────────────
-  # Estos checks son rápidos y atrapan errores comunes.
-  # Recomendado: ACTIVAR SIEMPRE
-
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0  # ✅ Usar versión específica para reproducibilidad
     hooks:
@@ -124,31 +61,31 @@ repos:
         # 💡 Por qué: Evita inflar el repositorio Git
         args: ['--maxkb=500']
 
-  # ──────────────────────────────────────────────────────────────────────────────
-  # 🟢 FASE 1: FORMATO (Black - Rápido <5 seg)
-  # ──────────────────────────────────────────────────────────────────────────────
-  # Black formatea automáticamente tu código. No hay discusión de estilo.
-  # Recomendado: ACTIVAR SIEMPRE
-
+        # ──────────────────────────────────────────────────────────────────────────────
+        # 🟢 FASE 1: FORMATO (Black - Rápido <5 seg)
+        # ──────────────────────────────────────────────────────────────────────────────
+        # Black formatea automáticamente tu código. No hay discusión de estilo.
+        # Recomendado: ACTIVAR SIEMPRE
   - repo: https://github.com/psf/black
     rev: 24.1.0
     hooks:
       - id: black
         # 📝 Formatea código Python automáticamente
         # 💡 Por qué: Consistencia en todo el equipo, diffs más limpios
+        stages: [pre-commit]   #
         language_version: python3.10  # ✅ Ajustar a tu versión de Python
         args: [--line-length=88]  # 📏 Longitud máxima de línea (estándar Black)
 
-  # ──────────────────────────────────────────────────────────────────────────────
-  # 🟢 FASE 1: LINT + SEGURIDAD BÁSICA (Ruff - Rápido <10 seg)
-  # ──────────────────────────────────────────────────────────────────────────────
-  # Ruff reemplaza a flake8, isort, pyupgrade, y más. Es extremadamente rápido.
-  # Recomendado: ACTIVAR SIEMPRE
-
+        # ──────────────────────────────────────────────────────────────────────────────
+        # 🟢 FASE 1: LINT + SEGURIDAD BÁSICA (Ruff - Rápido <10 seg)
+        # ──────────────────────────────────────────────────────────────────────────────
+        # Ruff reemplaza a flake8, isort, pyupgrade, y más. Es extremadamente rápido.
+        # Recomendado: ACTIVAR SIEMPRE
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.1.14
     hooks:
       - id: ruff
+        stages: [pre-commit]
         # 📝 Linter ultra-rápido para Python
         # 💡 Por qué: Detecta bugs, código no Pythonico, imports mal ordenados
         # 🔧 --fix: Auto-correge lo que sea posible
@@ -162,210 +99,176 @@ repos:
         #   • N: pep8-naming (nombres de variables/clases)
         #   • UP: pyupgrade (sintaxis moderna de Python)
 
-  # ──────────────────────────────────────────────────────────────────────────────
-  # 🟡 FASE 2: SEGURIDAD ESPECÍFICA (Bandit - Medio ~10-30 seg)
-  # ──────────────────────────────────────────────────────────────────────────────
-  # Bandit escanea vulnerabilidades específicas de Python (eval, SQL injection, etc.)
-  # Recomendado: ACTIVAR en Semana 2 (cuando te sientas cómodo con lo básico)
+        # ──────────────────────────────────────────────────────────────────────────────
+        # 🟡 FASE 2: SEGURIDAD ESPECÍFICA (Bandit - Medio ~10-30 seg)
+        # ──────────────────────────────────────────────────────────────────────────────
+        # Bandit escanea vulnerabilidades específicas de Python (eval, SQL injection, etc.)
+        # Recomendado: ACTIVAR en Semana 2 (cuando te sientas cómodo con lo básico)
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.7
+    hooks:
+      - id: bandit
+        stages: [manual] # 💾 RESTORE: [pre-commit]
+         # 💾 RESTORE: [pre-commit]
+        # 📝 Escáner de seguridad para código Python
+        # 💡 Por qué: Detecta vulnerabilidades como hardcoded passwords, eval(), etc.
+        # ⚠️  -r: Recursivo en directorios
+        # ⚠️  -ll: Nivel de log (l=low, ll=medium, lll=high)
+        args: ["-r", "src/", "-ll"]
+        # 🚨 DESCOMENTAR CUANDO:
+        #   • Entiendas qué vulnerabilidades detecta
+        #   • Hayas limpiado los warnings iniciales
+        #   • Lo uses para desarrollo, no solo CI/CD
+        # 💡 ALTERNATIVA: Dejar solo en CI/CD si es muy lento
+        # enabled: false  # ← Descomentar para desactivar temporalmente
 
-  # - repo: https://github.com/PyCQA/bandit
-  #   rev: 1.7.7
-  #   hooks:
-  #     - id: bandit
-  #       # 📝 Escáner de seguridad para código Python
-  #       # 💡 Por qué: Detecta vulnerabilidades como hardcoded passwords, eval(), etc.
-  #       # ⚠️  -r: Recursivo en directorios
-  #       # ⚠️  -ll: Nivel de log (l=low, ll=medium, lll=high)
-  #       args: ["-r", "src/", "-ll"]
-  #       # 🚨 DESCOMENTAR CUANDO:
-  #       #   • Entiendas qué vulnerabilidades detecta
-  #       #   • Hayas limpiado los warnings iniciales
-  #       #   • Lo uses para desarrollo, no solo CI/CD
-  #       # 💡 ALTERNATIVA: Dejar solo en CI/CD si es muy lento
-  #       # enabled: false  # ← Descomentar para desactivar temporalmente
+        # ──────────────────────────────────────────────────────────────────────────────
+        # 🟡 FASE 2: SECRETOS EN CÓDIGO (Gitleaks - Medio ~10-30 seg)
+        # ──────────────────────────────────────────────────────────────────────────────
+        # Gitleaks detecta secretos (API keys, tokens, passwords) en el código.
+        # Recomendado: ACTIVAR en Semana 2 (crítico para seguridad)
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        stages: [manual] # 💾 RESTORE: [pre-commit]
+         # 💾 RESTORE: [pre-commit]
+        # 📝 Verificador de tipos estático para Python
+        # 💡 Por qué: Previene errores de tipo en runtime (NoneType, etc.)
+        # ⚠️  --ignore-missing-imports: Ignora errores de libs sin type stubs
+        # 🚨 DESCOMENTAR CUANDO:
+        #   • Tu código tenga type hints completos
+        #   • Hayas corregido todos los errores de mypy manualmente
+        #   • Lo muevas a CI/CD si es muy lento para pre-commit
+        #args: [--ignore-missing-imports]
+        #additional_dependencies:
+        #  - types-requests  # ✅ Type stubs para requests
+        #  - types-PyYAML    # ✅ Type stubs para PyYAML
+        # 💡 RECOMENDACIÓN: Dejar esto SOLO en CI/CD
+        # enabled: false  # ← Mantener comentado para pre-commit, usar en GitHub Actions
+        # exclude: ^tests/  # ⚠️  Excluir tests (opcional, para reducir tiempo)
 
-  # ──────────────────────────────────────────────────────────────────────────────
-  # 🟡 FASE 2: SECRETOS EN CÓDIGO (Gitleaks - Medio ~10-30 seg)
-  # ──────────────────────────────────────────────────────────────────────────────
-  # Gitleaks detecta secretos (API keys, tokens, passwords) en el código.
-  # Recomendado: ACTIVAR en Semana 2 (crítico para seguridad)
+        # ──────────────────────────────────────────────────────────────────────────────
+        # 🟠 FASE 3: TESTS (pytest - Muy lento ~1-5 min)
+        # ──────────────────────────────────────────────────────────────────────────────
+        # Ejecutar tests antes de cada commit es IDEAL pero puede ser lento.
+        # Recomendado: NO USAR en pre-commit. Mejor en CI/CD.
+  - repo: local
+    hooks:
+      - id: pytest
+        stages: [manual] # 💾 RESTORE: [pre-commit]
+         # 💾 RESTORE: [pre-commit]
+        # 📝 Ejecuta tests unitarios antes de commit
+        # 💡 Por qué: Previene commitear código roto
+        # ⚠️  ADVERTENCIA: Puede hacer el commit MUY lento
+        # 🚨 DESCOMENTAR CUANDO:
+        #   • Tus tests sean rápidos (<30 seg)
+        #   • Uses pytest con --ff (fall fast) para detenerse al primer fallo
+        # 💡 RECOMENDACIÓN: Usar SOLO en CI/CD
+        name: pytest
+        entry: pytest
+        language: system
+        pass_filenames: false
+        always_run: true
+        args: ["-x", "-v", "tests/"]  # -x: stop on first failure
+        # enabled: false  # ← Mantener comentado (usar en GitHub Actions)
 
-  # - repo: https://github.com/gitleaks/gitleaks
-  #   rev: v8.18.2
-  #   hooks:
-  #     - id: gitleaks
-  #       # 📝 Detecta secretos y credenciales en el código
-  #       # 💡 Por qué: 🚨 SEGURIDAD CRÍTICA - Evita exponer API keys, passwords, etc.
-  #       # 🎯 ¡Esto detecta lo mismo que tu archivo_peligroso.py!
-  #       args: ["detect", "--source", ".", "--no-git"]
-  #       # 🚨 DESCOMENTAR CUANDO:
-  #       #   • Hayas instalado gitleaks en tu sistema (brew install gitleaks)
-  #       #   • Hayas limpiado todos los secretos del historial
-  #       # 💡 ALTERNATIVA: Usar solo en CI/CD con GitHub Secret Scanning
-  #       # enabled: false  # ← Descomentar para desactivar temporalmente
 
-  # ──────────────────────────────────────────────────────────────────────────────
-  # 🟠 FASE 3: TIPOS (mypy - Lento ~30-60 seg)
-  # ──────────────────────────────────────────────────────────────────────────────
-  # mypy verifica type hints. Es el más estricto y lento.
-  # Recomendado: ACTIVAR en Semana 3-4 (cuando tu código tenga buenos type hints)
-  # ⚠️  ADVERTENCIA: mypy puede ser frustrante al principio. Mejor en CI/CD.
 
-  # - repo: https://github.com/pre-commit/mirrors-mypy
-  #   rev: v1.8.0
-  #   hooks:
-  #     - id: mypy
-  #       # 📝 Verificador de tipos estático para Python
-  #       # 💡 Por qué: Previene errores de tipo en runtime (NoneType, etc.)
-  #       # ⚠️  --ignore-missing-imports: Ignora errores de libs sin type stubs
-  #       # 🚨 DESCOMENTAR CUANDO:
-  #       #   • Tu código tenga type hints completos
-  #       #   • Hayas corregido todos los errores de mypy manualmente
-  #       #   • Lo muevas a CI/CD si es muy lento para pre-commit
-  #       args: [--ignore-missing-imports]
-  #       additional_dependencies:
-  #         - types-requests  # ✅ Type stubs para requests
-  #         - types-PyYAML    # ✅ Type stubs para PyYAML
-  #       # 💡 RECOMENDACIÓN: Dejar esto SOLO en CI/CD
-  #       # enabled: false  # ← Mantener comentado para pre-commit, usar en GitHub Actions
-  #       exclude: ^tests/  # ⚠️  Excluir tests (opcional, para reducir tiempo)
 
-  # ──────────────────────────────────────────────────────────────────────────────
-  # 🟠 FASE 3: TESTS (pytest - Muy lento ~1-5 min)
-  # ──────────────────────────────────────────────────────────────────────────────
-  # Ejecutar tests antes de cada commit es IDEAL pero puede ser lento.
-  # Recomendado: NO USAR en pre-commit. Mejor en CI/CD.
-
-  # - repo: local
-  #   hooks:
-  #     - id: pytest
-  #       # 📝 Ejecuta tests unitarios antes de commit
-  #       # 💡 Por qué: Previene commitear código roto
-  #       # ⚠️  ADVERTENCIA: Puede hacer el commit MUY lento
-  #       # 🚨 DESCOMENTAR CUANDO:
-  #       #   • Tus tests sean rápidos (<30 seg)
-  #       #   • Uses pytest con --ff (fall fast) para detenerse al primer fallo
-  #       # 💡 RECOMENDACIÓN: Usar SOLO en CI/CD
-  #       name: pytest
-  #       entry: pytest
-  #       language: system
-  #       pass_filenames: false
-  #       always_run: true
-  #       args: ["-x", "-v", "tests/"]  # -x: stop on first failure
-  #       # enabled: false  # ← Mantener comentado (usar en GitHub Actions)
 
   # ──────────────────────────────────────────────────────────────────────────────
-  # 🟠 FASE 3: DEPENDENCIAS VULNERABLES (safety/pip-audit - Lento ~30-60 seg)
+  # 🟢 FASE 3: LINTER DE MENSAJES DE COMMIT (gitlint - Python, rápido ~1-3 seg)
   # ──────────────────────────────────────────────────────────────────────────────
-  # Verifica que tus dependencias (requirements.txt) no tengan CVEs conocidas.
-  # Recomendado: NO USAR en pre-commit. Mejor en CI/CD semanal.
+  # Valida mensajes de commit con reglas personalizables.
+  # Recomendado: Activar solo en desarrollo local, no en CI de Colab.
+  - repo: https://github.com/jorisroovers/gitlint
+    rev: v0.19.1  # ✅ Última versión estable
+    hooks:
+      - id: gitlint
+        stages: [manual] # 💾 RESTORE: [pre-commit]
+         # 💾 RESTORE: [commit-msg]  # Solo se ejecuta al hacer commit
+        # 📝 Reglas por defecto: título ≤72 chars, cuerpo separado por línea en blanco
+        # 💡 Por qué: Consistencia en el historial Git sin depender de Node.js
+        # enabled: false  # ← Descomentar para activar cuando tengas flujo Git local
 
-  # - repo: https://github.com/Lucas-C/pre-commit-hooks-safety
-  #   rev: v1.3.2
-  #   hooks:
-  #     - id: python-safety-dependencies-check
-  #       # 📝 Verifica vulnerabilidades en dependencias Python
-  #       # 💡 Por qué: 🚨 SEGURIDAD - Evita usar paquetes con CVEs conocidos
-  #       # 🚨 DESCOMENTAR CUANDO:
-  #       #   • Lo uses en CI/CD (no pre-commit)
-  #       #   • Lo ejecutes semanalmente, no en cada commit
-  #       # 💡 RECOMENDACIÓN: Usar en GitHub Actions con schedule: weekly
-  #       # enabled: false  # ← Mantener comentado (usar en CI/CD)
+        ##🔧 Configuración opcional .gitlint (en raíz del repo):
+        #[general]
+        ## Ignorar checks que no aplican a tu flujo
+        #ignore=body-is-missing
 
-  # ──────────────────────────────────────────────────────────────────────────────
-  # 🔵 FASE 4: MENSAJES DE COMMIT (commitizen - Rápido <1 seg)
-  # ──────────────────────────────────────────────────────────────────────────────
-  # Estandariza los mensajes de commit (Conventional Commits).
-  # Recomendado: ACTIVAR si trabajás en equipo
+        #[title-max-length]
+        ## Permitir títulos más largos si usas Conventional Commits
+        #line-length=100
 
-  # - repo: https://github.com/commitizen-tools/commitizen
-  #   rev: v3.13.0
-  #   hooks:
-  #     - id: commitizen
-  #       # 📝 Valida que los mensajes de commit sigan Convención
-  #       # 💡 Por qué: Changelog automático, versionado semántico, claridad
-  #       # 📋 Formato: type(scope): description
-  #       #   • type: feat, fix, docs, style, refactor, test, chore
-  #       #   • scope: módulo afectado (opcional)
-  #       #   • description: qué cambió (imperativo, sin punto final)
-  #       # 🚨 DESCOMENTAR CUANDO:
-  #       #   • Trabajes en equipo
-  #       #   • Quieras changelog automático
-  #       # enabled: false  # ← Descomentar para activar
 
-  # ──────────────────────────────────────────────────────────────────────────────
-  # 🔵 FASE 4: NOMENCLATURA DE RAMAS (branch-name-lint - Rápido <1 seg)
-  # ──────────────────────────────────────────────────────────────────────────────
-  # Valida que los nombres de ramas sigan un patrón (ej: feat/login).
-  # Recomendado: ACTIVAR si trabajás en equipo
 
-  # - repo: https://github.com/ericcornelissen/git-msg-lint
-  #   rev: v3.0.0
-  #   hooks:
-  #     - id: git-msg-lint
-  #       # 📝 Valida mensajes de commit
-  #       # 💡 Por qué: Consistencia en el historial Git
-  #       # enabled: false  # ← Descomentar para activar
+       # 404 ERROR
+       # ──────────────────────────────────────────────────────────────────────────────
+       # 🟠 FASE 3: DEPENDENCIAS VULNERABLES (safety/pip-audit - Lento ~30-60 seg)
+       # ──────────────────────────────────────────────────────────────────────────────
+       # Verifica que tus dependencias (requirements.txt) no tengan CVEs conocidas.
+       # Recomendado: NO USAR en pre-commit. Mejor en CI/CD semanal.
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.2
+    hooks:
+      - id: gitleaks
+        stages: [manual] # 💾 RESTORE: [pre-commit]
+         # 💾 RESTORE: [pre-commit]
+        # 📝 Detecta secretos y credenciales en el código
+        # 💡 Por qué: 🚨 SEGURIDAD CRÍTICA - Evita exponer API keys, passwords, etc.
+        # 🎯 ¡Esto detecta lo mismo que tu archivo_peligroso.py!
+        #args: ["detect", "--source", ".", "--no-git"]
+        # 🚨 DESCOMENTAR CUANDO:
+        #   • Hayas instalado gitleaks en tu sistema (brew install gitleaks)
+        #   • Hayas limpiado todos los secretos del historial
+        # 💡 ALTERNATIVA: Usar solo en CI/CD con GitHub Secret Scanning
+        # enabled: false  # ← Descomentar para desactivar temporalmente
 
-# ╔══════════════════════════════════════════════════════════════════════════════╗
-# #  📚 RESUMEN DE FASES PARA APRENDER                                          #
-# #                                                                               #
-# #  FASE 1 (Semana 1): ✅ pre-commit-hooks + black + ruff                        #
-# #  • Rápido (<30 seg total)                                                     #
-# #  • Atrapa errores básicos de formato y estilo                                 #
-# #  • Recomendado: ACTIVAR SIEMPRE                                               #
-# #                                                                               #
-# #  FASE 2 (Semana 2): 🟡 bandit + gitleaks                                      #
-# #  • Medio (~30-60 seg total)                                                   #
-# #  • Atrapa vulnerabilidades de seguridad                                       #
-# #  • Recomendado: ACTIVAR cuando entiendas los warnings                         #
-# #                                                                               #
-# #  FASE 3 (Semana 3-4): 🟠 mypy + pytest + safety                               #
-# #  • Lento (~1-5 min total)                                                     #
-# #  • Verificación profunda de tipos y tests                                     #
-# #  • Recomendado: MOVER A CI/CD (GitHub Actions)                                #
-# #                                                                               #
-# #  FASE 4 (Opcional): 🔵 commitizen + branch-lint                               #
-# #  • Rápido (<1 seg)                                                            #
-# #  • Estandarización de equipo                                                  #
-# #  • Recomendado: ACTIVAR si trabajás en equipo                                 #
-# # ╚══════════════════════════════════════════════════════════════════════════════╝
+        # ──────────────────────────────────────────────────────────────────────────────
+        # 🟠 FASE 3: TIPOS (mypy - Lento ~30-60 seg)
+        # ──────────────────────────────────────────────────────────────────────────────
+        # mypy verifica type hints. Es el más estricto y lento.
+        # Recomendado: ACTIVAR en Semana 3-4 (cuando tu código tenga buenos type hints)
+        # ⚠️  ADVERTENCIA: mypy puede ser frustrante al principio. Mejor en CI/CD.
+  - repo: https://github.com/Lucas-C/pre-commit-hooks-safety
+    rev: v1.3.2
+    hooks:
+      - id: python-safety-dependencies-check
+        stages: [manual] # 💾 RESTORE: [pre-commit]
+         # 💾 RESTORE: [pre-commit]
+        # 📝 Verifica vulnerabilidades en dependencias Python
+        # 💡 Por qué: 🚨 SEGURIDAD - Evita usar paquetes con CVEs conocidos
+        # 🚨 DESCOMENTAR CUANDO:
+        #   • Lo uses en CI/CD (no pre-commit)
+        #   • Lo ejecutes semanalmente, no en cada commit
+        # 💡 RECOMENDACIÓN: Usar en GitHub Actions con schedule: weekly
+        # enabled: false  # ← Mantener comentado (usar en CI/CD)
 
-# ╔══════════════════════════════════════════════════════════════════════════════╗
-# #  🚀 COMANDOS ÚTILES PARA GESTIONAR HOOKS                                    #
-# #                                                                               #
-# #  # Instalar pre-commit (primera vez)                                          #
-# #  pip install pre-commit                                                       #
-# #                                                                               #
-# #  # Instalar hooks en este repositorio                                         #
-# #  pre-commit install                                                           #
-# #                                                                               #
-# #  # Probar en TODOS los archivos (sin commitear)                               #
-# #  pre-commit run --all-files                                                   #
-# #                                                                               #
-# #  # Probar solo en archivos modificados (lo que hace git commit)               #
-# #  pre-commit run                                                               #
-# #                                                                               #
-# #  # Ver qué hooks están activos actualmente                                    #
-# #  pre-commit sample-config                                                     #
-# #                                                                               #
-# #  # Desinstalar hooks (si necesitas remover temporalmente)                     #
-# #  pre-commit uninstall                                                         #
-# #                                                                               #
-# #  # Actualizar hooks a última versión (mantenimiento periódico)                #
-# #  pre-commit autoupdate                                                        #
-# #                                                                               #
-# #  # Ejecutar un hook específico manualmente (para debugging)                   #
-# #  pre-commit run black --all-files                                             #
-# #  pre-commit run ruff --all-files                                              #
-# # ╚══════════════════════════════════════════════════════════════════════════════╝
+        # ──────────────────────────────────────────────────────────────────────────────
+        # 🔵 FASE 4: MENSAJES DE COMMIT (commitizen - Rápido <1 seg)
+        # ──────────────────────────────────────────────────────────────────────────────
+        # Estandariza los mensajes de commit (Conventional Commits).
+        # Recomendado: ACTIVAR si trabajás en equipo
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v3.13.0
+    hooks:
+      - id: commitizen
+        stages: [manual] # 💾 RESTORE: [pre-commit]
+         # 💾 RESTORE: [pre-commit]
+        # 📝 Valida que los mensajes de commit sigan Convención
+        # 💡 Por qué: Changelog automático, versionado semántico, claridad
+        # 📋 Formato: type(scope): description
+        #   • type: feat, fix, docs, style, refactor, test, chore
+        #   • scope: módulo afectado (opcional)
+        #   • description: qué cambió (imperativo, sin punto final)
+        # 🚨 DESCOMENTAR CUANDO:
+        #   • Trabajes en equipo
+        #   • Quieras changelog automático
+        # enabled: false  # ← Descomentar para activar
 
-# ╔══════════════════════════════════════════════════════════════════════════════╗
-# #  ⚠️  NOTAS IMPORTANTES PARA ENTORNOS COMO GOOGLE COLAB                      #
-# #                                                                               #
-# #  • Los pre-commit hooks se instalan en el entorno LOCAL, no en Colab          #
-# #  • En Colab, usa tu GitHub Actions CI/CD como gatekeeper principal            #
-# #  • Esta configuración es para cuando trabajes en tu máquina local (VS Code)   #
-# #  • Los hooks comentados (Fase 2-4) están listos para activar cuando quieras   #
-# #  • Para activar un hook: quitar el # inicial de cada línea del bloque         #
-# # ╚══════════════════════════════════════════════════════════════════════════════╝
+        # ──────────────────────────────────────────────────────────────────────────────
+        # 🔵 FASE 4: NOMENCLATURA DE RAMAS (branch-name-lint - Rápido <1 seg)
+        # ──────────────────────────────────────────────────────────────────────────────
+        # Valida que los nombres de ramas sigan un patrón (ej: feat/login).
+        # Recomendado: ACTIVAR si trabajás en equipo
