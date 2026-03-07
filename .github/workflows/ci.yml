@@ -26,7 +26,7 @@ jobs:
 
         # 🛡️ Instalación anclada (Pinned Dependencies)
         # Obligamos al CI a usar exactamente las mismas versiones que tu entorno local
-        pip install pytest black==24.0.0 ruff==0.15.2 mypy psutil charset-normalizer pyyaml
+        pip install pytest black==26.3.0 ruff==0.15.2 mypy psutil charset-normalizer pyyaml
 
 
     #- name: Instalar dependencias del proyecto
