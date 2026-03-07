@@ -7,11 +7,7 @@ Responsabilidad: Traducir comandos de terminal a casos de uso del dominio.
 """
 
 import argparse
-import os
 import sys
-
-# Ajuste de path para ejecución directa
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../..")))
 
 from english_editor.modules.orchestration.application.use_cases import JobOrchestrator
 from english_editor.modules.orchestration.domain.value_objects import JobStatus
@@ -19,6 +15,9 @@ from english_editor.modules.orchestration.infrastructure.adapters import (
     JsonFileRepository,
     LocalFileSystemAdapter,
 )
+
+# Ajuste de path para ejecución directa
+# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../..")))
 
 
 def main():
