@@ -11,13 +11,14 @@ Best Practices:
 - Rutas relativas al script, no al working directory
 - Mostrar transcripción real de Whisper (valor agregado para demo)
 """
+
 import math
 import struct
 import sys
 import time
 import wave
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 # === Configuración de Path para Imports ===
 SCRIPT_ROOT = Path(__file__).parent
@@ -28,7 +29,9 @@ OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 sys.path.append(str(PROJECT_ROOT / "src"))
 
 try:
+
     # === Imports del Proyecto ===
+
     from english_editor.modules.analysis.application.use_cases import AnalyzeAudio
     from english_editor.modules.analysis.domain.exceptions import AnalysisError
     from english_editor.modules.analysis.domain.value_objects import TimeRange
@@ -38,8 +41,11 @@ try:
 
     # === Imports para Audio Realista (Opcionales) ===
     try:
-        from gtts import gTTS
+        from english_editor.modules.audio_generation.infrastructure.adapters.edge_tts_adapter import (
+            gTTS_edge as gTTS,
+        )
 
+        # from gtts import gTTS
         GTTS_AVAILABLE = True
     except ImportError:
         GTTS_AVAILABLE = False
@@ -246,12 +252,14 @@ def main():
         start_time = time.time()
 
         # ✅ Voice Activity Detection
-        segments: List[TimeRange] = use_case.execute(audio_path)
+        segments: list[TimeRange] = use_case.execute(audio_path)
 
         # ✅ Transcripción (usando el adapter directamente - método público)
         # Esto respeta arquitectura: adapter es infraestructura, demo es consumer
         print("\n📝 Transcribiendo audio con Whisper...")
         try:
+            if adapter._model is None:
+                raise ValueError("El modelo Whisper no se inicializó correctamente")
             transcript_result = adapter._model.transcribe(
                 str(audio_path), fp16=False, language="en", verbose=False
             )
