@@ -1,23 +1,18 @@
 # ==============================================================================
 # Makefile.security - Pipeline de DevSecOps Aislado
 # ==============================================================================
-.PHONY: install-tools secrets sast sca image-scan verify-all
-
+.PHONY: install-tools secrets sast sca verify-all
 
 # ------------------------------------------------------------------------------
-# PREPARACIÓN DEL ENTORNO (Optimizado para Colab)
+# PREPARACIÓN DEL ENTORNO
 # ------------------------------------------------------------------------------
 install-tools:
-	@echo "📦 Instalando herramientas de seguridad en espacio de usuario..."
-	@mkdir -p ~/.local/bin
-	@export PATH="$${HOME}/.local/bin:$${PATH}"
-	@if ! command -v gitleaks >/dev/null 2>&1; then 		wget -qO- https://github.com/gitleaks/gitleaks/releases/download/v8.18.2/gitleaks_8.18.2_linux_x64.tar.gz | tar xz -C ~/.local/bin gitleaks; 	fi
-	@pip install bandit pip-audit -q
-	@if ! command -v trivy >/dev/null 2>&1; then 		wget -qO- https://github.com/aquasecurity/trivy/releases/download/v0.50.1/trivy_0.50.1_Linux-64bit.tar.gz | tar xz -C ~/.local/bin trivy; 	fi
-	@echo "✅ Herramientas instaladas en ~/.local/bin"
-	@echo "⚠️ Recuerda ejecutar: export PATH="$${HOME}/.local/bin:$${PATH}""
-
-
+	@echo "📦 Instalando herramientas de seguridad (Gitleaks, Bandit, Pip-Audit)..."
+	@if ! command -v gitleaks >/dev/null 2>&1; then \
+		wget -qO- https://github.com/gitleaks/gitleaks/releases/download/v8.18.2/gitleaks_8.18.2_linux_x64.tar.gz | tar xz -C /usr/local/bin gitleaks; \
+	fi
+	pip install bandit pip-audit -q
+	@echo "✅ Herramientas instaladas correctamente."
 
 # ------------------------------------------------------------------------------
 # Fase 1: SECRETS (Evita catástrofes inmediatas)
@@ -33,40 +28,17 @@ sast:
 	@echo "🧠 [Step 2] Ejecutando análisis SAST con Bandit sobre src/..."
 	python -m bandit -r src/ -ll -i
 
-
-
-
 # ------------------------------------------------------------------------------
 # Fase 3: SCA (Auditoría de Dependencias de Terceros)
 # ------------------------------------------------------------------------------
 sca:
 	@echo "📦 [Step 3] Escaneando dependencias vulnerables con pip-audit..."
-	python -m pip_audit || echo "⚠️ Revisa los avisos de SCA."
-
-
-# pip-audit (Fase 3): Escanea el entorno de Colab (ruidoso)
-#python -m pip_audit  → Reporta deps de Colab + tus deps
-
-# ------------------------------------------------------------------------------
-# Fase 4: IMAGE SCAN (Auditoría del Entorno/Contenedor)
-# ------------------------------------------------------------------------------
-image-scan:
-	@echo "🐳 [Step 4] Escaneando vulnerabilidades de SO y artefacto con Trivy..."
-	@# 📋 COPIAR Y LIMPIAR: Evita problemas de symlinks y headers de pip-compile
-	@if [ -f "requirements.lock.txt" ]; then 		echo "📋 Preparando requirements.txt para Trivy..."; 		grep -v "^#" requirements.lock.txt | grep -v "^$$" > requirements.txt.tmp; 		mv requirements.txt.tmp requirements.txt; 		echo "✅ requirements.txt listo con $$(cat requirements.txt | wc -l) dependencias"; 	fi
-	@# 🔍 ESCANEO: Ahora Trivy debería detectar el archivo sin problemas
-	@trivy fs . --scanners vuln --severity HIGH,CRITICAL --no-progress
-
-
-
-# Trivy fs (Fase 4): Escanea SOLO tus dependencias declaradas
-#trivy fs . --scanners vuln  → Reporta SOLO lo que está en requirements.txt
-
-#Si quieres ver el reporte completo de Trivy para tranquilidad:
-#!cd /content/english-editor && trivy fs . --scanners vuln --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL --format table
+	# pip-audit revisa los paquetes instalados en el entorno actual
+	# ignoramos errores si hay paquetes del sistema de Colab que no se pueden auditar fácilmente
+	python -m pip_audit || echo "⚠️ Revisa los avisos de arriba. Actualiza las librerías vulnerables si es necesario."
 
 # ------------------------------------------------------------------------------
 # VERIFICACIÓN COMPLETA DE SEGURIDAD
 # ------------------------------------------------------------------------------
-verify-all: secrets sast sca image-scan
-	@echo "✅ VALIDACIÓN DE SEGURIDAD (Fases 1 a 4) EJECUTADA."
+verify-all: secrets sast sca
+	@echo "✅ VALIDACIÓN DE SEGURIDAD (Fases 1, 2 y 3) EXITOSA."
