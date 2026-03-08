@@ -6,6 +6,7 @@ Estrategia: Frases Completas + Silencio Medio.
 Usamos oraciones largas para asegurar que Whisper no haga "early exit"
 y un silencio de 2s que fuerza la segmentación sin romper el contexto.
 """
+
 import math
 import os
 import random
