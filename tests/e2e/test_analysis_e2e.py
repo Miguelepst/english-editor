@@ -74,8 +74,12 @@ def pattern_audio_file(tmp_path):
     try:
         from io import BytesIO
 
-        from gtts import gTTS
         from pydub import AudioSegment
+
+        # from gtts import gTTS
+        from english_editor.modules.audio_generation.infrastructure.adapters.edge_tts_adapter import (
+            gTTS_edge as gTTS,
+        )
 
         # Generador de ruido de fondo (Dither)
         def generate_silence(duration_ms):

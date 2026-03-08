@@ -1,5 +1,5 @@
 # Makefile - Contrato de Calidad Local
-.PHONY: install format lint test test-all verify clean fix
+.PHONY: install format lint test test-all verify clean
 
 install:
 	@echo "📦 Instalando dependencias de desarrollo..."
@@ -7,26 +7,22 @@ install:
 
 format:
 	@echo "🎨 Formateando código con Black..."
-	python -m black src/ tests/
-
-fix:
-	@echo "🔧 Auto-corrigiendo errores con Ruff..."
-	python -m ruff check src/ tests/ --fix
+	black src/ tests/
 
 lint:
 	@echo "🔍 Ejecutando análisis estático (Ruff & Mypy)..."
-	python -m ruff check src/ tests/
-	python -m mypy src/ --ignore-missing-imports
+	ruff check src/ tests/
+	mypy src/ --ignore-missing-imports
 
 test:
 	@echo "🧪 Ejecutando Tests Unitarios (Rápidos)..."
-	python -m pytest tests/modules/analysis/domain tests/modules/analysis/application -v
+	pytest tests/modules/analysis/domain tests/modules/analysis/application -v
 
 test-all:
 	@echo "🚀 Ejecutando TODA la suite (Incluyendo Integración/E2E)..."
-	python -m pytest tests/ -v
+	pytest tests/ -v
 
-verify: format fix lint test
+verify: format lint test
 	@echo "✅ VALIDACIÓN EXITOSA: El código cumple el Contrato de Calidad."
 
 clean:
