@@ -12,6 +12,7 @@ from __future__ import annotations
 
 # === Imports estándar ===
 import asyncio
+from typing import Any
 
 # === Imports del proyecto ===
 import edge_tts
@@ -29,7 +30,10 @@ class gTTS_edge:
     Máscara de compatibilidad (Adapter Pattern) para edge-tts.
     """
 
-    def __init__(self, text: str, lang: str = "en", **kwargs: dict) -> None:
+    # def __init__(self, text: str, lang: str = "en", **kwargs: dict) -> None:
+    def __init__(
+        self, text: str, lang: str = "en", **kwargs: Any
+    ) -> None:  # mypy linter
         self.text = text
         voces_por_defecto = {"en": "en-US-AriaNeural", "es": "es-ES-AlvaroNeural"}
         self.voice = voces_por_defecto.get(lang, "en-US-AriaNeural")
