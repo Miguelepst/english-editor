@@ -225,8 +225,6 @@ torch==2.10.0+cpu
     # via openai-whisper
 tqdm==4.67.3
     # via openai-whisper
-typer==0.24.1
-    # via english_editor (/content/english-editor/pyproject.toml)
 typing-extensions==4.15.0
     # via
     #   aiosignal
