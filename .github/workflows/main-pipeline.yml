@@ -20,18 +20,17 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
 
-      - name: 3. Instalar herramientas base
-        run: pip install --upgrade pip pre-commit pytest
+      - name: 3. Instalar Dependencias Exactas (CI/Testing)
+        # 🛡️ Determinismo: Usamos el lockfile generado por pip-compile
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-ci.txt
+          pip install --no-deps .
 
       - name: 4. Análisis Estático (Pre-commit)
         run: pre-commit run --all-files
 
-      - name: 5. Instalar aplicación para pruebas (Estándar PyPA)
-        run: |
-          pip install -r requirements.txt
-          pip install --no-deps .
-
-      - name: 6. Pruebas Unitarias y DAST (Fuzzing Dinámico)
+      - name: 5. Pruebas Unitarias y DAST (Fuzzing Dinámico)
         run: pytest tests/ -v
 
   build-scan-and-push:
