@@ -35,7 +35,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          load: true 
+          load: true
           tags: dockerdemiguel/english-editor:${{ github.sha }}
           build-args: |
             PYTHON_BASE=${{ env.PYTHON_BASE }}
