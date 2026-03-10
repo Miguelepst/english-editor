@@ -21,7 +21,7 @@ jobs:
           cache: 'pip'
 
       - name: 3. Instalar herramientas base
-        run: pip install --upgrade pip pre-commit pytest subprocess
+        run: pip install --upgrade pip pre-commit pytest
 
       - name: 4. Análisis Estático (Pre-commit)
         run: pre-commit run --all-files
