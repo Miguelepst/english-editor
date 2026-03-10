@@ -1,35 +1,33 @@
 
 # Dockerfile - Empaquetado del Motor de Análisis (Micro-SPS 02)
-# Arquitectura: Contenedor Inmutable Dinámico
+# Arquitectura: Contenedor Inmutable Dinámico (Estándar PyPA)
 
-# 1. Base Image (Inyectada dinámicamente desde ci-metadata.json)
 ARG PYTHON_BASE=python:3.12-slim
 FROM ${PYTHON_BASE}
 
-# 2. Dependencias del Sistema (OS Layer - Inyectadas dinámicamente)
 ARG APT_REQUIREMENTS=""
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ${APT_REQUIREMENTS} \
     && rm -rf /var/lib/apt/lists/*
 
-# 3. Usuario No-Root (Seguridad en Contenedores)
 RUN useradd -m appuser
 WORKDIR /app
 
-# 4. Actualización de herramientas base de compilación
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
-# 5. Dependencias de la Aplicación (Python Layer determinista)
-# Copiamos el archivo generado por la herramienta OOP y le damos propiedad al usuario
+# 1. Capa de dependencias de terceros (Caché optimizado)
 COPY --chown=appuser:appuser requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 6. Código Fuente
-# Copiamos todo tu código respetando la estructura (src/, etc.)
-COPY --chown=appuser:appuser . .
+# 2. Capa de tu aplicación (Estructura src-layout)
+COPY --chown=appuser:appuser src/ src/
+COPY --chown=appuser:appuser pyproject.toml .
 
-# 7. Ejecución como usuario seguro
+# 3. Instalación de tu paquete guiada por Shift-Left Audit
+ARG INSTALL_CMD="pip install --no-cache-dir --no-deps ."
+RUN ${INSTALL_CMD}
+
 USER appuser
 
-# Entrypoint por defecto de tu CLI real
+# Entrypoint limpio, Python ya sabe dónde está tu código gracias a la instalación
 ENTRYPOINT ["python", "-m", "english_editor.modules.analysis.presentation.cli"]

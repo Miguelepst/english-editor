@@ -3,10 +3,8 @@ name: Build, Scan and Push to Docker Hub
 
 on:
   push:
-    # Ahora el pipeline escuchará tanto a main como a tu rama de trabajo
     branches: [ "main", "mirando-el-codigo" ]
   pull_request:
-    # También se ejecutará cuando abras el PR hacia main
     branches: [ "main" ]
 
 jobs:
@@ -21,6 +19,8 @@ jobs:
         run: |
           echo "PYTHON_BASE=$(jq -r '.python_base_image' ci-metadata.json)" >> $GITHUB_ENV
           echo "APT_PACKAGES=$(jq -r '.apt_requirements' ci-metadata.json)" >> $GITHUB_ENV
+          # Extraemos el nuevo comando de instalación auditado
+          echo "INSTALL_CMD=$(jq -r '.project_installation_command' ci-metadata.json)" >> $GITHUB_ENV
 
       - name: 3. Configurar motor Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -35,11 +35,12 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          load: true
+          load: true 
           tags: dockerdemiguel/english-editor:${{ github.sha }}
           build-args: |
             PYTHON_BASE=${{ env.PYTHON_BASE }}
             APT_REQUIREMENTS=${{ env.APT_PACKAGES }}
+            INSTALL_CMD=${{ env.INSTALL_CMD }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -52,17 +53,10 @@ jobs:
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
 
-      - name: 7. Subir a Docker Hub (Estrategia de Ramas)
+      - name: 7. Subir a Docker Hub
         run: |
-          # 1. Siempre subimos la imagen con la etiqueta inmutable del commit
           docker push dockerdemiguel/english-editor:${{ github.sha }}
-
-          # 2. MAGIA DEVSECOPS: Solo si el código se está fusionando a 'main',
-          # actualizamos la etiqueta 'latest' oficial.
           if [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            echo "Actualizando etiqueta 'latest' para producción..."
             docker tag dockerdemiguel/english-editor:${{ github.sha }} dockerdemiguel/english-editor:latest
             docker push dockerdemiguel/english-editor:latest
-          else
-            echo "Rama de desarrollo detectada. Se omite la etiqueta 'latest'."
           fi
