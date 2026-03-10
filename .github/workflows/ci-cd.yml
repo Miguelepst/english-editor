@@ -1,0 +1,58 @@
+name: Build, Scan and Push to Docker Hub
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  devsecops-pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. Clonar código
+        uses: actions/checkout@v4
+
+      - name: 2. Leer metadatos de infraestructura (ci-metadata.json)
+        id: meta
+        run: |
+          echo "PYTHON_BASE=$(jq -r '.python_base_image' ci-metadata.json)" >> $GITHUB_ENV
+          echo "APT_PACKAGES=$(jq -r '.apt_requirements' ci-metadata.json)" >> $GITHUB_ENV
+
+      - name: 3. Configurar motor Docker Buildx (Para Caché Avanzado)
+        uses: docker/setup-buildx-action@v3
+
+      - name: 4. Iniciar sesión en Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: 5. Construir Imagen Localmente (Usando caché)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          load: true # Carga la imagen al servidor local de GitHub, NO la sube aún
+          tags: dockerdemiguel/english-editor:${{ github.sha }}
+          build-args: |
+            PYTHON_BASE=${{ env.PYTHON_BASE }}
+            APT_REQUIREMENTS=${{ env.APT_PACKAGES }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: 6. Escanear vulnerabilidades con Trivy (El Gatekeeper)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: dockerdemiguel/english-editor:${{ github.sha }}
+          format: 'table'
+          exit-code: '0'
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      - name: 7. Subir a Docker Hub (Push)
+        # Este paso solo se ejecuta si Trivy no rompe el pipeline
+        run: |
+          # Subimos la imagen con la etiqueta inmutable (el código del commit)
+          docker push dockerdemiguel/english-editor:${{ github.sha }}
+
+          # También le ponemos la etiqueta 'latest' para facilitar el uso diario
+          docker tag dockerdemiguel/english-editor:${{ github.sha }} dockerdemiguel/english-editor:latest
+          docker push dockerdemiguel/english-editor:latest
