@@ -3,7 +3,8 @@ name: Build, Scan and Push to Docker Hub
 
 on:
   push:
-    branches: [ "main", "mirando-el-codigo" ]
+    branches: [ "main" ]
+    #branches: [ "main", "mirando-el-codigo" ]  # No es eficiente porque estás gastando el doble de minutos gratuitos de GitHub Actions.
   pull_request:
     branches: [ "main" ]
 
