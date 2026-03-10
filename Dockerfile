@@ -1,33 +1,45 @@
-
-# Dockerfile - Empaquetado del Motor de Análisis (Micro-SPS 02)
-# Arquitectura: Contenedor Inmutable Dinámico (Estándar PyPA)
+# ==============================================================================
+# 🐳 DOCKERFILE UNIVERSAL DEVSECOPS (Plantilla Base Empresarial)
+# Propósito: Empaquetar aplicaciones Python bajo estándares SRE y PyPA.
+# ==============================================================================
 
 ARG PYTHON_BASE=python:3.12-slim
 FROM ${PYTHON_BASE}
+
+# [ASPECTO CRÍTICO 2]: Zona Horaria (Timezone)
+ENV TZ="America/Bogota"
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 ARG APT_REQUIREMENTS=""
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ${APT_REQUIREMENTS} \
     && rm -rf /var/lib/apt/lists/*
 
+# Creamos un usuario no-root por seguridad
 RUN useradd -m appuser
 WORKDIR /app
 
+# [ASPECTO CRÍTICO 1]: Permisos de Escritura en Volúmenes
+RUN mkdir -p /app/data /home/appuser/.cache \
+    && chown -R appuser:appuser /app /home/appuser
+
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
-# 1. Capa de dependencias de terceros (Caché optimizado)
+# Capas de dependencias y código (Caché optimizado)
 COPY --chown=appuser:appuser requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 2. Capa de tu aplicación (Estructura src-layout)
 COPY --chown=appuser:appuser src/ src/
 COPY --chown=appuser:appuser pyproject.toml .
 
-# 3. Instalación de tu paquete guiada por Shift-Left Audit
+# Instalación inyectada por Shift-Left
 ARG INSTALL_CMD="pip install --no-cache-dir --no-deps ."
 RUN ${INSTALL_CMD}
 
 USER appuser
 
-# Entrypoint limpio, Python ya sabe dónde está tu código gracias a la instalación
+# [OPCIÓN 2]: Inmortalidad Offline para Inteligencia Artificial (Descarga de modelos)
+RUN python -c "import whisper; whisper.load_model('tiny.en'); whisper.load_model('base.en')"
+
+# [ASPECTO CRÍTICO 3]: Entrypoint limpio (Formato Exec)
 ENTRYPOINT ["python", "-m", "english_editor.modules.analysis.presentation.cli"]
