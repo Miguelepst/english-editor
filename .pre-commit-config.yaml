@@ -35,7 +35,7 @@ repos:
                           # aunque no haya archivos en el "stage".
         stages: [pre-commit]
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0  # ✅ Usar versión específica para reproducibilidad
+    rev: v6.0.0  # ✅ Usar versión específica para reproducibilidad
     hooks:
       - id: trailing-whitespace
         # 📝 Elimina espacios al final de cada línea
@@ -68,7 +68,7 @@ repos:
         # Recomendado: ACTIVAR SIEMPRE (igual que YAML y JSON)
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v6.0.0
     hooks:
       - id: check-toml
         stages: [pre-commit]
@@ -101,7 +101,7 @@ repos:
         # Black formatea automáticamente tu código. No hay discusión de estilo.
         # Recomendado: ACTIVAR SIEMPRE
   - repo: https://github.com/psf/black
-    rev: 24.4.2  # Usa la versión específica que quieras estandarizar
+    rev: 26.3.0  # Usa la versión específica que quieras estandarizar
     hooks:
       - id: black
         stages: [pre-commit]
@@ -125,7 +125,7 @@ repos:
         # Recomendado: ACTIVAR SIEMPRE
   - repo: https://github.com/astral-sh/ruff-pre-commit
     #rev: v0.1.14
-    rev: v0.15.2
+    rev: v0.15.5
     hooks:
       - id: ruff
         stages: [pre-commit]
@@ -152,7 +152,7 @@ repos:
         # Recomendado: ACTIVAR en Semana 2 cuando tu proyecto use pyproject.toml activamente.
 
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.16
+    rev: v0.25
     hooks:
       - id: validate-pyproject
         stages: [pre-commit]
@@ -191,7 +191,7 @@ repos:
         # Bandit escanea vulnerabilidades específicas de Python (eval, SQL injection, etc.)
         # Recomendado: ACTIVAR en Semana 2 (cuando te sientas cómodo con lo básico)
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.7
+    rev: 1.9.4
     hooks:
       - id: bandit
         stages: [manual] # 💾 RESTORE: [pre-commit]
@@ -214,7 +214,7 @@ repos:
         # Gitleaks detecta secretos (API keys, tokens, passwords) en el código.
         # Recomendado: ACTIVAR en Semana 2 (crítico para seguridad)
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.8.0
+    rev: v1.19.1
     hooks:
       - id: mypy
         stages: [manual] # 💾 RESTORE: [pre-commit]
@@ -296,7 +296,7 @@ repos:
        # Verifica que tus dependencias (requirements.txt) no tengan CVEs conocidas.
        # Recomendado: NO USAR en pre-commit. Mejor en CI/CD semanal.
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.18.2
+    rev: v8.30.0
     hooks:
       - id: gitleaks
         stages: [manual] # 💾 RESTORE: [pre-commit]
@@ -318,7 +318,7 @@ repos:
         # Recomendado: ACTIVAR en Semana 3-4 (cuando tu código tenga buenos type hints)
         # ⚠️  ADVERTENCIA: mypy puede ser frustrante al principio. Mejor en CI/CD.
   - repo: https://github.com/Lucas-C/pre-commit-hooks-safety
-    rev: v1.3.2
+    rev: v1.4.2
     hooks:
       - id: python-safety-dependencies-check
         stages: [manual] # 💾 RESTORE: [pre-commit]
@@ -337,7 +337,7 @@ repos:
         # Estandariza los mensajes de commit (Conventional Commits).
         # Recomendado: ACTIVAR si trabajás en equipo
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v3.13.0
+    rev: v4.13.9
     hooks:
       - id: commitizen
         stages: [manual] # 💾 RESTORE: [pre-commit]

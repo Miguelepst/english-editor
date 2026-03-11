@@ -1,7 +1,7 @@
 # ====================================================================
 # 🤖 MAKEFILE AUTOGENERADO (Universal API para el Desarrollador y CI)
 # ====================================================================
-.PHONY: help verify install install-sec-tools fix format lint test test-all secrets sast sca image-scan security docker-build docker-run clean
+.PHONY: help verify install lock install-sec-tools fix format lint test test-all secrets sast sca image-scan security docker-build docker-run clean
 
 # 🔥 FIX SRE: Asegurar que los binarios locales sean detectados
 export PATH := $(HOME)/.local/bin:$(PATH)
@@ -18,6 +18,12 @@ verify: format lint security test
 install:
 	pip install -r requirements.lock.txt
 	pip install --no-deps -e .
+
+# 🔒 [SRE] Regenera dependencias y calcula hashes criptográficos
+lock:
+	@echo 'Ejecutando Motor Agnóstico de Dependencias...'
+	python src/english_editor/infrastructure/tools/dependency_manager.py
+	@echo '✅ requirements.lock.txt actualizado con seguridad estricta.'
 
 # 🛡️ Instala binarios de seguridad en espacio de usuario (Colab/Local)
 install-sec-tools:
@@ -54,11 +60,11 @@ secrets:
 
 # 🧠 [Step 2] Análisis SAST del Código (Bandit)
 sast:
-	bandit -r src/ -ll -i
+	python -m bandit -r src/ -ll -i
 
 # 📦 [Step 3] Auditoría de Dependencias de Terceros (pip-audit)
 sca:
-	pip-audit || echo '⚠️ pip-audit detectó vulnerabilidades. Revisa el reporte.'
+	python -m pip_audit || echo '⚠️ pip-audit detectó vulnerabilidades. Revisa el reporte.'
 
 # 🐳 [Step 4] Escaneo de vulnerabilidades del FS (Trivy)
 image-scan:
