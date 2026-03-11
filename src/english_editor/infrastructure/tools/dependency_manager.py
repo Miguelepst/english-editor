@@ -1,66 +1,52 @@
-# src/english_editor/infrastructure/tools/dependency_manager.py
+
 """
 Motor agnóstico de resolución de dependencias con hashes criptográficos.
-
 Arquitectura: Modular Monolith + Vertical Slice
 Componente: Infra/Tooling
-Responsabilidad: Generar el archivo requirements.lock.txt inmutable SRE y mantener la infraestructura sincronizada.
 """
 from __future__ import annotations
 
-# === 🧭 Protocolos Arquitectónicos (Strict Layering) ===
-# ✅ CORE: Building blocks universales (value objects, tipos básicos)
-# ✅ MODULES: Bounded contexts verticales y aislados
-# ❌ DOMAIN → APPLICATION/INFRA: Prohibido (rompe Clean Architecture)
-# ❌ MODULES → MODULES: Prohibido (comunicación solo vía Core o Puertos)
-# ✅ INFRASTRUCTURE: Solo adaptadores concretos (nunca lógica de negocio)
-
-# === 🧪 Protocolos de Calidad Obligatorios ===
-# 🔒 Inmutabilidad: Value Objects → @dataclass(frozen=True)
-# 🧪 Testabilidad: Componente debe ser testeable SIN mocks de infraestructura
-# 🔤 Type Hints: Firmas públicas con type hints explícitos (PEP 484)
-# ⚡ Pureza: Funciones puras donde sea posible (misma entrada → misma salida)
-# 🚫 Excepciones específicas: Define excepciones de dominio (no uses Exception genérico)
-# 📏 Longitud de línea: Máximo 88 caracteres (compatible con Black/Ruff)
-
-# === Imports estándar ===
-import sys
-import re
 import json
+import re
 import subprocess
-import tomllib
-import shutil
-from pathlib import Path
-from typing import List, Optional, Union
+import sys
 from abc import ABC, abstractmethod
+from pathlib import Path
 
-# === Definición principal ===
+import tomllib
+
+
 class ProjectProfile(ABC):
     @property
     @abstractmethod
-    def python_version(self) -> str: pass
+    def python_version(self) -> str:
+        pass
 
     @property
     @abstractmethod
-    def os_dependencies(self) -> List[str]: pass
+    def os_dependencies(self) -> list[str]:
+        pass
 
     @property
     @abstractmethod
-    def ci_blacklist(self) -> List[str]: pass
+    def ci_blacklist(self) -> list[str]:
+        pass
 
     @abstractmethod
-    def should_exclude_package(self, line: str, hardware_target: str) -> bool: pass
+    def should_exclude_package(self, line: str, hardware_target: str) -> bool:
+        pass
 
 class AudioEditorProfile(ProjectProfile):
     @property
-    def python_version(self) -> str: return "3.12"
+    def python_version(self) -> str:
+        return "3.12"
 
     @property
-    def os_dependencies(self) -> List[str]:
+    def os_dependencies(self) -> list[str]:
         return ["ffmpeg", "libsndfile1", "build-essential", "git"]
 
     @property
-    def ci_blacklist(self) -> List[str]:
+    def ci_blacklist(self) -> list[str]:
         return []
 
     def should_exclude_package(self, line: str, hardware_target: str) -> bool:
@@ -69,7 +55,7 @@ class AudioEditorProfile(ProjectProfile):
         return False
 
 class DependencyManager:
-    def __init__(self, profile: ProjectProfile, pyproject_path: Union[str, Path]):
+    def __init__(self, profile: ProjectProfile, pyproject_path: str | Path):
         self.profile = profile
         self.target_pyproject = Path(pyproject_path)
         self.base_dir = self.target_pyproject.parent
@@ -93,7 +79,8 @@ class DependencyManager:
                 print(f"   ⚠️ No se pudo auto-actualizar pre-commit: {e}")
 
     def _clean_requirements(self, filepath: Path, is_ci: bool = False, hardware_target: str = "cpu"):
-        with open(filepath, "r", encoding="utf-8") as f: lines = f.readlines()
+        with open(filepath, encoding="utf-8") as f:
+            lines = f.readlines()
         with open(filepath, "w", encoding="utf-8") as f:
             skip_mode = False
             for line in lines:
@@ -111,7 +98,7 @@ class DependencyManager:
                     skip_mode = True
                     continue
 
-                if not skip_mode: 
+                if not skip_mode:
                     f.write(line)
 
     def generate_ci_metadata(self, hardware_target: str, installation_command: str):
@@ -123,21 +110,25 @@ class DependencyManager:
             "project_installation_command": installation_command
         }
         meta_path = self.base_dir / "ci-metadata.json"
-        with open(meta_path, "w") as f: json.dump(metadata, f, indent=4)
+        with open(meta_path, "w") as f:
+            json.dump(metadata, f, indent=4)
         print(f"   📄 Manifiesto de infraestructura actualizado: {meta_path.name}")
 
-    def generate_requirements(self, hardware_target: str = "cpu", prod_extras_override: Optional[List[str]] = None) -> Optional[Path]:
-        if not self.target_pyproject.exists(): return None
+    def generate_requirements(self, hardware_target: str = "cpu", prod_extras_override: list[str] | None = None) -> Path | None:
+        if not self.target_pyproject.exists():
+            return None
         installation_command = self._audit_project_structure()
 
         prod_extras = prod_extras_override or []
         if not prod_extras_override:
             try:
-                with open(self.target_pyproject, "rb") as f: config = tomllib.load(f)
+                with open(self.target_pyproject, "rb") as f:
+                    config = tomllib.load(f)
                 all_extras = config.get("project", {}).get("optional-dependencies", {}).keys()
                 dev_patterns = {"dev", "test", "docs", "lint", "typing", "ci"}
                 prod_extras = [ext for ext in all_extras if ext.lower() not in dev_patterns]
-            except Exception: pass
+            except Exception:
+                pass
 
         index_flags = ["--extra-index-url", "https://download.pytorch.org/whl/cpu"] if hardware_target.lower() == "cpu" else []
 
@@ -150,7 +141,9 @@ class DependencyManager:
             subprocess.run([sys.executable, "-m", "pip", "install", "pip-tools", "pre-commit", "--quiet"], check=False)
 
             prod_flags = []
-            for ext in prod_extras: prod_flags.extend(["--extra", ext])
+            for ext in prod_extras:
+                prod_flags.extend(["--extra", ext])
+
             subprocess.run([sys.executable, "-m", "piptools", "compile", str(self.target_pyproject), "-o", str(prod_path), "--quiet"] + prod_flags + index_flags)
             self._clean_requirements(prod_path, hardware_target=hardware_target)
 
@@ -167,9 +160,7 @@ class DependencyManager:
             print(f"   ⚠️ Error inesperado: {e}")
             return None
 
-# === Protección contra ejecución directa ===
 if __name__ == "__main__":
-    # ✅ Solo para demos controladas o scripts utilitarios.
     perfil_audio = AudioEditorProfile()
     generador = DependencyManager(profile=perfil_audio, pyproject_path="/content/english-editor/pyproject.toml")
     generador.generate_requirements(hardware_target="cpu")
