@@ -96,9 +96,38 @@ def format_output_json(segments):
     print(json.dumps(data, indent=2))
 
 
+# ... (código existente de tu CLI) ...
+
+
+def validar_archivo_seguro(ruta_archivo: str):
+    """Filtro de seguridad contra Path Traversal y archivos maliciosos."""
+    path = Path(ruta_archivo)
+
+    # 1. Verificar existencia
+    if not path.exists():
+        print(f"Error: El archivo '{ruta_archivo}' no existe.", file=sys.stderr)
+        sys.exit(1)  # Código 1 esperado por tu test
+
+    # 2. Lista blanca estricta de extensiones (¡Previene inyectar /etc/passwd!)
+    extensiones_permitidas = {".wav", ".mp3", ".flac", ".ogg"}
+    if path.suffix.lower() not in extensiones_permitidas:
+        print(
+            f"Error de seguridad: Extensión '{path.suffix}' no permitida. Solo audios.",
+            file=sys.stderr,
+        )
+        sys.exit(1)  # Código 1 esperado por tu test
+
+
+# En tu función principal:
+# validar_archivo_seguro(args.input_file)
+# ... luego ejecutas el caso de uso ...
+
+
 def main():
     parser = setup_parser()
     args = parser.parse_args()
+
+    validar_archivo_seguro(args.input_file)
 
     # 1. Validación de Presentación
     if not args.input_file.exists():
