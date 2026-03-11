@@ -14,10 +14,11 @@ help:
 verify: format lint security test
 	@echo '✅ Todo verde. El código cumple el Contrato de Calidad. Listo para el git push.'
 
-# 📦 Instala dependencias respetando el Lockfile SRE
+# 🚀 Alineando Toolchain: Usando motor UV para instalación determinista...
 install:
-	pip install -r requirements.lock.txt
-	pip install --no-deps -e .
+	pip install uv typing-extensions mypy ruff black bandit pip-audit --quiet
+	uv pip install --system --require-hashes -r requirements.lock.txt
+	uv pip install --system --no-deps -e .
 
 # 🔒 [SRE] Regenera la suite completa de dependencias (Opcional: make lock ENGINE=pip-tools)
 lock:
