@@ -17,7 +17,7 @@ verify: format lint security test
 # 🚀 Alineando Toolchain: Usando motor UV para instalación determinista...
 install:
 	pip install uv typing-extensions mypy ruff black bandit pip-audit --quiet
-	uv pip install --system --require-hashes -r requirements.lock.txt
+	uv pip install --system --require-hashes --index-strategy unsafe-best-match -r requirements.lock.txt
 	uv pip install --system --no-deps -e .
 
 # 🔒 [SRE] Regenera la suite completa de dependencias (Opcional: make lock ENGINE=pip-tools)
