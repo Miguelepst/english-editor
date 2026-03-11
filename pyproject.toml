@@ -105,8 +105,10 @@ markers = [
   "integration: Tests de integración (lentos, requieren ML y dependencias externas)",
   "e2e: pruebas end-to-end",
   "slow: Tests que tardan más de 1 segundo",
-  "performance: Benchmarks y pruebas de carga o recursos"
+  "performance: Benchmarks y pruebas de carga o recursos",
+  "security: marca para pruebas de seguridad y ataques DAST"
 ]
+
 
 
 
