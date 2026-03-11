@@ -1,0 +1,89 @@
+
+name: Main Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  code-quality-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. Clonar código
+        uses: actions/checkout@v4
+
+      - name: 2. Leer e instalar dependencias del sistema (OS) dinámicamente
+        run: |
+          sudo apt-get update
+          APT_PACKAGES=$(jq -r '.apt_requirements' ci-metadata.json)
+          echo "📦 Instalando paquetes del sistema: $APT_PACKAGES"
+          sudo apt-get install -y $APT_PACKAGES
+
+      - name: 3. Configurar Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: 4. Ejecutar Gatekeeper Local (Universal API Makefile)
+        # 🚀 AQUI OCURRE LA MAGIA: El CI hace exactamente lo mismo que tu entorno local
+        run: |
+          make install-sec-tools
+          make install
+          make verify
+
+  build-scan-and-push:
+    needs: code-quality-tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. Clonar código
+        uses: actions/checkout@v4
+
+      - name: 2. Leer metadatos para Docker
+        id: meta
+        run: |
+          echo "PYTHON_BASE=$(jq -r '.python_base_image' ci-metadata.json)" >> $GITHUB_ENV
+          echo "APT_PACKAGES=$(jq -r '.apt_requirements' ci-metadata.json)" >> $GITHUB_ENV
+          echo "INSTALL_CMD=$(jq -r '.project_installation_command' ci-metadata.json)" >> $GITHUB_ENV
+
+      - name: 3. Configurar Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 4. Iniciar sesión en Docker Hub
+        if: github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: 5. Construir Imagen
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          load: true
+          tags: dockerdemiguel/english-editor:${{ github.sha }}
+          build-args: |
+            PYTHON_BASE=${{ env.PYTHON_BASE }}
+            APT_REQUIREMENTS=${{ env.APT_PACKAGES }}
+            INSTALL_CMD=${{ env.INSTALL_CMD }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: 6. Escaneo de Imagen (Trivy)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: dockerdemiguel/english-editor:${{ github.sha }}
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      - name: 7. Subir a Docker Hub
+        if: github.ref == 'refs/heads/main'
+        run: |
+          docker push dockerdemiguel/english-editor:${{ github.sha }}
+          docker tag dockerdemiguel/english-editor:${{ github.sha }} dockerdemiguel/english-editor:latest
+          docker push dockerdemiguel/english-editor:latest
