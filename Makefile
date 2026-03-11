@@ -16,7 +16,7 @@ verify: format lint security test
 
 # 📦 Instala dependencias respetando el Lockfile SRE
 install:
-	pip install -r requirements.lock.txt
+	pip install --no-deps --require-hashes -r requirements.lock.txt
 	pip install --no-deps -e .
 
 # 🔒 [SRE] Regenera dependencias y calcula hashes criptográficos
