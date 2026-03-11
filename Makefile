@@ -6,6 +6,10 @@
 # 🔥 FIX SRE: Asegurar que los binarios locales sean detectados
 export PATH := $(HOME)/.local/bin:$(PATH)
 
+# ⚙️ VARIABLES GLOBALES SRE
+TARGET ?= src/ tests/
+ENGINE ?= uv
+
 # 📖 Muestra esta ayuda interactiva
 help:
 	@echo '🚀 Ejecuta "make verify" para validar tu código antes de subirlo.'

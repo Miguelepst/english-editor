@@ -38,6 +38,12 @@ class ProjectProfile(ABC):
     def should_exclude_package(self, line: str, hardware_target: str) -> bool:
         pass
 
+    @property
+    @abstractmethod
+    def compiler_flags(self) -> list[str]:
+        """Banderas inyectables específicas para el motor de compilación."""
+        pass
+
 
 class AudioEditorProfile(ProjectProfile):
     @property
@@ -51,6 +57,12 @@ class AudioEditorProfile(ProjectProfile):
     @property
     def ci_blacklist(self) -> list[str]:
         return []
+
+    @property
+    def compiler_flags(self) -> list[str]:
+        # 🧠 INYECCIÓN DE REGLA DE NEGOCIO:
+        # Permitimos a 'uv' mezclar el repo de PyTorch con PyPI
+        return ["--index-strategy", "unsafe-best-match"]
 
     def should_exclude_package(self, line: str, hardware_target: str) -> bool:
         if hardware_target.lower() == "cpu" and re.match(r"^triton==", line.strip()):
@@ -187,11 +199,13 @@ class DependencyManager:
 
             # 2. Configurar Comandos Base
             base_cmd = []
+
             if engine == "uv":
                 subprocess.run(
                     [sys.executable, "-m", "pip", "install", "uv", "--quiet"],
                     check=False,
                 )
+                # Limpio y universal:
                 base_cmd = [
                     "python",
                     "-m",
@@ -201,6 +215,16 @@ class DependencyManager:
                     str(self.target_pyproject),
                     "--generate-hashes",
                 ]
+                # Dinámico e inteligente:
+                base_cmd.extend(self.profile.compiler_flags)
+
+            # if engine == "uv":
+            #    subprocess.run([sys.executable, "-m", "pip", "install", "uv", "--quiet"], check=False)
+            #    base_cmd = ["python", "-m", "uv", "pip", "compile", str(self.target_pyproject), "--generate-hashes", "--index-strategy", "unsafe-best-match"]
+            #    #base_cmd = ["python", "-m", "uv", "pip", "compile", str(self.target_pyproject), "--generate-hashes"]
+            #    # 💉 Inyectamos dinámicamente las banderas del perfil actual
+            #    base_cmd.extend(self.profile.compiler_flags)
+
             elif engine == "pip-tools-fast":
                 subprocess.run(
                     [sys.executable, "-m", "pip", "install", "pip-tools", "--quiet"],
@@ -259,7 +283,8 @@ class DependencyManager:
 
 
 if __name__ == "__main__":
-    selected_engine = os.environ.get("ENGINE", "uv")
+    selected_engine = os.environ.get("ENGINE", "").strip() or "uv"
+    # selected_engine = os.environ.get("ENGINE", "uv")
     perfil = AudioEditorProfile()
     mgr = DependencyManager(perfil, "/content/english-editor/pyproject.toml")
     mgr.generate_requirements(engine=selected_engine)
