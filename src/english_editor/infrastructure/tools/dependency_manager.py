@@ -1,54 +1,39 @@
-
+# src/english_editor/infrastructure/tools/dependency_manager.py
 """
-Motor agnóstico de resolución de dependencias con hashes criptográficos.
-Arquitectura: Modular Monolith + Vertical Slice
-Componente: Infra/Tooling
+Motor agnóstico de resolución de dependencias (Multi-Engine: uv / pip-tools).
+Genera toda la suite de archivos, hashes criptográficos, metadata y auto-sana pre-commit.
 """
 from __future__ import annotations
-
-import json
-import re
-import subprocess
 import sys
-from abc import ABC, abstractmethod
-from pathlib import Path
-
+import os
+import re
+import json
+import subprocess
 import tomllib
-
+import shutil
+from pathlib import Path
+from abc import ABC, abstractmethod
 
 class ProjectProfile(ABC):
     @property
     @abstractmethod
-    def python_version(self) -> str:
-        pass
-
+    def python_version(self) -> str: pass
     @property
     @abstractmethod
-    def os_dependencies(self) -> list[str]:
-        pass
-
+    def os_dependencies(self) -> list[str]: pass
     @property
     @abstractmethod
-    def ci_blacklist(self) -> list[str]:
-        pass
-
+    def ci_blacklist(self) -> list[str]: pass
     @abstractmethod
-    def should_exclude_package(self, line: str, hardware_target: str) -> bool:
-        pass
+    def should_exclude_package(self, line: str, hardware_target: str) -> bool: pass
 
 class AudioEditorProfile(ProjectProfile):
     @property
-    def python_version(self) -> str:
-        return "3.12"
-
+    def python_version(self) -> str: return "3.12"
     @property
-    def os_dependencies(self) -> list[str]:
-        return ["ffmpeg", "libsndfile1", "build-essential", "git"]
-
+    def os_dependencies(self) -> list[str]: return ["ffmpeg", "libsndfile1", "build-essential", "git"]
     @property
-    def ci_blacklist(self) -> list[str]:
-        return []
-
+    def ci_blacklist(self) -> list[str]: return []
     def should_exclude_package(self, line: str, hardware_target: str) -> bool:
         if hardware_target.lower() == "cpu" and re.match(r"^triton==", line.strip()):
             return True
@@ -61,6 +46,30 @@ class DependencyManager:
         self.base_dir = self.target_pyproject.parent
         self.project_name = self.target_pyproject.parent.name
 
+
+
+    def _update_pre_commit_hooks(self):
+        pre_commit_config = self.base_dir / ".pre-commit-config.yaml"
+        if pre_commit_config.exists():
+            print("\n🧹 Auto-sanando configuración de pre-commit...")
+            try:
+                # 1. Asegurar que la herramienta existe en el entorno temporal
+                subprocess.run([sys.executable, "-m", "pip", "install", "pre-commit", "--quiet"], check=False)
+                
+                # 2. Ejecutar la actualización capturando errores reales
+                result = subprocess.run([sys.executable, "-m", "pre_commit", "autoupdate"], cwd=self.base_dir, check=False)
+                
+                # 3. Validar el Exit Code real
+                if result.returncode == 0:
+                    print("   ✔️ Hooks de Git actualizados a su última versión.")
+                else:
+                    print("   ⚠️ 'pre-commit autoupdate' terminó con advertencias o no se pudo ejecutar.")
+            except Exception as e:
+                print(f"   ⚠️ Error crítico al actualizar pre-commit: {e}")
+
+
+
+
     def _audit_project_structure(self) -> str:
         print("\n🔍 Iniciando auditoría de arquitectura (Shift-Left)...")
         if (self.base_dir / "src").exists() and self.target_pyproject.exists():
@@ -68,38 +77,7 @@ class DependencyManager:
             return "pip install --no-cache-dir --no-deps ."
         return "ENV PYTHONPATH='/app'"
 
-    def _update_pre_commit_hooks(self):
-        pre_commit_config = self.base_dir / ".pre-commit-config.yaml"
-        if pre_commit_config.exists():
-            print("\n🧹 Auto-sanando configuración de pre-commit...")
-            try:
-                subprocess.run([sys.executable, "-m", "pre_commit", "autoupdate"], cwd=self.base_dir, check=False)
-                print("   ✔️ Hooks de Git actualizados a su última versión.")
-            except Exception as e:
-                print(f"   ⚠️ No se pudo auto-actualizar pre-commit: {e}")
 
-    def _clean_requirements(self, filepath: Path, is_ci: bool = False, hardware_target: str = "cpu"):
-        with open(filepath, encoding="utf-8") as f:
-            lines = f.readlines()
-        with open(filepath, "w", encoding="utf-8") as f:
-            skip_mode = False
-            for line in lines:
-                line_stripped = line.strip()
-                if skip_mode:
-                    if line_stripped.startswith("--hash") or line_stripped.startswith("#") or line_stripped == "\\" or line_stripped.endswith("\\"):
-                        continue
-                    else:
-                        skip_mode = False
-
-                if self.profile.should_exclude_package(line_stripped, hardware_target):
-                    skip_mode = True
-                    continue
-                if is_ci and any(line_stripped.startswith(bp) for bp in self.profile.ci_blacklist):
-                    skip_mode = True
-                    continue
-
-                if not skip_mode:
-                    f.write(line)
 
     def generate_ci_metadata(self, hardware_target: str, installation_command: str):
         metadata = {
@@ -110,57 +88,95 @@ class DependencyManager:
             "project_installation_command": installation_command
         }
         meta_path = self.base_dir / "ci-metadata.json"
-        with open(meta_path, "w") as f:
-            json.dump(metadata, f, indent=4)
-        print(f"   📄 Manifiesto de infraestructura actualizado: {meta_path.name}")
+        with open(meta_path, "w") as f: json.dump(metadata, f, indent=4)
+        print(f"\n   📄 Manifiesto de infraestructura actualizado: {meta_path.name}")
 
-    def generate_requirements(self, hardware_target: str = "cpu", prod_extras_override: list[str] | None = None) -> Path | None:
-        if not self.target_pyproject.exists():
-            return None
-        installation_command = self._audit_project_structure()
+    def _clean_requirements(self, filepath: Path, hardware_target: str, is_ci: bool = False):
+        if not filepath.exists(): return
+        with open(filepath, "r", encoding="utf-8") as f: lines = f.readlines()
+        with open(filepath, "w", encoding="utf-8") as f:
+            skip_mode = False
+            for line in lines:
+                line_stripped = line.strip()
+                if skip_mode:
+                    if any(line_stripped.startswith(s) for s in ["--hash", "#", "\\"]) or line_stripped.endswith("\\"):
+                        continue
+                    skip_mode = False
+                if self.profile.should_exclude_package(line_stripped, hardware_target):
+                    skip_mode = True; continue
+                if is_ci and any(line_stripped.startswith(bp) for bp in self.profile.ci_blacklist):
+                    skip_mode = True; continue
+                if not skip_mode: f.write(line)
 
-        prod_extras = prod_extras_override or []
-        if not prod_extras_override:
-            try:
-                with open(self.target_pyproject, "rb") as f:
-                    config = tomllib.load(f)
-                all_extras = config.get("project", {}).get("optional-dependencies", {}).keys()
-                dev_patterns = {"dev", "test", "docs", "lint", "typing", "ci"}
-                prod_extras = [ext for ext in all_extras if ext.lower() not in dev_patterns]
-            except Exception:
-                pass
-
-        index_flags = ["--extra-index-url", "https://download.pytorch.org/whl/cpu"] if hardware_target.lower() == "cpu" else []
-
+    def generate_requirements(self, engine: str = "uv", hardware_target: str = "cpu"):
+        installation_cmd = self._audit_project_structure()
+        
         prod_path = self.base_dir / "requirements.txt"
+        ci_path = self.base_dir / "requirements-ci.txt"
+        dev_path = self.base_dir / "requirements-dev.txt"
         lock_path = self.base_dir / "requirements.lock.txt"
-
-        print(f"\n🔒 Resolviendo ecosistema para '{self.project_name}' (Generando Hashes SRE)...")
+        
+        index_url = "https://download.pytorch.org/whl/cpu" if hardware_target == "cpu" else ""
+        print(f"\n🚀 Iniciando Motor: {engine.upper()} | Target: {hardware_target}")
 
         try:
-            subprocess.run([sys.executable, "-m", "pip", "install", "pip-tools", "pre-commit", "--quiet"], check=False)
-
+            # 1. Leer extras del pyproject.toml
+            config = {}
+            try:
+                with open(self.target_pyproject, "rb") as f: config = tomllib.load(f)
+            except Exception: pass
+            
+            all_extras = config.get("project", {}).get("optional-dependencies", {}).keys()
+            dev_patterns = {"dev", "test", "docs", "lint", "typing", "ci"}
+            
+            prod_extras = [ext for ext in all_extras if ext.lower() not in dev_patterns]
             prod_flags = []
-            for ext in prod_extras:
-                prod_flags.extend(["--extra", ext])
+            for ext in prod_extras: prod_flags.extend(["--extra", ext])
 
-            subprocess.run([sys.executable, "-m", "piptools", "compile", str(self.target_pyproject), "-o", str(prod_path), "--quiet"] + prod_flags + index_flags)
-            self._clean_requirements(prod_path, hardware_target=hardware_target)
+            ci_flags = prod_flags.copy()
+            for ext in ["test", "dev", "security"]:
+                if ext in all_extras: ci_flags.extend(["--extra", ext])
 
-            print("   🛡️ Sincronizando Bóveda Criptográfica (Usando caché para velocidad)...")
-            subprocess.run([sys.executable, "-m", "piptools", "compile", "--generate-hashes", "--reuse-hashes", "--strip-extras", str(self.target_pyproject), "-o", str(lock_path), "--all-extras", "--quiet"] + index_flags)
-            self._clean_requirements(lock_path, hardware_target=hardware_target)
+            # 2. Configurar Comandos Base
+            base_cmd = []
+            if engine == "uv":
+                subprocess.run([sys.executable, "-m", "pip", "install", "uv", "--quiet"], check=False)
+                base_cmd = ["python", "-m", "uv", "pip", "compile", str(self.target_pyproject), "--generate-hashes"]
+            elif engine == "pip-tools-fast":
+                subprocess.run([sys.executable, "-m", "pip", "install", "pip-tools", "--quiet"], check=False)
+                base_cmd = [sys.executable, "-m", "piptools", "compile", "--generate-hashes", "--reuse-hashes", "--strip-extras", "--quiet"]
+            else:
+                subprocess.run([sys.executable, "-m", "pip", "install", "pip-tools", "--quiet"], check=False)
+                base_cmd = [sys.executable, "-m", "piptools", "compile", "--generate-hashes", "--quiet"]
 
-            self.generate_ci_metadata(hardware_target, installation_command)
+            if index_url: base_cmd.extend(["--extra-index-url", index_url])
+
+            # 3. Compilación Implacable
+            print("\n   📦 Compilando Producción...")
+            subprocess.run(base_cmd + prod_flags + ["-o", str(prod_path)], check=True)
+            self._clean_requirements(prod_path, hardware_target)
+
+            print("   🛠️ Compilando CI...")
+            subprocess.run(base_cmd + ci_flags + ["-o", str(ci_path)], check=True)
+            self._clean_requirements(ci_path, hardware_target, is_ci=True)
+
+            print("   🔬 Compilando Desarrollo (All-Extras)...")
+            subprocess.run(base_cmd + ["--all-extras", "-o", str(dev_path)], check=True)
+            self._clean_requirements(dev_path, hardware_target)
+
+            print("   🔒 Sellando Lockfile Maestro (SSOT)...")
+            shutil.copy(dev_path, lock_path)
+
+            # 4. Restauración de Funcionalidades Auxiliares (Sin Regresiones)
+            self.generate_ci_metadata(hardware_target, installation_cmd)
             self._update_pre_commit_hooks()
-
-            print("   ✅ ¡Éxito! Contrato de seguridad inmutable generado.")
-            return lock_path
+            
+            print(f"\n✅ ¡Éxito! Infraestructura completa generada y asegurada.")
         except Exception as e:
-            print(f"   ⚠️ Error inesperado: {e}")
-            return None
+            print(f"\n❌ Error en la generación: {e}")
 
 if __name__ == "__main__":
-    perfil_audio = AudioEditorProfile()
-    generador = DependencyManager(profile=perfil_audio, pyproject_path="/content/english-editor/pyproject.toml")
-    generador.generate_requirements(hardware_target="cpu")
+    selected_engine = os.environ.get("ENGINE", "uv")
+    perfil = AudioEditorProfile()
+    mgr = DependencyManager(perfil, "/content/english-editor/pyproject.toml")
+    mgr.generate_requirements(engine=selected_engine)

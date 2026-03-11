@@ -16,16 +16,14 @@ verify: format lint security test
 
 # 📦 Instala dependencias respetando el Lockfile SRE
 install:
-	pip install --upgrade pip
-	pip install typing-extensions mypy ruff black bandit pip-audit --quiet
-	pip install --no-deps --require-hashes -r requirements.lock.txt
+	pip install -r requirements.lock.txt
 	pip install --no-deps -e .
 
-# 🔒 [SRE] Regenera dependencias y calcula hashes criptográficos
+# 🔒 [SRE] Regenera la suite completa de dependencias (Opcional: make lock ENGINE=pip-tools)
 lock:
-	@echo 'Ejecutando Motor Agnóstico de Dependencias...'
-	python src/english_editor/infrastructure/tools/dependency_manager.py
-	@echo '✅ requirements.lock.txt actualizado con seguridad estricta.'
+	@echo 'Iniciando resolución SRE de dependencias...'
+	ENGINE=$(ENGINE) python src/english_editor/infrastructure/tools/dependency_manager.py
+	@echo '✅ Suite de archivos generada y sellada.'
 
 # 🛡️ Instala binarios de seguridad en espacio de usuario (Colab/Local)
 install-sec-tools:
