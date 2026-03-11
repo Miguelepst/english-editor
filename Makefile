@@ -14,10 +14,10 @@ help:
 verify: format lint security test
 	@echo '✅ Todo verde. El código cumple el Contrato de Calidad. Listo para el git push.'
 
-# 🚀 Toolchain: Ejecutando instalación inmutable (Plano de Datos)...
+# 🚀 Toolchain SRE: Ejecutor inmutable con indexación multi-repositorio...
 install:
 	pip install uv typing-extensions mypy ruff black bandit pip-audit --quiet
-	uv pip install --system --no-deps --require-hashes -r requirements.lock.txt
+	uv pip install --system --no-deps --require-hashes --index-strategy unsafe-best-match -r requirements.lock.txt
 	uv pip install --system --no-deps -e .
 
 # 🔒 [SRE] Regenera la suite completa de dependencias (Opcional: make lock ENGINE=pip-tools)
