@@ -14,24 +14,31 @@ jobs:
       - name: 1. Clonar código
         uses: actions/checkout@v4
 
-      - name: 2. Configurar Python 3.12
+      - name: 2. Leer e instalar dependencias del sistema (OS) dinámicamente
+        # 🧠 LA GENIALIDAD SSOT: Leemos de ci-metadata.json para no duplicar código
+        run: |
+          sudo apt-get update
+          APT_PACKAGES=$(jq -r '.apt_requirements' ci-metadata.json)
+          echo "📦 Instalando paquetes del sistema: $APT_PACKAGES"
+          sudo apt-get install -y $APT_PACKAGES
+
+      - name: 3. Configurar Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: 'pip'
 
-      - name: 3. Instalar Dependencias Exactas (CI/Testing)
-        # 🛡️ Determinismo: Usamos el lockfile generado por pip-compile
+      - name: 4. Instalar Dependencias Exactas (CI/Testing)
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements-ci.txt
           pip install pre-commit
           pip install --no-deps .
 
-      - name: 4. Análisis Estático (Pre-commit)
+      - name: 5. Análisis Estático (Pre-commit)
         run: pre-commit run --all-files
 
-      - name: 5. Pruebas Unitarias y DAST (Fuzzing Dinámico)
+      - name: 6. Pruebas Unitarias y DAST (Fuzzing Dinámico)
         run: pytest tests/ -v
 
   build-scan-and-push:
@@ -41,7 +48,7 @@ jobs:
       - name: 1. Clonar código
         uses: actions/checkout@v4
 
-      - name: 2. Leer metadatos
+      - name: 2. Leer metadatos para Docker
         id: meta
         run: |
           echo "PYTHON_BASE=$(jq -r '.python_base_image' ci-metadata.json)" >> $GITHUB_ENV
