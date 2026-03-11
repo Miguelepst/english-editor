@@ -147,8 +147,8 @@ class DependencyManager:
             subprocess.run([sys.executable, "-m", "piptools", "compile", str(self.target_pyproject), "-o", str(prod_path), "--quiet"] + prod_flags + index_flags)
             self._clean_requirements(prod_path, hardware_target=hardware_target)
 
-            print("   🛡️ Calculando Hashes SHA-256 para el Lockfile...")
-            subprocess.run([sys.executable, "-m", "piptools", "compile", "--generate-hashes", str(self.target_pyproject), "-o", str(lock_path), "--all-extras", "--quiet"] + index_flags)
+            print("   🛡️ Sincronizando Bóveda Criptográfica (Usando caché para velocidad)...")
+            subprocess.run([sys.executable, "-m", "piptools", "compile", "--generate-hashes", "--reuse-hashes", "--strip-extras", str(self.target_pyproject), "-o", str(lock_path), "--all-extras", "--quiet"] + index_flags)
             self._clean_requirements(lock_path, hardware_target=hardware_target)
 
             self.generate_ci_metadata(hardware_target, installation_command)
