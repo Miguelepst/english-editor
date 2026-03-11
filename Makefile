@@ -33,19 +33,21 @@ install-sec-tools:
 	@if ! command -v trivy >/dev/null 2>&1; then echo '📥 Descargando Trivy...'; curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b ~/.local/bin; fi
 	@echo '✅ Gitleaks y Trivy listos. Recuerda: export PATH="$$HOME/.local/bin:$$PATH"'
 
-# 🔧 Auto-corrige errores de linting e imports (Ruff)
+# 🔧🧹 Auto-corrigiendo código (Objetivo: $(TARGET)) linting e imports (Ruff)...
 fix:
-	ruff check src/ tests/ --fix
+	ruff check $(TARGET) --fix
+	ruff format $(TARGET)
 
 # 🎨 Formatea el código automáticamente
 format: fix
 	black src/ tests/
 	ruff format src/ tests/
 
-# 🔍 Análisis estático puro (Ruff & Mypy sin auto-corrección)
+# 🔎 Ejecutando inspección de calidad (Objetivo: $(TARGET)) Análisis estático puro (Ruff & Mypy sin auto-corrección)...
 lint:
-	ruff check src/ tests/
-	mypy src/ --ignore-missing-imports
+	ruff check $(TARGET)
+	mypy $(TARGET) --ignore-missing-imports
+	bandit -r $(TARGET) -ll -ii --quiet
 
 # 🧪 Ejecuta pruebas unitarias rápidas (Ignora E2E y lentas)
 test:
