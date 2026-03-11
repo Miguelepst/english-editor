@@ -84,6 +84,7 @@ jobs:
           image-ref: dockerdemiguel/english-editor:${{ github.sha }}
           format: 'table'
           exit-code: '1'
+          ignore-unfixed: true      # SO (Debian) aún no han publicado un parche para estas vulnerabilidades del Kernel, tú tampoco puedes arreglarlas.
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
 
