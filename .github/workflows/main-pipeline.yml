@@ -71,8 +71,16 @@ jobs:
             APT_REQUIREMENTS=${{ env.APT_PACKAGES }}
             INSTALL_CMD=${{ env.INSTALL_CMD }}
             EXTRA_INDEX_URL=${{ env.EXTRA_INDEX_URL }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+
+
+
+          # La reemplazamos por un nuevo Scope aislado "Limpieza de Caché Remoto"
+          cache-from: type=gha,scope=arquitectura-pura
+          cache-to: type=gha,mode=max,scope=arquitectura-pura
+
+          # cache anterior sin limpiar
+          #cache-from: type=gha
+          #cache-to: type=gha,mode=max
 
       - name: 6. Escaneo de Imagen (Trivy)
         uses: aquasecurity/trivy-action@master
