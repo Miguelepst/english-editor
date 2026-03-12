@@ -9,6 +9,7 @@ export PATH := $(HOME)/.local/bin:$(PATH)
 # ⚙️ VARIABLES GLOBALES SRE
 TARGET ?= src/ tests/
 ENGINE ?= uv
+EXTRA_INDEX_URL ?=
 
 # 📖 Muestra esta ayuda interactiva
 help:
@@ -21,8 +22,8 @@ verify: format lint security test
 # 🚀 Toolchain SRE: Ejecutor inmutable con indexación multi-repositorio...
 install:
 	pip install uv typing-extensions mypy ruff black bandit pip-audit --quiet
-	uv pip install --system --no-deps --require-hashes --index-strategy unsafe-best-match -r requirements.lock.txt
-	uv pip install --system --no-deps -e .
+	uv pip install --system --no-deps --require-hashes --index-strategy unsafe-best-match $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -r requirements.lock.txt
+	uv pip install --system --no-deps $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -e .
 
 # 🔒 [SRE] Regenera la suite completa de dependencias (Opcional: make lock ENGINE=pip-tools)
 lock:

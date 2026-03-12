@@ -1,3 +1,4 @@
+
 name: Main Pipeline
 
 on:
@@ -14,7 +15,6 @@ jobs:
         uses: actions/checkout@v4
 
       - name: 2. Leer e instalar dependencias del sistema (OS) dinámicamente
-        # 🧠 LA GENIALIDAD SSOT: Leemos de ci-metadata.json para no duplicar código
         run: |
           sudo apt-get update
           APT_PACKAGES=$(jq -r '.apt_requirements' ci-metadata.json)
@@ -27,12 +27,18 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
 
+
+
+
       - name: 4. Ejecutar Gatekeeper Local (Universal API Makefile)
-        # 🚀 AQUI OCURRE LA MAGIA: El CI hace exactamente lo mismo que tu entorno local
         run: |
+          # Extraemos la variable para que el Makefile local la use en la nube:
+          export EXTRA_INDEX_URL=$(jq -r '.extra_index_url // empty' ci-metadata.json)
           make install-sec-tools
           make install
           make verify
+
+
 
   build-scan-and-push:
     needs: code-quality-tests
@@ -41,12 +47,18 @@ jobs:
       - name: 1. Clonar código
         uses: actions/checkout@v4
 
+
+
+
       - name: 2. Leer metadatos para Docker
         id: meta
         run: |
           echo "PYTHON_BASE=$(jq -r '.python_base_image' ci-metadata.json)" >> $GITHUB_ENV
           echo "APT_PACKAGES=$(jq -r '.apt_requirements' ci-metadata.json)" >> $GITHUB_ENV
           echo "INSTALL_CMD=$(jq -r '.project_installation_command' ci-metadata.json)" >> $GITHUB_ENV
+          # Leemos la variable en el entorno de GitHub y se la inyectamos a Docker.
+          echo "EXTRA_INDEX_URL=$(jq -r '.extra_index_url // empty' ci-metadata.json)" >> $GITHUB_ENV # <--- NUEVO
+
 
       - name: 3. Configurar Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -58,6 +70,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+
       - name: 5. Construir Imagen
         uses: docker/build-push-action@v5
         with:
@@ -68,6 +81,7 @@ jobs:
             PYTHON_BASE=${{ env.PYTHON_BASE }}
             APT_REQUIREMENTS=${{ env.APT_PACKAGES }}
             INSTALL_CMD=${{ env.INSTALL_CMD }}
+            EXTRA_INDEX_URL=${{ env.EXTRA_INDEX_URL }} # <--- NUEVO
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -77,7 +91,7 @@ jobs:
           image-ref: dockerdemiguel/english-editor:${{ github.sha }}
           format: 'table'
           exit-code: '1'
-          ignore-unfixed: true      # SO (Debian) aún no han publicado un parche para estas vulnerabilidades del Kernel, tú tampoco puedes arreglarlas.
+          ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
 

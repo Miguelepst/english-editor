@@ -3,5 +3,6 @@
     "python_base_image": "python:3.12-slim",
     "apt_requirements": "ffmpeg libsndfile1 build-essential git",
     "hardware_target": "cpu",
-    "project_installation_command": "pip install --no-cache-dir --no-deps ."
+    "project_installation_command": "pip install --no-cache-dir --no-deps .",
+    "extra_index_url": "https://download.pytorch.org/whl/cpu"
 }

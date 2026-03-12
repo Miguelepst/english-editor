@@ -11,6 +11,7 @@ ENV TZ="America/Bogota"
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 ARG APT_REQUIREMENTS=""
+ARG EXTRA_INDEX_URL=""
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ${APT_REQUIREMENTS} \
     && rm -rf /var/lib/apt/lists/*
@@ -25,10 +26,22 @@ RUN mkdir -p /app/data /home/appuser/.cache \
 
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
+
+
 # Capas de dependencias y código (Caché optimizado)
 COPY --chown=appuser:appuser requirements.txt .
-RUN pip install --no-cache-dir --no-deps --require-hashes -r requirements.txt
-#RUN pip install --no-cache-dir -r requirements.txt
+
+# 🧠 INYECCIÓN SRE: Instalación dinámica basada en la fuente de verdad
+RUN if [ -z "$EXTRA_INDEX_URL" ]; then \
+      pip install --no-cache-dir --no-deps --require-hashes -r requirements.txt; \
+    else \
+      pip install --no-cache-dir --no-deps --require-hashes --extra-index-url "$EXTRA_INDEX_URL" -r requirements.txt; \
+    fi
+
+
+
+
+
 
 COPY --chown=appuser:appuser src/ src/
 COPY --chown=appuser:appuser pyproject.toml .
