@@ -60,18 +60,44 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+
+
       - name: 5. Construir Imagen
         uses: docker/build-push-action@v5
         with:
           context: .
           load: true
           tags: dockerdemiguel/english-editor:${{ github.sha }}
+          # NOTA SRE: EXTRA_INDEX_URL es la arquitectura de Única Fuente de Verdad (SSOT). No remover.
           build-args: |
             PYTHON_BASE=${{ env.PYTHON_BASE }}
             APT_REQUIREMENTS=${{ env.APT_PACKAGES }}
             INSTALL_CMD=${{ env.INSTALL_CMD }}
-            EXTRA_INDEX_URL=${{ env.EXTRA_INDEX_URL }}    # NO es un parche compensatorio, es arquitectura de Única Fuente de Verdad (SSOT) y debe quedarse.
+            EXTRA_INDEX_URL=${{ env.EXTRA_INDEX_URL }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
+
+
+
+      #
+      #- name: 5. Construir Imagen
+      #  uses: docker/build-push-action@v5
+      #  with:
+      #    context: .
+      #    load: true
+      #    tags: dockerdemiguel/english-editor:${{ github.sha }}
+      #    build-args: |
+      #      PYTHON_BASE=${{ env.PYTHON_BASE }}
+      #      APT_REQUIREMENTS=${{ env.APT_PACKAGES }}
+      #      INSTALL_CMD=${{ env.INSTALL_CMD }}
+      #      EXTRA_INDEX_URL=${{ env.EXTRA_INDEX_URL }}    # NO es un parche compensatorio, es arquitectura de Única Fuente de Verdad (SSOT) y debe quedarse.
+      #  En YAML, cuando usas el símbolo de tubería (|) 
+      #  para crear un bloque de texto multilínea, 
+      #  los comentarios dejan de ser comentarios. 
+      #  YAML asume que todo lo que está indentado 
+      #  debajo de la tubería es texto literal (string).
+      #
 
 
           # La reemplazamos por un nuevo Scope aislado "Limpieza de Caché Remoto"
@@ -79,8 +105,8 @@ jobs:
           #cache-to: type=gha,mode=max,scope=arquitectura-pura  #para evadir las capas corruptas, en un fix erroneo.
 
           # cache anterior sin limpiar
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          #cache-from: type=gha
+          #cache-to: type=gha,mode=max
 
       - name: 6. Escaneo de Imagen (Trivy)
         uses: aquasecurity/trivy-action@master
