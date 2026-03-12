@@ -6,6 +6,11 @@
 # 🔥 FIX SRE: Asegurar que los binarios locales sean detectados
 export PATH := $(HOME)/.local/bin:$(PATH)
 
+# ⚙️ VARIABLES GLOBALES SRE
+TARGET ?= src/ tests/
+ENGINE ?= uv
+EXTRA_INDEX_URL ?=
+
 # 📖 Muestra esta ayuda interactiva
 help:
 	@echo '🚀 Ejecuta "make verify" para validar tu código antes de subirlo.'
@@ -14,18 +19,17 @@ help:
 verify: format lint security test
 	@echo '✅ Todo verde. El código cumple el Contrato de Calidad. Listo para el git push.'
 
-# 📦 Instala dependencias respetando el Lockfile SRE
+# 🚀 Toolchain SRE: Ejecutor inmutable con indexación multi-repositorio...
 install:
-	pip install --upgrade pip
-	pip install typing-extensions mypy ruff black bandit pip-audit --quiet
-	pip install --no-deps --require-hashes -r requirements.lock.txt
-	pip install --no-deps -e .
+	pip install uv typing-extensions mypy ruff black bandit pip-audit --quiet
+	uv pip install --system --no-deps --require-hashes --index-strategy unsafe-best-match $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -r requirements.lock.txt
+	uv pip install --system --no-deps $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -e .
 
-# 🔒 [SRE] Regenera dependencias y calcula hashes criptográficos
+# 🔒 [SRE] Regenera la suite completa de dependencias (Opcional: make lock ENGINE=pip-tools)
 lock:
-	@echo 'Ejecutando Motor Agnóstico de Dependencias...'
-	python src/english_editor/infrastructure/tools/dependency_manager.py
-	@echo '✅ requirements.lock.txt actualizado con seguridad estricta.'
+	@echo 'Iniciando resolución SRE de dependencias...'
+	ENGINE=$(ENGINE) python src/english_editor/infrastructure/tools/dependency_manager.py
+	@echo '✅ Suite de archivos generada y sellada.'
 
 # 🛡️ Instala binarios de seguridad en espacio de usuario (Colab/Local)
 install-sec-tools:
@@ -34,19 +38,21 @@ install-sec-tools:
 	@if ! command -v trivy >/dev/null 2>&1; then echo '📥 Descargando Trivy...'; curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b ~/.local/bin; fi
 	@echo '✅ Gitleaks y Trivy listos. Recuerda: export PATH="$$HOME/.local/bin:$$PATH"'
 
-# 🔧 Auto-corrige errores de linting e imports (Ruff)
+# 🔧🧹 Auto-corrigiendo código (Objetivo: $(TARGET)) linting e imports (Ruff)...
 fix:
-	ruff check src/ tests/ --fix
+	ruff check $(TARGET) --fix
+	ruff format $(TARGET)
 
 # 🎨 Formatea el código automáticamente
 format: fix
 	black src/ tests/
 	ruff format src/ tests/
 
-# 🔍 Análisis estático puro (Ruff & Mypy sin auto-corrección)
+# 🔎 Ejecutando inspección de calidad (Objetivo: $(TARGET)) Análisis estático puro (Ruff & Mypy sin auto-corrección)...
 lint:
-	ruff check src/ tests/
-	mypy src/ --ignore-missing-imports
+	ruff check $(TARGET)
+	mypy $(TARGET) --ignore-missing-imports
+	bandit -r $(TARGET) -ll -ii --quiet
 
 # 🧪 Ejecuta pruebas unitarias rápidas (Ignora E2E y lentas)
 test:

@@ -1,3 +1,4 @@
+
 name: Main Pipeline
 
 on:
@@ -13,8 +14,7 @@ jobs:
       - name: 1. Clonar código
         uses: actions/checkout@v4
 
-      - name: 2. Leer e instalar dependencias del sistema (OS) dinámicamente
-        # 🧠 LA GENIALIDAD SSOT: Leemos de ci-metadata.json para no duplicar código
+      - name: 2. Leer e instalar dependencias del sistema (OS)
         run: |
           sudo apt-get update
           APT_PACKAGES=$(jq -r '.apt_requirements' ci-metadata.json)
@@ -27,11 +27,12 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
 
-      - name: 4. Ejecutar Gatekeeper Local (Universal API Makefile)
-        # 🚀 AQUI OCURRE LA MAGIA: El CI hace exactamente lo mismo que tu entorno local
+      - name: 4. Ejecutar Gatekeeper Local (Universal API)
+        # 🧠 INYECCIÓN SRE: Extraemos y pasamos la URL secreta de PyTorch
         run: |
+          export EXTRA_INDEX_URL=$(jq -r '.extra_index_url // empty' ci-metadata.json)
           make install-sec-tools
-          make install
+          make install EXTRA_INDEX_URL=$EXTRA_INDEX_URL
           make verify
 
   build-scan-and-push:
@@ -47,6 +48,7 @@ jobs:
           echo "PYTHON_BASE=$(jq -r '.python_base_image' ci-metadata.json)" >> $GITHUB_ENV
           echo "APT_PACKAGES=$(jq -r '.apt_requirements' ci-metadata.json)" >> $GITHUB_ENV
           echo "INSTALL_CMD=$(jq -r '.project_installation_command' ci-metadata.json)" >> $GITHUB_ENV
+          echo "EXTRA_INDEX_URL=$(jq -r '.extra_index_url // empty' ci-metadata.json)" >> $GITHUB_ENV
 
       - name: 3. Configurar Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -68,8 +70,17 @@ jobs:
             PYTHON_BASE=${{ env.PYTHON_BASE }}
             APT_REQUIREMENTS=${{ env.APT_PACKAGES }}
             INSTALL_CMD=${{ env.INSTALL_CMD }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+            EXTRA_INDEX_URL=${{ env.EXTRA_INDEX_URL }}
+
+
+
+          # La reemplazamos por un nuevo Scope aislado "Limpieza de Caché Remoto"
+          cache-from: type=gha,scope=arquitectura-pura
+          cache-to: type=gha,mode=max,scope=arquitectura-pura
+
+          # cache anterior sin limpiar
+          #cache-from: type=gha
+          #cache-to: type=gha,mode=max
 
       - name: 6. Escaneo de Imagen (Trivy)
         uses: aquasecurity/trivy-action@master
@@ -77,7 +88,7 @@ jobs:
           image-ref: dockerdemiguel/english-editor:${{ github.sha }}
           format: 'table'
           exit-code: '1'
-          ignore-unfixed: true      # SO (Debian) aún no han publicado un parche para estas vulnerabilidades del Kernel, tú tampoco puedes arreglarlas.
+          ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
 
