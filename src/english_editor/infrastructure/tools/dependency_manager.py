@@ -43,11 +43,13 @@ class AudioEditorProfile(ProjectProfile):
     @property
     def ci_blacklist(self) -> list[str]: return []
 
+
     @property
     def compiler_flags(self) -> list[str]:
         # 🧠 INYECCIÓN DE REGLA DE NEGOCIO:
         # Permitimos a 'uv' mezclar el repo de PyTorch con PyPI
-        return ["--index-strategy", "unsafe-best-match"]
+        return ["--index-strategy", "unsafe-best-match", "--python-version", self.python_version]
+        #return ["--index-strategy", "unsafe-best-match"]
 
     def should_exclude_package(self, line: str, hardware_target: str) -> bool:
         if hardware_target.lower() == "cpu" and re.match(r"^triton==", line.strip()):
