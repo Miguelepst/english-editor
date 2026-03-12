@@ -116,6 +116,48 @@ class DependencyManager:
 
 
 
+
+
+    def _clean_requirements(self, filepath: Path, hardware_target: str, is_ci: bool = False):
+        if not filepath.exists(): 
+            return
+
+        with open(filepath, "r", encoding="utf-8") as f: 
+            lines = f.readlines()
+
+        with open(filepath, "w", encoding="utf-8") as f:
+            skip_mode = False
+            for line in lines:
+                line_stripped = line.strip()
+                
+                # 🛡️ FIX SRE: Lógica de escape estricta
+                if skip_mode:
+                    # Si es un hash, comentario o línea vacía, seguimos devorando
+                    if line_stripped.startswith("--hash") or line_stripped.startswith("#") or not line_stripped or line_stripped == "\\":
+                        continue
+                    # Si llegamos aquí, es texto normal (un paquete nuevo). Apagamos el hoyo negro.
+                    skip_mode = False
+
+                if self.profile.should_exclude_package(line_stripped, hardware_target):
+                    skip_mode = True 
+                    continue
+
+                if is_ci and any(line_stripped.startswith(bp) for bp in self.profile.ci_blacklist):
+                    skip_mode = True 
+                    continue
+
+                if not skip_mode:
+                    f.write(line)
+
+
+
+
+
+
+
+
+
+    """#v
     def _clean_requirements(self, filepath: Path, hardware_target: str, is_ci: bool = False):
         if not filepath.exists(): 
             return
@@ -132,8 +174,6 @@ class DependencyManager:
                         continue
                     skip_mode = False
 
-
-
                 if self.profile.should_exclude_package(line_stripped, hardware_target):
                     skip_mode = True 
                     continue
@@ -141,14 +181,13 @@ class DependencyManager:
                 if is_ci and any(line_stripped.startswith(bp) for bp in self.profile.ci_blacklist):
                     skip_mode = True 
                     continue
-
-
-
-
-
-
+  
                 if not skip_mode:
                     f.write(line)
+    #""";
+
+
+
 
     def generate_requirements(self, engine: str = "uv", hardware_target: str = "cpu"):
         installation_cmd = self._audit_project_structure()
