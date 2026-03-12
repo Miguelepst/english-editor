@@ -189,8 +189,15 @@ class DependencyManager:
 
             if engine == "uv":
                 subprocess.run([sys.executable, "-m", "pip", "install", "uv", "--quiet"], check=False)
-                # Limpio y universal:
-                base_cmd = ["python", "-m", "uv", "pip", "compile", str(self.target_pyproject), "--generate-hashes"]
+
+
+
+                # Le inyectamos la orden estricta de NO USAR CACHÉ (--refresh)
+                base_cmd = ["python", "-m", "uv", "pip", "compile", str(self.target_pyproject), "--generate-hashes", "--refresh"]
+
+
+                ## Limpio y universal:
+                #base_cmd = ["python", "-m", "uv", "pip", "compile", str(self.target_pyproject), "--generate-hashes"]
                 # Dinámico e inteligente:
                 base_cmd.extend(self.profile.compiler_flags)
 
