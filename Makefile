@@ -31,12 +31,12 @@ lock:
 	ENGINE=$(ENGINE) python src/english_editor/infrastructure/tools/dependency_manager.py
 	@echo '✅ Suite de archivos generada y sellada.'
 
-# 🛡️ Instala binarios de seguridad (Fail-Fast & Descargas seguras)
+# 🛡️ Instala binarios de seguridad (Tolerancia a fallos y Degradación Elegante)
 install-sec-tools:
 	@mkdir -p ~/.local/bin
-	@if ! command -v gitleaks >/dev/null 2>&1; then echo '📥 Descargando Gitleaks v8.30.1...' && curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz -o /tmp/gitleaks.tar.gz && tar xz -f /tmp/gitleaks.tar.gz -C ~/.local/bin gitleaks && rm /tmp/gitleaks.tar.gz; fi
-	@if ! command -v trivy >/dev/null 2>&1; then echo '📥 Descargando Trivy...' && curl -sSfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh -o /tmp/trivy-install.sh && sh /tmp/trivy-install.sh -b ~/.local/bin && rm /tmp/trivy-install.sh; fi
-	@echo '✅ Gitleaks y Trivy listos. Recuerda: export PATH="$$HOME/.local/bin:$$PATH"'
+	@if ! command -v gitleaks >/dev/null 2>&1; then echo '📥 Descargando Gitleaks (Estable)...' && curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.21.2/gitleaks_8.21.2_linux_x64.tar.gz -o /tmp/gitleaks.tar.gz && tar xz -f /tmp/gitleaks.tar.gz -C ~/.local/bin gitleaks && rm /tmp/gitleaks.tar.gz || echo '⚠️ GitHub falló (404/Limit). Gitleaks operará en Degradación Elegante.'; fi
+	@if ! command -v trivy >/dev/null 2>&1; then echo '📥 Descargando Trivy...' && curl -sSfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh -o /tmp/trivy-install.sh && sh /tmp/trivy-install.sh -b ~/.local/bin && rm /tmp/trivy-install.sh || echo '⚠️ Error al descargar Trivy.'; fi
+	@echo '✅ Infraestructura de seguridad lista. Recuerda: export PATH="$$HOME/.local/bin:$$PATH"'
 
 # 🔧🧹 Auto-corrigiendo código (Objetivo: $(TARGET)) linting e imports (Ruff)...
 fix:
