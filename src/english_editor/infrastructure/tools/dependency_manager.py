@@ -3,6 +3,7 @@
 Motor agnóstico de resolución de dependencias (Multi-Engine: uv / pip-tools).
 Genera toda la suite de archivos, hashes criptográficos, metadata y auto-sana pre-commit.
 """
+
 from __future__ import annotations
 
 import json
@@ -125,6 +126,7 @@ class DependencyManager:
         if not filepath.exists():
             return
 
+        #with open(filepath, "r", encoding="utf-8") as f:
         with open(filepath, encoding="utf-8") as f:
             lines = f.readlines()
 
@@ -229,19 +231,20 @@ class DependencyManager:
             # 2. Configurar Comandos Base
             base_cmd = []
 
+
+
             if engine == "uv":
                 subprocess.run([sys.executable, "-m", "pip", "install", "uv", "--quiet"], check=False)
+                 # 🏗️ ARQUITECTURA PURA: Comando base sin castigos de caché
 
-
-
-                # Le inyectamos la orden estricta de NO USAR CACHÉ (--refresh)
-                base_cmd = ["python", "-m", "uv", "pip", "compile", str(self.target_pyproject), "--generate-hashes", "--refresh"]
-
+                # fue un fix erroneo, Le inyectamos la orden estricta de NO USAR CACHÉ (--refresh) pero se pierde velocidad rust.
+                #base_cmd = ["python", "-m", "uv", "pip", "compile", str(self.target_pyproject), "--generate-hashes", "--refresh"]
 
                 ## Limpio y universal:
-                #base_cmd = ["python", "-m", "uv", "pip", "compile", str(self.target_pyproject), "--generate-hashes"]
+                base_cmd = ["python", "-m", "uv", "pip", "compile", str(self.target_pyproject), "--generate-hashes"]
                 # Dinámico e inteligente:
                 base_cmd.extend(self.profile.compiler_flags)
+
 
 
 

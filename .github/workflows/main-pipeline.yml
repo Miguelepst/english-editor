@@ -70,17 +70,17 @@ jobs:
             PYTHON_BASE=${{ env.PYTHON_BASE }}
             APT_REQUIREMENTS=${{ env.APT_PACKAGES }}
             INSTALL_CMD=${{ env.INSTALL_CMD }}
-            EXTRA_INDEX_URL=${{ env.EXTRA_INDEX_URL }}
+            EXTRA_INDEX_URL=${{ env.EXTRA_INDEX_URL }}    # NO es un parche compensatorio, es arquitectura de Única Fuente de Verdad (SSOT) y debe quedarse.
 
 
 
           # La reemplazamos por un nuevo Scope aislado "Limpieza de Caché Remoto"
-          cache-from: type=gha,scope=arquitectura-pura
-          cache-to: type=gha,mode=max,scope=arquitectura-pura
+          #cache-from: type=gha,scope=arquitectura-pura         #para evadir las capas corruptas, en un fix erroneo.
+          #cache-to: type=gha,mode=max,scope=arquitectura-pura  #para evadir las capas corruptas, en un fix erroneo.
 
           # cache anterior sin limpiar
-          #cache-from: type=gha
-          #cache-to: type=gha,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: 6. Escaneo de Imagen (Trivy)
         uses: aquasecurity/trivy-action@master

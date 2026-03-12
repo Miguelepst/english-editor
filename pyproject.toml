@@ -22,15 +22,16 @@ authors = [
 ]
 
 # ------------------------------------------------------------
-#  هست DEPENDENCIAS CORE (El corazón de la aplicación)
+#  هست DEPENDENCIAS CORE (El corazón de la aplicación) "bloque CORE"
 # Solo lo estrictamente necesario para el procesamiento matemático y de audio base.
 # ------------------------------------------------------------
 dependencies = [
     "numpy>=1.24.0",          # 🔢 Computación numérica: Base matemática indispensable para el manejo de matrices de audio.
     "librosa>=0.10.0",        # 🎵 Análisis de audio: Extrae características complejas (espectrogramas, tempo, pitch) de las señales.
     "soundfile>=0.12.0",      # 🔊 I/O de audio: Lectura y escritura rápida y sin pérdida de archivos (WAV, FLAC) vía libsndfile.
-    "typing-extensions>=4.10.0",      # 🧩 Tipado avanzado: Proporciona características nuevas del sistema de tipos de Python para versiones anteriores (Protocol, TypedDict, Literal, etc.).
 ]
+
+
 
 # ============================================================
 # 📦 DEPENDENCIAS OPCIONALES (Arquitectura Vertical Slicing)
@@ -69,8 +70,7 @@ dev = [
   "mypy>=1.0",                # 🔤 Type Checker: Analiza estáticamente el código buscando errores de tipo antes de la ejecución.
   "rich>=13.0",               # 🎨 Consola enriquecida: Renderiza tablas, barras de progreso y texto con formato/color en la terminal.
   "bandit",                   # 🔐 Análisis de seguridad: Escanea el código Python en busca de vulnerabilidades comunes (uso inseguro de funciones, claves hardcodeadas, exec/eval peligrosos, etc.).
-  "pip-audit",                # 🛡️ Auditoría de dependencias: Revisa las librerías instaladas y detecta vulnerabilidades conocidas usando bases de datos de seguridad (PyPI / OSV). 
-  #"typing-extensions",       # Ya esta repetida es ciudadana de primera clase (Core) 🧩 Tipos avanzados: Proporciona nuevas características del sistema de tipos de Python antes de que lleguen oficialmente a la librería estándar.
+  "pip-audit",                # 🛡️ Auditoría de dependencias: Revisa las librerías instaladas y detecta vulnerabilidades conocidas usando bases de datos de seguridad (PyPI / OSV).
 ]
 
 # ------------------------------------------------------------

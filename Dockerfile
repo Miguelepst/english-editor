@@ -24,12 +24,14 @@ WORKDIR /app
 RUN mkdir -p /app/data /home/appuser/.cache \
     && chown -R appuser:appuser /app /home/appuser
 
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel typing_extensions
+
+#RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
 
 
 # 💣 CACHE BUSTER SRE: Forzar reconstrucción de la capa
-ENV SRE_CACHE_BUSTER=2026_03_11
+#ENV SRE_CACHE_BUSTER=2026_03_11   # Ese parche ensucia la imagen final, obligar a Docker a destruir su caché
 
 
 # Capas de dependencias y código (Caché optimizado)
