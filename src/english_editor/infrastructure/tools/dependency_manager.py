@@ -4,15 +4,18 @@ Motor agnóstico de resolución de dependencias (Multi-Engine: uv / pip-tools).
 Genera toda la suite de archivos, hashes criptográficos, metadata y auto-sana pre-commit.
 """
 from __future__ import annotations
-import sys
+
+import json
 import os
 import re
-import json
-import subprocess
-import tomllib
 import shutil
-from pathlib import Path
+import subprocess
+import sys
 from abc import ABC, abstractmethod
+from pathlib import Path
+
+import tomllib
+
 
 class ProjectProfile(ABC):
     @property
@@ -122,7 +125,7 @@ class DependencyManager:
         if not filepath.exists():
             return
 
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, encoding="utf-8") as f:
             lines = f.readlines()
 
         with open(filepath, "w", encoding="utf-8") as f:
@@ -184,7 +187,7 @@ class DependencyManager:
 
                 if not skip_mode:
                     f.write(line)
-    #""";
+    #"""
 
 
 
@@ -283,7 +286,7 @@ class DependencyManager:
             self.generate_ci_metadata(hardware_target, installation_cmd)
             self._update_pre_commit_hooks()
 
-            print(f"\n✅ ¡Éxito! Infraestructura completa generada y asegurada.")
+            print("\n✅ ¡Éxito! Infraestructura completa generada y asegurada.")
         except Exception as e:
             print(f"\n❌ Error en la generación: {e}")
 
