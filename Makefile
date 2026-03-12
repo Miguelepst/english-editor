@@ -21,7 +21,7 @@ verify: format lint security test
 
 # 🚀 Toolchain SRE: Ejecutor inmutable con indexación multi-repositorio...
 install:
-	pip install uv typing-extensions mypy ruff black bandit pip-audit --quiet
+	pip install uv mypy ruff black bandit pip-audit --quiet
 	uv pip install --system --no-deps --require-hashes --index-strategy unsafe-best-match $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -r requirements.lock.txt
 	uv pip install --system --no-deps $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -e .
 
@@ -89,7 +89,8 @@ docker-build:
 	PYTHON_BASE=$$(jq -r '.python_base_image' ci-metadata.json); \
 	APT_PACKS=$$(jq -r '.apt_requirements' ci-metadata.json); \
 	INSTALL_CMD=$$(jq -r '.project_installation_command' ci-metadata.json); \
-	docker build --build-arg PYTHON_BASE=$$PYTHON_BASE --build-arg APT_REQUIREMENTS="$$APT_PACKS" --build-arg INSTALL_CMD="$$INSTALL_CMD" -t english-editor:local .
+	EXTRA_URL=$$(jq -r '.extra_index_url // empty' ci-metadata.json); \
+	docker build --build-arg PYTHON_BASE=$$PYTHON_BASE --build-arg APT_REQUIREMENTS="$$APT_PACKS" --build-arg INSTALL_CMD="$$INSTALL_CMD" --build-arg EXTRA_INDEX_URL="$$EXTRA_URL" -t english-editor:local .
 
 # ▶️ Ejecuta el contenedor recién construido
 docker-run: docker-build
