@@ -28,8 +28,20 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
 
 
+# 💣 CACHE BUSTER SRE: Forzar reconstrucción de la capa
+ENV SRE_CACHE_BUSTER=2026_03_11
+
+
 # Capas de dependencias y código (Caché optimizado)
+
 COPY --chown=appuser:appuser requirements.txt .
+
+
+
+
+
+## Capas de dependencias y código (Caché optimizado)
+#COPY --chown=appuser:appuser requirements.txt .
 
 # 🧠 INYECCIÓN SRE: Instalación dinámica basada en la fuente de verdad
 RUN if [ -z "$EXTRA_INDEX_URL" ]; then \

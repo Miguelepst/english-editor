@@ -29,7 +29,7 @@ dependencies = [
     "numpy>=1.24.0",          # 🔢 Computación numérica: Base matemática indispensable para el manejo de matrices de audio.
     "librosa>=0.10.0",        # 🎵 Análisis de audio: Extrae características complejas (espectrogramas, tempo, pitch) de las señales.
     "soundfile>=0.12.0",      # 🔊 I/O de audio: Lectura y escritura rápida y sin pérdida de archivos (WAV, FLAC) vía libsndfile.
-    "typing-extensions",      # 🧩 Tipado avanzado: Proporciona características nuevas del sistema de tipos de Python para versiones anteriores (Protocol, TypedDict, Literal, etc.).
+    "typing-extensions>=4.10.0",      # 🧩 Tipado avanzado: Proporciona características nuevas del sistema de tipos de Python para versiones anteriores (Protocol, TypedDict, Literal, etc.).
 ]
 
 # ============================================================
