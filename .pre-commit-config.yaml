@@ -296,7 +296,7 @@ repos:
        # Verifica que tus dependencias (requirements.txt) no tengan CVEs conocidas.
        # Recomendado: NO USAR en pre-commit. Mejor en CI/CD semanal.
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.30.0
+    rev: v8.30.1
     hooks:
       - id: gitleaks
         stages: [manual] # 💾 RESTORE: [pre-commit]

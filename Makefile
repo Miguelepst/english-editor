@@ -21,7 +21,7 @@ verify: format lint security test
 
 # 🚀 Toolchain SRE: Ejecutor inmutable con indexación multi-repositorio...
 install:
-	pip install uv typing-extensions mypy ruff black bandit pip-audit --quiet
+	pip install uv mypy ruff black bandit pip-audit --quiet
 	uv pip install --system --no-deps --require-hashes --index-strategy unsafe-best-match $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -r requirements.lock.txt
 	uv pip install --system --no-deps $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -e .
 
@@ -31,12 +31,12 @@ lock:
 	ENGINE=$(ENGINE) python src/english_editor/infrastructure/tools/dependency_manager.py
 	@echo '✅ Suite de archivos generada y sellada.'
 
-# 🛡️ Instala binarios de seguridad en espacio de usuario (Colab/Local)
+# 🛡️ Instala binarios de seguridad (Tolerancia a fallos y Degradación Elegante)
 install-sec-tools:
 	@mkdir -p ~/.local/bin
-	@if ! command -v gitleaks >/dev/null 2>&1; then wget -qO- https://github.com/gitleaks/gitleaks/releases/download/v8.18.2/gitleaks_8.18.2_linux_x64.tar.gz | tar xz -C ~/.local/bin gitleaks; fi
-	@if ! command -v trivy >/dev/null 2>&1; then echo '📥 Descargando Trivy...'; curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b ~/.local/bin; fi
-	@echo '✅ Gitleaks y Trivy listos. Recuerda: export PATH="$$HOME/.local/bin:$$PATH"'
+	@if ! command -v gitleaks >/dev/null 2>&1; then echo '📥 Descargando Gitleaks (Estable)...' && curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.21.2/gitleaks_8.21.2_linux_x64.tar.gz -o /tmp/gitleaks.tar.gz && tar xz -f /tmp/gitleaks.tar.gz -C ~/.local/bin gitleaks && rm /tmp/gitleaks.tar.gz || echo '⚠️ GitHub falló (404/Limit). Gitleaks operará en Degradación Elegante.'; fi
+	@if ! command -v trivy >/dev/null 2>&1; then echo '📥 Descargando Trivy...' && curl -sSfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh -o /tmp/trivy-install.sh && sh /tmp/trivy-install.sh -b ~/.local/bin && rm /tmp/trivy-install.sh || echo '⚠️ Error al descargar Trivy.'; fi
+	@echo '✅ Infraestructura de seguridad lista. Recuerda: export PATH="$$HOME/.local/bin:$$PATH"'
 
 # 🔧🧹 Auto-corrigiendo código (Objetivo: $(TARGET)) linting e imports (Ruff)...
 fix:
@@ -89,7 +89,8 @@ docker-build:
 	PYTHON_BASE=$$(jq -r '.python_base_image' ci-metadata.json); \
 	APT_PACKS=$$(jq -r '.apt_requirements' ci-metadata.json); \
 	INSTALL_CMD=$$(jq -r '.project_installation_command' ci-metadata.json); \
-	docker build --build-arg PYTHON_BASE=$$PYTHON_BASE --build-arg APT_REQUIREMENTS="$$APT_PACKS" --build-arg INSTALL_CMD="$$INSTALL_CMD" -t english-editor:local .
+	EXTRA_URL=$$(jq -r '.extra_index_url // empty' ci-metadata.json); \
+	docker build --build-arg PYTHON_BASE=$$PYTHON_BASE --build-arg APT_REQUIREMENTS="$$APT_PACKS" --build-arg INSTALL_CMD="$$INSTALL_CMD" --build-arg EXTRA_INDEX_URL="$$EXTRA_URL" -t english-editor:local .
 
 # ▶️ Ejecuta el contenedor recién construido
 docker-run: docker-build
