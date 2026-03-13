@@ -174,3 +174,7 @@ output/temp_*
 reports/
 security-report-*.json
 security-report-*.html
+
+# MkDocs
+site/
+
