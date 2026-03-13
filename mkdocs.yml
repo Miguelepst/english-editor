@@ -1,0 +1,31 @@
+site_name: English Editor
+site_description: Herramienta de edición y aprendizaje de inglés impulsada por IA.
+site_author: Miguelepst
+
+theme:
+  name: material
+  palette:
+    # Cambia a modo oscuro automáticamente según el sistema del usuario
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Cambiar a modo oscuro
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Cambiar a modo claro
+
+# Aquí conectamos la magia para leer el código Python
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src] # Le decimos dónde vive tu código
+
+nav:
+  - Inicio: index.md
