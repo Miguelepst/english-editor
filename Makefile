@@ -1,7 +1,7 @@
 # ====================================================================
 # 🤖 MAKEFILE AUTOGENERADO (Universal API para el Desarrollador y CI)
 # ====================================================================
-.PHONY: help verify install lock install-sec-tools fix format lint test test-all secrets sast sca image-scan security docker-build docker-run clean
+.PHONY: help verify install docs-build lock install-sec-tools fix format lint test test-all secrets sast sca image-scan security docker-build docker-run clean
 
 # 🔥 FIX SRE: Asegurar que los binarios locales sean detectados
 export PATH := $(HOME)/.local/bin:$(PATH)
@@ -9,23 +9,30 @@ export PATH := $(HOME)/.local/bin:$(PATH)
 # ⚙️ VARIABLES GLOBALES SRE
 TARGET ?= src/ tests/
 ENGINE ?= uv
-EXTRA_INDEX_URL ?=
+EXTRA_INDEX_URL ?= $(shell jq -r ".extra_index_url // empty" ci-metadata.json 2>/dev/null)
+
+EXTRAS ?=
 
 # 📖 Muestra esta ayuda interactiva
 help:
-	@echo '🚀 Ejecuta "make verify" para validar tu código antes de subirlo.'
+	@echo '🚀 Ejecuta make verify para validar tu código antes de subirlo.'
 
 # 🚀 EL GATEKEEPER LOCAL: Ejecuta todo antes de subir a GitHub
 verify: format lint security test
 	@echo '✅ Todo verde. El código cumple el Contrato de Calidad. Listo para el git push.'
 
-# 🚀 Toolchain SRE: Ejecutor inmutable con indexación multi-repositorio...
+# 🚀 Toolchain SRE: Crea un Sandbox inmutable y aislado del Sistema Operativo
 install:
-	pip install uv mypy ruff black bandit pip-audit --quiet
-	uv pip install --system --no-deps --require-hashes --index-strategy unsafe-best-match $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -r requirements.lock.txt
-	uv pip install --system --no-deps $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -e .
+	pip install --upgrade uv setuptools --quiet
+	uv venv --allow-existing .venv
+	uv pip install --python .venv --no-deps --require-hashes --index-strategy unsafe-best-match $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -r requirements.lock.txt
+	uv pip install --python .venv $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -e .$(EXTRAS)
 
-# 🔒 [SRE] Regenera la suite completa de dependencias (Opcional: make lock ENGINE=pip-tools)
+# 📖 Construye el sitio estático de documentación dentro del Sandbox
+docs-build:
+	VIRTUAL_ENV=$$(pwd)/.venv uv run mkdocs build
+
+# 🔒 [SRE] Regenera la suite completa de dependencias
 lock:
 	@echo 'Iniciando resolución SRE de dependencias...'
 	ENGINE=$(ENGINE) python src/english_editor/infrastructure/tools/dependency_manager.py
@@ -40,27 +47,27 @@ install-sec-tools:
 
 # 🔧🧹 Auto-corrigiendo código (Objetivo: $(TARGET)) linting e imports (Ruff)...
 fix:
-	ruff check $(TARGET) --fix
-	ruff format $(TARGET)
+	VIRTUAL_ENV=$$(pwd)/.venv uv run ruff check $(TARGET) --fix
+	VIRTUAL_ENV=$$(pwd)/.venv uv run ruff format $(TARGET)
 
 # 🎨 Formatea el código automáticamente
 format: fix
-	black src/ tests/
-	ruff format src/ tests/
+	VIRTUAL_ENV=$$(pwd)/.venv uv run black src/ tests/
+	VIRTUAL_ENV=$$(pwd)/.venv uv run ruff format src/ tests/
 
-# 🔎 Ejecutando inspección de calidad (Objetivo: $(TARGET)) Análisis estático puro (Ruff & Mypy sin auto-corrección)...
+# 🔎 Ejecutando inspección de calidad estática pura (Ruff & Mypy sin auto-corrección)...
 lint:
-	ruff check $(TARGET)
-	mypy $(TARGET) --ignore-missing-imports
-	bandit -r $(TARGET) -ll -ii --quiet
+	VIRTUAL_ENV=$$(pwd)/.venv uv run ruff check $(TARGET)
+	VIRTUAL_ENV=$$(pwd)/.venv uv run mypy $(TARGET) --ignore-missing-imports
+	VIRTUAL_ENV=$$(pwd)/.venv uv run bandit -r $(TARGET) -ll -ii --quiet
 
 # 🧪 Ejecuta pruebas unitarias rápidas (Ignora E2E y lentas)
 test:
-	pytest tests/ -m 'not e2e and not slow' -v
+	VIRTUAL_ENV=$$(pwd)/.venv uv run pytest tests/ -m 'not e2e and not slow' -v
 
 # 🚀 Ejecuta TODA la suite de pruebas (Incluyendo Integración/E2E)
 test-all:
-	pytest tests/ -v
+	VIRTUAL_ENV=$$(pwd)/.venv uv run pytest tests/ -v
 
 # 🔐 [Step 1] Escanea credenciales (Degradación Elegante)
 secrets:
@@ -68,11 +75,11 @@ secrets:
 
 # 🧠 [Step 2] Análisis SAST del Código (Bandit)
 sast:
-	python -m bandit -r src/ -ll -i
+	VIRTUAL_ENV=$$(pwd)/.venv uv run python -m bandit -r src/ -ll -i
 
 # 📦 [Step 3] Auditoría de Dependencias de Terceros (pip-audit)
 sca:
-	python -m pip_audit || echo '⚠️ pip-audit detectó vulnerabilidades. Revisa el reporte.'
+	VIRTUAL_ENV=$$(pwd)/.venv uv run python -m pip_audit || echo '⚠️ pip-audit detectó vulnerabilidades. Revisa el reporte.'
 
 # 🐳 [Step 4] Escaneo de vulnerabilidades del FS (Trivy)
 image-scan:

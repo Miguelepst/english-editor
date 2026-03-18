@@ -15,7 +15,8 @@ name = "english_editor"                        # ✅ Normalizado: guiones → gu
 version = "0.1.0"
 description = "Monolito Modular Escalable: Arquitectura Basada en Slices (Scale-Ready)"
 readme = "README.md"
-requires-python = ">=3.9"                      # Versión mínima requerida para soportar tipado moderno
+requires-python = ">=3.12"
+#requires-python = ">=3.9"                      # Versión mínima requerida para soportar tipado moderno
 license = {text = "MIT"}                     # Licencia permisiva estándar para código abierto
 authors = [
   {name = "Developer", email = "developer@example.com"}
@@ -90,8 +91,10 @@ test = [
 # 📚 GRUPO: DOCUMENTACIÓN
 # ------------------------------------------------------------
 docs = [
-  # "mkdocs-material>=9.0",   # 📖 Generador de sitios estáticos para documentación técnica visualmente atractiva (Comentado hasta su uso).
+  "mkdocs-material>=9.0",         # 🎨 El motor visual hermoso (Material Design)   
+  "mkdocstrings[python]>=0.24.0", # 🪄 La magia: Extrae documentación directo de tu código .py
 ]
+# 📖 mkdocs-material: Generador de sitios estáticos para documentación técnica visualmente atractiva (Comentado hasta su uso).
 
 # ============================================================
 # 🔍 DESCUBRIMIENTO DE PAQUETES

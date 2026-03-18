@@ -58,63 +58,45 @@ class MakefileProfile(ABC):
 # ---------------------------------------------------------------------
 # Implementación Específica (Tu Proyecto Actual)
 # ---------------------------------------------------------------------
+
+
+
+
+
 class ModernPythonProfile(MakefileProfile):
-    """Perfil de tareas SRE estandarizadas para proyectos Python modernos."""
+    """Perfil de tareas SRE estandarizadas (100% Aisladas en Sandbox)."""
     @property
     def tasks(self) -> list[MakeTask]:
         return [
-            # ==========================================================
-            # 🌟 EL COMANDO PEREZOSO (Debe ir primero)
-            # ==========================================================
             MakeTask(
                 name="help",
                 description="📖 Muestra esta ayuda interactiva",
-                commands=["@echo '🚀 Ejecuta \"make verify\" para validar tu código antes de subirlo.'"]
+                commands=["@echo '🚀 Ejecuta make verify para validar tu código antes de subirlo.'"]
             ),
-            # ==========================================================
-            # 🚀 GATEKEEPER (La tarea más importante)
-            # ==========================================================
             MakeTask(
                 name="verify",
                 description="🚀 EL GATEKEEPER LOCAL: Ejecuta todo antes de subir a GitHub",
                 dependencies=["format", "lint", "security", "test"],
                 commands=["@echo '✅ Todo verde. El código cumple el Contrato de Calidad. Listo para el git push.'"]
             ),
-            # ==========================================================
-            # 📦 PREPARACIÓN DEL ENTORNO
-            # ==========================================================
             MakeTask(
                 name="install",
-                description="🚀 Toolchain SRE: Ejecutor inmutable con indexación multi-repositorio...",
+                description="🚀 Toolchain SRE: Crea un Sandbox inmutable y aislado del Sistema Operativo",
                 commands=[
-                    "pip install uv mypy ruff black bandit pip-audit --quiet",
-                    "uv pip install --system --no-deps --require-hashes --index-strategy unsafe-best-match $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -r requirements.lock.txt",
-                    "uv pip install --system --no-deps $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -e ."
+                    "pip install --upgrade uv setuptools --quiet",
+                    "uv venv --allow-existing .venv", # 🛡️ FIX SRE: Fuerza la cápsula en el directorio exacto
+                    "uv pip install --python .venv --no-deps --require-hashes --index-strategy unsafe-best-match $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -r requirements.lock.txt",
+                    "uv pip install --python .venv $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -e .$(EXTRAS)"
                 ]
             ),
-
-
-
-            #
-            #MakeTask(
-            #    name="install",
-            #    description="🚀 Toolchain SRE: Ejecutor inmutable con indexación multi-repositorio...",
-            #    commands=[
-            #        "pip install uv mypy ruff black bandit pip-audit --quiet",
-            #
-            #        # Vamos a usar la magia condicional de Make $(if ...)
-            #        # para decirle: "Si la variable EXTRA_INDEX_URL tiene algo, inyecta la bandera; si no, no pongas nada".
-            #        # Y la tarea de instalación se vuelve inteligente:
-            #        "uv pip install --system --no-deps --require-hashes --index-strategy unsafe-best-match $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -r requirements.lock.txt",
-            #        "uv pip install --system --no-deps $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -e ."
-            #    ]
-            #),
-            #
-
-
+            MakeTask(
+                name="docs-build",
+                description="📖 Construye el sitio estático de documentación dentro del Sandbox",
+                commands=["VIRTUAL_ENV=$$(pwd)/.venv uv run mkdocs build"] # 🪄 Invocación encapsulada a la fuerza
+            ),
             MakeTask(
                 name="lock",
-                description="🔒 [SRE] Regenera la suite completa de dependencias (Opcional: make lock ENGINE=pip-tools)",
+                description="🔒 [SRE] Regenera la suite completa de dependencias",
                 commands=[
                     "@echo 'Iniciando resolución SRE de dependencias...'",
                     "ENGINE=$(ENGINE) python src/english_editor/infrastructure/tools/dependency_manager.py",
@@ -131,80 +113,36 @@ class ModernPythonProfile(MakefileProfile):
                     "@echo '✅ Infraestructura de seguridad lista. Recuerda: export PATH=\"$$HOME/.local/bin:$$PATH\"'"
                 ]
             ),
-
-
-
-
-            #
-            #MakeTask(
-            #    name="install-sec-tools",
-            #    description="🛡️ Instala binarios de seguridad (Tolerancia a fallos y Degradación Elegante)",
-            #    commands=[
-            #        "@mkdir -p ~/.local/bin",
-            #        """@if ! command -v gitleaks >/dev/null 2>&1; then
-            #            echo '📥 Descargando Gitleaks (Estable)...' &&
-            #            curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.21.2/gitleaks_8.21.2_linux_x64.tar.gz -o /tmp/gitleaks.tar.gz &&
-            #            tar xz -f /tmp/gitleaks.tar.gz -C ~/.local/bin gitleaks &&
-            #            rm /tmp/gitleaks.tar.gz ||
-            #            echo '⚠️ GitHub falló (404/Limit). Gitleaks operará en Degradación Elegante.';
-            #        fi""",
-            #        """@if ! command -v trivy >/dev/null 2>&1; then
-            #            echo '📥 Descargando Trivy...' &&
-            #            curl -sSfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh -o /tmp/trivy-install.sh &&
-            #            sh /tmp/trivy-install.sh -b ~/.local/bin &&
-            #            rm /tmp/trivy-install.sh ||
-            #            echo '⚠️ Error al descargar Trivy.';
-            #        fi""",
-            #        "@echo '✅ Infraestructura de seguridad lista. Recuerda: export PATH=\"$$HOME/.local/bin:$$PATH\"'"
-            #    ]
-            #)
-            #
-
-
-
-
-
-
-            # ==========================================================
-            # 🎨 CÓDIGO LIMPIO (LINTING & FIXING)
-            # ==========================================================
             MakeTask(
                 name="fix",
                 description="🔧🧹 Auto-corrigiendo código (Objetivo: $(TARGET)) linting e imports (Ruff)...",
-                commands=["ruff check $(TARGET) --fix", "ruff format $(TARGET)"]
+                commands=["VIRTUAL_ENV=$$(pwd)/.venv uv run ruff check $(TARGET) --fix", "VIRTUAL_ENV=$$(pwd)/.venv uv run ruff format $(TARGET)"]
             ),
             MakeTask(
                 name="format",
                 description="🎨 Formatea el código automáticamente",
                 dependencies=["fix"],
-                commands=["black src/ tests/", "ruff format src/ tests/"]
+                commands=["VIRTUAL_ENV=$$(pwd)/.venv uv run black src/ tests/", "VIRTUAL_ENV=$$(pwd)/.venv uv run ruff format src/ tests/"]
             ),
             MakeTask(
                 name="lint",
-                description="🔎 Ejecutando inspección de calidad (Objetivo: $(TARGET)) Análisis estático puro (Ruff & Mypy sin auto-corrección)...",
+                description="🔎 Ejecutando inspección de calidad estática pura (Ruff & Mypy sin auto-corrección)...",
                 commands=[
-                    "ruff check $(TARGET)",
-                    "mypy $(TARGET) --ignore-missing-imports",
-                    "bandit -r $(TARGET) -ll -ii --quiet"
+                    "VIRTUAL_ENV=$$(pwd)/.venv uv run ruff check $(TARGET)",
+                    "VIRTUAL_ENV=$$(pwd)/.venv uv run mypy $(TARGET) --ignore-missing-imports",
+                    "VIRTUAL_ENV=$$(pwd)/.venv uv run bandit -r $(TARGET) -ll -ii --quiet"
                 ]
             ),
-            # ==========================================================
-            # 🧪 TESTING DINÁMICO
-            # ==========================================================
             MakeTask(
                 name="test",
                 description="🧪 Ejecuta pruebas unitarias rápidas (Ignora E2E y lentas)",
-                commands=["pytest tests/ -m 'not e2e and not slow' -v"]
+                commands=["VIRTUAL_ENV=$$(pwd)/.venv uv run pytest tests/ -m 'not e2e and not slow' -v"]
             ),
             MakeTask(
                 name="test-all",
                 description="🚀 Ejecuta TODA la suite de pruebas (Incluyendo Integración/E2E)",
-                commands=["pytest tests/ -v"]
+                commands=["VIRTUAL_ENV=$$(pwd)/.venv uv run pytest tests/ -v"]
             ),
-            # ==========================================================
-            # 🚓 DEVSECOPS (SEGURIDAD)
-            # ==========================================================
-
             MakeTask(
                 name="secrets",
                 description="🔐 [Step 1] Escanea credenciales (Degradación Elegante)",
@@ -213,12 +151,12 @@ class ModernPythonProfile(MakefileProfile):
             MakeTask(
                 name="sast",
                 description="🧠 [Step 2] Análisis SAST del Código (Bandit)",
-                commands=["python -m bandit -r src/ -ll -i"]
+                commands=["VIRTUAL_ENV=$$(pwd)/.venv uv run python -m bandit -r src/ -ll -i"]
             ),
             MakeTask(
                 name="sca",
                 description="📦 [Step 3] Auditoría de Dependencias de Terceros (pip-audit)",
-                commands=["python -m pip_audit || echo '⚠️ pip-audit detectó vulnerabilidades. Revisa el reporte.'"]
+                commands=["VIRTUAL_ENV=$$(pwd)/.venv uv run python -m pip_audit || echo '⚠️ pip-audit detectó vulnerabilidades. Revisa el reporte.'"]
             ),
             MakeTask(
                 name="image-scan",
@@ -234,12 +172,6 @@ class ModernPythonProfile(MakefileProfile):
                 dependencies=["secrets", "sast", "sca", "image-scan"],
                 commands=["@echo '✅ Auditoría DevSecOps Total completada.'"]
             ),
-
-
-
-            # ==========================================================
-            # 🐳 DOCKER
-            # ==========================================================
             MakeTask(
                 name="docker-build",
                 description="🐳 Construye la imagen local inyectando el ci-metadata.json (SSOT)",
@@ -248,7 +180,7 @@ class ModernPythonProfile(MakefileProfile):
                     "PYTHON_BASE=$$(jq -r '.python_base_image' ci-metadata.json); \\",
                     "APT_PACKS=$$(jq -r '.apt_requirements' ci-metadata.json); \\",
                     "INSTALL_CMD=$$(jq -r '.project_installation_command' ci-metadata.json); \\",
-                    "EXTRA_URL=$$(jq -r '.extra_index_url // empty' ci-metadata.json); \\",                                                    
+                    "EXTRA_URL=$$(jq -r '.extra_index_url // empty' ci-metadata.json); \\",
                     "docker build --build-arg PYTHON_BASE=$$PYTHON_BASE --build-arg APT_REQUIREMENTS=\"$$APT_PACKS\" --build-arg INSTALL_CMD=\"$$INSTALL_CMD\" --build-arg EXTRA_INDEX_URL=\"$$EXTRA_URL\" -t english-editor:local ."
                 ]
             ),
@@ -258,9 +190,6 @@ class ModernPythonProfile(MakefileProfile):
                 dependencies=["docker-build"],
                 commands=["docker run --rm english-editor:local"]
             ),
-            # ==========================================================
-            # 🧹 MANTENIMIENTO
-            # ==========================================================
             MakeTask(
                 name="clean",
                 description="🧹 Limpia caché y artefactos basura del sistema",
@@ -271,6 +200,12 @@ class ModernPythonProfile(MakefileProfile):
                 ]
             )
         ]
+
+
+
+
+
+
 
 # =====================================================================
 # 3. EL MOTOR GENERADOR (Infraestructura)
@@ -302,7 +237,8 @@ class MakefileBuilder:
         #1 org
         tasks = self.profile.tasks
         phony_targets = " ".join([task.name for task in tasks])
-        
+
+
         content = [
             "# ====================================================================",
             "# 🤖 MAKEFILE AUTOGENERADO (Universal API para el Desarrollador y CI)",
@@ -313,7 +249,9 @@ class MakefileBuilder:
             "# ⚙️ VARIABLES GLOBALES SRE",
             "TARGET ?= src/ tests/",
             "ENGINE ?= uv",
-            "EXTRA_INDEX_URL ?=\n"
+            "EXTRA_INDEX_URL ?= $(shell jq -r \".extra_index_url // empty\" ci-metadata.json 2>/dev/null)\n",
+            #"EXTRA_INDEX_URL ?=\n",
+            "EXTRAS ?=\n"  # 🪄 INYECCIÓN SRE: Soporte dinámico para extras del pyproject.toml
         ]
 
         for task in tasks:
