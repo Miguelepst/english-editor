@@ -33,15 +33,11 @@ class ProcessVideoWorkflow:
     def execute(self, input_path: Path, output_path: Path, padding_ms: float = 0.0) -> Path:
         print("🧠 [SPS-01] Iniciando flujo maestro de orquestación...")
 
-        # 1. VERIFICACIÓN Y ESTADO (SPS-01)
         fingerprint = self._fs.calculate_fingerprint(str(input_path))
-        
-        # ✅ CORRECCIÓN: Usamos el Factory Method de tu entidad
         job = ProcessingJob.create_new(source=fingerprint, output_path=str(output_path))
         self._repo.save(job)
 
         try:
-            # 2. ANÁLISIS DE VOZ (SPS-02)
             print("🕵️‍♂️ [SPS-02] Extrayendo y analizando silencios/voz...")
             time_ranges = self._analyzer.detect_voice_activity(input_path)
             
@@ -50,17 +46,22 @@ class ProcessVideoWorkflow:
                 self._repo.save(job)
                 raise ValueError("No se detectó voz en el archivo. Abortando.")
 
-            # 3. TRADUCCIÓN DE DOMINIOS
             print(f"🔄 [SPS-01] Mapeando {len(time_ranges)} segmentos detectados al motor de renderizado...")
+            
             raw_segments_for_renderer = []
             for tr in time_ranges:
-                raw_segments_for_renderer.append({"start_ms": tr.start_ms, "end_ms": tr.end_ms})
-                # Actualizamos el estado de la entidad por cada segmento
-                job.mark_segment_processed(start_time=tr.start_ms, end_time=tr.end_ms)
+                # ✅ SOPORTE HÍBRIDO: Intentamos start_ms, si no, usamos start (que ya viene en ms desde el adaptador)
+                s_ms = getattr(tr, 'start_ms', getattr(tr, 'start', None))
+                e_ms = getattr(tr, 'end_ms', getattr(tr, 'end', None))
+                
+                if s_ms is None or e_ms is None:
+                    raise AttributeError(f"El objeto TimeRange no tiene atributos de tiempo válidos: {tr}")
+
+                raw_segments_for_renderer.append({"start_ms": s_ms, "end_ms": e_ms})
+                job.mark_segment_processed(start_time=s_ms, end_time=e_ms)
             
             self._repo.save(job)
 
-            # 4. RENDERIZADO Y CORTE (SPS-03)
             print("✂️ [SPS-03] Ejecutando corte de video por FFmpeg...")
             final_path = self._renderer.execute(
                 source_path=input_path,
@@ -69,14 +70,12 @@ class ProcessVideoWorkflow:
                 output_path=output_path
             )
 
-            # 5. FINALIZACIÓN
             print("✅ [SPS-01] Flujo maestro completado con éxito.")
             job.complete_job()
             self._repo.save(job)
             return final_path
 
         except Exception as e:
-            # Si cualquier cosa falla (Whisper o FFmpeg), el orquestador atrapa el error y actualiza el estado
             job.fail_job(reason=str(e))
             self._repo.save(job)
             raise e
