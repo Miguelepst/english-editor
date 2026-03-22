@@ -14,7 +14,7 @@ from english_editor.modules.renderer.application.use_cases import RenderMediaUse
 
 class ProcessVideoWorkflow:
     """
-    El Director de Orquesta. 
+    El Director de Orquesta.
     Coordina la lectura (SPS-01), el análisis (SPS-02) y el renderizado (SPS-03).
     """
 
@@ -40,26 +40,26 @@ class ProcessVideoWorkflow:
         try:
             print("🕵️‍♂️ [SPS-02] Extrayendo y analizando silencios/voz...")
             time_ranges = self._analyzer.detect_voice_activity(input_path)
-            
+
             if not time_ranges:
                 job.fail_job("No se detectó voz en el archivo.")
                 self._repo.save(job)
                 raise ValueError("No se detectó voz en el archivo. Abortando.")
 
             print(f"🔄 [SPS-01] Mapeando {len(time_ranges)} segmentos detectados al motor de renderizado...")
-            
+
             raw_segments_for_renderer = []
             for tr in time_ranges:
                 # ✅ SOPORTE HÍBRIDO: Intentamos start_ms, si no, usamos start (que ya viene en ms desde el adaptador)
                 s_ms = getattr(tr, 'start_ms', getattr(tr, 'start', None))
                 e_ms = getattr(tr, 'end_ms', getattr(tr, 'end', None))
-                
+
                 if s_ms is None or e_ms is None:
                     raise AttributeError(f"El objeto TimeRange no tiene atributos de tiempo válidos: {tr}")
 
                 raw_segments_for_renderer.append({"start_ms": s_ms, "end_ms": e_ms})
                 job.mark_segment_processed(start_time=s_ms, end_time=e_ms)
-            
+
             self._repo.save(job)
 
             print("✂️ [SPS-03] Ejecutando corte de video por FFmpeg...")
