@@ -15,7 +15,7 @@ from english_editor.modules.renderer.application.use_cases import RenderMediaUse
 
 class ProcessVideoWorkflow:
     """
-    El Director de Orquesta.
+    El Director de Orquesta. mg
     Coordina la lectura (SPS-01), el análisis (SPS-02) y el renderizado (SPS-03).
     """
 
