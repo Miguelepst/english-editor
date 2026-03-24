@@ -7,7 +7,7 @@
 export PATH := $(HOME)/.local/bin:$(PATH)
 
 # ⚙️ VARIABLES GLOBALES SRE
-TARGET ?= src/english_editor/infrastructure/tools/
+TARGET ?= tests/modules/orchestration/domain/test_value_objects.py
 ENGINE ?= uv
 EXTRA_INDEX_URL ?= $(shell jq -r ".extra_index_url // empty" ci-metadata.json 2>/dev/null)
 

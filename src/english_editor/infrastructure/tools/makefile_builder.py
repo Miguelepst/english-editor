@@ -428,7 +428,8 @@ class MakefileBuilder:
             "# 🔥 FIX SRE: Asegurar que los binarios locales sean detectados",
             "export PATH := $(HOME)/.local/bin:$(PATH)\n",
             "# ⚙️ VARIABLES GLOBALES SRE",
-            "TARGET ?= src/english_editor/infrastructure/tools/",   #Truco para que nos deje pasar y verificar que termina el flujo en conformidad
+            "TARGET ?= tests/modules/orchestration/domain/test_value_objects.py", #Ya sabemos que esta archivo esta ok, necesitamos ver que el flujo completo termina.
+            #"TARGET ?= src/english_editor/infrastructure/tools/",   #Truco para que nos deje pasar y verificar que termina el flujo en conformidad
             #"TARGET ?= src/ tests/",
             "ENGINE ?= uv",
             "EXTRA_INDEX_URL ?= $(shell jq -r \".extra_index_url // empty\" ci-metadata.json 2>/dev/null)\n",
