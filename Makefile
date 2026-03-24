@@ -1,7 +1,7 @@
 # ====================================================================
 # 🤖 MAKEFILE AUTOGENERADO (Universal API para el Desarrollador y CI)
 # ====================================================================
-.PHONY: help verify install docs-build lock install-sec-tools fix format lint test test-all secrets sast sca image-scan security docker-build docker-run clean
+.PHONY: help verify install docs-build lock install-sec-tools fix format lint check-venv sync test test-all secrets sast sca image-scan security docker-build docker-run clean
 
 # 🔥 FIX SRE: Asegurar que los binarios locales sean detectados
 export PATH := $(HOME)/.local/bin:$(PATH)
@@ -24,7 +24,7 @@ verify: format lint security test
 # 🚀 Toolchain SRE: Crea un Sandbox inmutable y aislado del Sistema Operativo
 install:
 	pip install --upgrade uv setuptools --quiet
-	uv venv --allow-existing .venv
+	uv venv --python 3.12 --allow-existing .venv
 	uv pip install --python .venv --no-deps --require-hashes --index-strategy unsafe-best-match $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -r requirements.lock.txt
 	uv pip install --python .venv $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -e .$(EXTRAS)
 
@@ -46,24 +46,38 @@ install-sec-tools:
 	@echo '✅ Infraestructura de seguridad lista. Recuerda: export PATH="$$HOME/.local/bin:$$PATH"'
 
 # 🔧🧹 Auto-corrigiendo código (Objetivo: $(TARGET)) linting e imports (Ruff)...
-fix:
+fix: sync
 	VIRTUAL_ENV=$$(pwd)/.venv uv run ruff check $(TARGET) --fix
 	VIRTUAL_ENV=$$(pwd)/.venv uv run ruff format $(TARGET)
 
 # 🎨 Formatea el código automáticamente
 format: fix
-	VIRTUAL_ENV=$$(pwd)/.venv uv run black src/ tests/
-	VIRTUAL_ENV=$$(pwd)/.venv uv run ruff format src/ tests/
+	VIRTUAL_ENV=$$(pwd)/.venv uv run black $(TARGET)
+	VIRTUAL_ENV=$$(pwd)/.venv uv run ruff format $(TARGET)
 
 # 🔎 Ejecutando inspección de calidad estática pura (Ruff & Mypy sin auto-corrección)...
-lint:
+lint: sync
 	VIRTUAL_ENV=$$(pwd)/.venv uv run ruff check $(TARGET)
 	VIRTUAL_ENV=$$(pwd)/.venv uv run mypy $(TARGET) --ignore-missing-imports
 	VIRTUAL_ENV=$$(pwd)/.venv uv run bandit -r $(TARGET) -ll -ii --quiet
 
+# 🐍 Verifica y muestra el entorno virtual activo
+check-venv:
+	@echo '🔍 Verificando entorno virtual activo...'
+	VIRTUAL_ENV=$$(pwd)/.venv uv run python -c 'import sys; import os; assert sys.prefix != sys.base_prefix, "❌ NO estás en un entorno virtual"; print(f"✨ Entorno activo en: {os.path.basename(sys.prefix)}")'
+	@echo '✅ Validación completada con éxito'
+
+# 🔄 [SRE] Reconciliación: Sincroniza el entorno físico (Incluyendo DevSecOps)
+sync: check-venv
+	@echo 'Sincronizando el Sandbox físico con dependencias inmutables...'
+	VIRTUAL_ENV=$$(pwd)/.venv $(ENGINE) sync --all-extras --frozen
+	@echo '✅ Entorno físico perfectamente alineado con el lockfile.'
+
 # 🧪 Ejecuta pruebas unitarias rápidas (Ignora E2E y lentas)
-test:
-	VIRTUAL_ENV=$$(pwd)/.venv uv run pytest tests/ -m 'not e2e and not slow' -v
+test: sync
+	@echo '🚀 Iniciando pruebas unitarias...'
+	VIRTUAL_ENV=$$(pwd)/.venv uv run python -c 'import sys; print(f"📂 Usando intérprete: {sys.executable}")'
+	VIRTUAL_ENV=$$(pwd)/.venv uv run pytest $(TARGET) -m 'not e2e and not slow' -v
 
 # 🚀 Ejecuta TODA la suite de pruebas (Incluyendo Integración/E2E)
 test-all:
@@ -75,10 +89,10 @@ secrets:
 
 # 🧠 [Step 2] Análisis SAST del Código (Bandit)
 sast:
-	VIRTUAL_ENV=$$(pwd)/.venv uv run python -m bandit -r src/ -ll -i
+	VIRTUAL_ENV=$$(pwd)/.venv uv run python -m bandit -r $(TARGET) -ll -i
 
 # 📦 [Step 3] Auditoría de Dependencias de Terceros (pip-audit)
-sca:
+sca: sync
 	VIRTUAL_ENV=$$(pwd)/.venv uv run python -m pip_audit || echo '⚠️ pip-audit detectó vulnerabilidades. Revisa el reporte.'
 
 # 🐳 [Step 4] Escaneo de vulnerabilidades del FS (Trivy)
