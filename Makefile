@@ -21,11 +21,11 @@ help:
 verify: format lint security test
 	@echo '✅ Todo verde. El código cumple el Contrato de Calidad. Listo para el git push.'
 
-# 🚀 Toolchain SRE: Crea un Sandbox inmutable y aislado del Sistema Operativo
+# 🚀 Toolchain SRE: Crea un Sandbox inmutable para el Runner (CI/CD)
 install:
 	pip install --upgrade uv setuptools --quiet
 	uv venv --python 3.12 --allow-existing .venv
-	uv pip install --python .venv --no-deps --require-hashes --index-strategy unsafe-best-match $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -r requirements.lock.txt
+	uv pip install --python .venv --no-deps --require-hashes --index-strategy unsafe-best-match $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -r requirements-ci.txt
 	uv pip install --python .venv $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -e .$(EXTRAS)
 
 # 📖 Construye el sitio estático de documentación dentro del Sandbox

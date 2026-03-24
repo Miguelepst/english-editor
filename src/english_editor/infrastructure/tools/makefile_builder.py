@@ -87,21 +87,58 @@ class ModernPythonProfile(MakefileProfile):
 
             MakeTask(
                 name="install",
-                description="🚀 Toolchain SRE: Crea un Sandbox inmutable y aislado del Sistema Operativo",
+                description="🚀 Toolchain SRE: Crea un Sandbox inmutable para el Runner (CI/CD)",
                 commands=[
                     "pip install --upgrade uv setuptools --quiet",
                     # 🔥 SRE FIX: Forzamos la descarga y uso de Python 3.12 independiente del OS
                     "uv venv --python 3.12 --allow-existing .venv",
-                    #"uv venv --allow-existing .venv", # 🛡️ FIX SRE: Fuerza la cápsula en el directorio exacto
-                    "uv pip install --python .venv --no-deps --require-hashes --index-strategy unsafe-best-match $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -r requirements.lock.txt",
+                    # 🪄 SRE FIX: El Runner usa el archivo de CI (que incluye DevSecOps), NO el de Producción
+                    "uv pip install --python .venv --no-deps --require-hashes --index-strategy unsafe-best-match $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -r requirements-ci.txt",
                     "uv pip install --python .venv $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -e .$(EXTRAS)"
                 ]
             ),
+
+
+
+
+
+
+
+
+            #
+            #MakeTask(
+            #    name="install",
+            #    description="🚀 Toolchain SRE: Crea un Sandbox inmutable y aislado del Sistema Operativo",
+            #    commands=[
+            #        "pip install --upgrade uv setuptools --quiet",
+            #        # 🔥 SRE FIX: Forzamos la descarga y uso de Python 3.12 independiente del OS
+            #        "uv venv --python 3.12 --allow-existing .venv",
+            #        #"uv venv --allow-existing .venv", # 🛡️ FIX SRE: Fuerza la cápsula en el directorio exacto
+            #        "uv pip install --python .venv --no-deps --require-hashes --index-strategy unsafe-best-match $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -r requirements.lock.txt",
+            #        "uv pip install --python .venv $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -e .$(EXTRAS)"
+            #    ]
+            #),
+            #
+
+
+
             MakeTask(
                 name="docs-build",
                 description="📖 Construye el sitio estático de documentación dentro del Sandbox",
                 commands=["VIRTUAL_ENV=$$(pwd)/.venv uv run mkdocs build"] # 🪄 Invocación encapsulada a la fuerza
             ),
+
+
+
+
+
+
+
+
+
+
+
+
             MakeTask(
                 name="lock",
                 description="🔒 [SRE] Regenera la suite completa de dependencias",
@@ -111,6 +148,15 @@ class ModernPythonProfile(MakefileProfile):
                     "@echo '✅ Suite de archivos generada y sellada.'"
                 ]
             ),
+
+
+
+
+
+
+
+
+
             MakeTask(
                 name="install-sec-tools",
                 description="🛡️ Instala binarios de seguridad (Tolerancia a fallos y Degradación Elegante)",
@@ -124,7 +170,7 @@ class ModernPythonProfile(MakefileProfile):
             MakeTask(
                 name="fix",
                 description="🔧🧹 Auto-corrigiendo código (Objetivo: $(TARGET)) linting e imports (Ruff)...",
-                dependencies=["sync"],  
+                dependencies=["sync"],
                 commands=["VIRTUAL_ENV=$$(pwd)/.venv uv run ruff check $(TARGET) --fix", "VIRTUAL_ENV=$$(pwd)/.venv uv run ruff format $(TARGET)"]
             ),
 
@@ -135,7 +181,7 @@ class ModernPythonProfile(MakefileProfile):
                 description="🎨 Formatea el código automáticamente",
                 dependencies=["fix"],
                 commands=[
-                    "VIRTUAL_ENV=$$(pwd)/.venv uv run black $(TARGET)", 
+                    "VIRTUAL_ENV=$$(pwd)/.venv uv run black $(TARGET)",
                     "VIRTUAL_ENV=$$(pwd)/.venv uv run ruff format $(TARGET)"
                 ]
             ),
@@ -302,7 +348,7 @@ class ModernPythonProfile(MakefileProfile):
                 commands=["VIRTUAL_ENV=$$(pwd)/.venv uv run python -m pip_audit || echo '⚠️ pip-audit detectó vulnerabilidades. Revisa el reporte.'"]
             ),
 
-            # Nota: También podrías poner "sync" como dependencia de la tarea test, 
+            # Nota: También podrías poner "sync" como dependencia de la tarea test,
             # para asegurarte de que nunca corres pruebas con dependencias desactualizadas.
 
 
@@ -428,8 +474,7 @@ class MakefileBuilder:
             "# 🔥 FIX SRE: Asegurar que los binarios locales sean detectados",
             "export PATH := $(HOME)/.local/bin:$(PATH)\n",
             "# ⚙️ VARIABLES GLOBALES SRE",
-            "TARGET ?= tests/modules/orchestration/domain/test_value_objects.py", #Ya sabemos que esta archivo esta ok, necesitamos ver que el flujo completo termina.
-            #"TARGET ?= src/english_editor/infrastructure/tools/",   #Truco para que nos deje pasar y verificar que termina el flujo en conformidad
+            "TARGET ?= tests/modules/orchestration/domain/test_value_objects.py", #(test:ok) Ya sabemos que esta archivo esta ok, necesitamos ver que el flujo completo termina.
             #"TARGET ?= src/ tests/",
             "ENGINE ?= uv",
             "EXTRA_INDEX_URL ?= $(shell jq -r \".extra_index_url // empty\" ci-metadata.json 2>/dev/null)\n",
