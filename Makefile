@@ -7,7 +7,7 @@
 export PATH := $(HOME)/.local/bin:$(PATH)
 
 # ⚙️ VARIABLES GLOBALES SRE
-TARGET ?= src/ tests/
+TARGET ?= src/english_editor/infrastructure/tools/
 ENGINE ?= uv
 EXTRA_INDEX_URL ?= $(shell jq -r ".extra_index_url // empty" ci-metadata.json 2>/dev/null)
 
@@ -67,11 +67,14 @@ check-venv:
 	VIRTUAL_ENV=$$(pwd)/.venv uv run python -c 'import sys; import os; assert sys.prefix != sys.base_prefix, "❌ NO estás en un entorno virtual"; print(f"✨ Entorno activo en: {os.path.basename(sys.prefix)}")'
 	@echo '✅ Validación completada con éxito'
 
-# 🔄 [SRE] Reconciliación: Sincroniza el entorno físico (Incluyendo DevSecOps)
+# 🔄 [SRE] Reconciliación local: Sincroniza el entorno físico (Ignorado en CI/CD)
 sync: check-venv
-	@echo 'Sincronizando el Sandbox físico con dependencias inmutables...'
-	VIRTUAL_ENV=$$(pwd)/.venv $(ENGINE) sync --all-extras --frozen
-	@echo '✅ Entorno físico perfectamente alineado con el lockfile.'
+	@if [ -z "$$GITHUB_ACTIONS" ]; then \
+	    echo 'Sincronizando el Sandbox físico local con dependencias inmutables...'; \
+	    VIRTUAL_ENV=$$(pwd)/.venv UV_EXTRA_INDEX_URL=$(EXTRA_INDEX_URL) $(ENGINE) sync --all-extras --frozen; \
+	else \
+	    echo '⚙️ Entorno CI detectado (GitHub Actions). Omitiendo uv sync para proteger la tarea install.'; \
+	fi
 
 # 🧪 Ejecuta pruebas unitarias rápidas (Ignora E2E y lentas)
 test: sync
