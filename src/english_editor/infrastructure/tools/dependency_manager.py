@@ -282,8 +282,24 @@ class DependencyManager:
             subprocess.run(base_cmd + ["--all-extras", "-o", str(dev_path)], check=True)
             self._clean_requirements(dev_path, hardware_target)
 
-            print("   🔒 Sellando Lockfile Maestro (SSOT)...")
-            shutil.copy(dev_path, lock_path)
+
+
+
+
+            # ❌ Lo que tenías (Contaminaba Producción con herramientas de Dev):
+            # print("   🔒 Sellando Lockfile Maestro (SSOT)...")
+            # shutil.copy(dev_path, lock_path)
+
+            # ✅ La Buena Práctica (Sella Producción pura con Hashes para Docker):
+            print("   🔒 Sellando Lockfile Maestro para Producción (SSOT)...")
+            shutil.copy(prod_path, lock_path)
+
+
+
+
+
+            #print("   🔒 Sellando Lockfile Maestro (SSOT)...")
+            #shutil.copy(dev_path, lock_path)
 
             # 4. Restauración de Funcionalidades Auxiliares (Sin Regresiones)
             self.generate_ci_metadata(hardware_target, installation_cmd)
