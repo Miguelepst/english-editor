@@ -45,6 +45,7 @@ dependencies = [
 # ------------------------------------------------------------
 speech = [
     "openai-whisper>=20231117", # 🧠 IA Speech-to-Text: Modelos de OpenAI para transcripción y traducción de audio de alta precisión.
+    "faster-whisper>=1.0.0",    # 🚀 IA Speech-to-Text optimizada: Implementación rápida basada en CTranslate2 que acelera la transcripción y reduce el consumo de recursos.
     "edge-tts>=6.1.9",          # 🗣 Texto a Voz moderno: Reemplaza a gTTS. Es asíncrono, ofrece voces más naturales de Microsoft Edge y elimina conflictos con dependencias CLI.
     "nest-asyncio>=1.6.0",      # 🪄 Permite asincronía anidada en Jupyter/Colab para el adaptador
 ]
@@ -66,13 +67,16 @@ dev = [
   "pre-commit>=3.6.0",        # 🛡️ Git Hooks: Automatiza la ejecución de linters y formateadores antes de permitir un commit.
   "psutil>=5.9",              # 📊 Monitoreo OS: Acceso a métricas del sistema (RAM, CPU) ideal para perfilar el rendimiento.
   "pip-tools>=7.0",           # 🔒 Lock files: Permite compilar dependencias exactas (requirements.txt) para despliegues reproducibles.
-  "black>=24.0.0",            # 🖤 Formateador de código: Aplica automáticamente un estilo consistente a todo el código Python (PEP 8), eliminando discusiones sobre formato y manteniendo el código limpio y uniforme.
+  "black>=26.3.1",            # 🖤 Formateador de código: Aplica automáticamente un estilo consistente a todo el código Python (PEP 8), eliminando discusiones sobre formato y manteniendo el código limpio y uniforme.
+  #"black>=24.0.0",           #  Trivy:│ black   │ CVE-2026-32274 │ HIGH     │ fixed  │ 26.3.0            │ 26.3.1        │ black: Black: Arbitrary file writes...
   "ruff>=0.1",                # ⚡ Linter y Formateador ultra-rápido: Escrito en Rust, reemplaza a Flake8, Black e isort en una sola herramienta.
   "mypy>=1.0",                # 🔤 Type Checker: Analiza estáticamente el código buscando errores de tipo antes de la ejecución.
   "rich>=13.0",               # 🎨 Consola enriquecida: Renderiza tablas, barras de progreso y texto con formato/color en la terminal.
   "bandit",                   # 🔐 Análisis de seguridad: Escanea el código Python en busca de vulnerabilidades comunes (uso inseguro de funciones, claves hardcodeadas, exec/eval peligrosos, etc.).
   "pip-audit",                # 🛡️ Auditoría de dependencias: Revisa las librerías instaladas y detecta vulnerabilidades conocidas usando bases de datos de seguridad (PyPI / OSV).
 ]
+# Trivy confirmó exactamente el mismo problema: tienes una vulnerabilidad de severidad "HIGH" en la versión 26.3.0 de black.
+
 
 # ------------------------------------------------------------
 # 🧪 GRUPO: TESTING Y CALIDAD DINÁMICA
@@ -91,7 +95,7 @@ test = [
 # 📚 GRUPO: DOCUMENTACIÓN
 # ------------------------------------------------------------
 docs = [
-  "mkdocs-material>=9.0",         # 🎨 El motor visual hermoso (Material Design)   
+  "mkdocs-material>=9.0",         # 🎨 El motor visual hermoso (Material Design)
   "mkdocstrings[python]>=0.24.0", # 🪄 La magia: Extrae documentación directo de tu código .py
 ]
 # 📖 mkdocs-material: Generador de sitios estáticos para documentación técnica visualmente atractiva (Comentado hasta su uso).
