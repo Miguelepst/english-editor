@@ -79,21 +79,66 @@ class ModernPythonProfile(MakefileProfile):
                 dependencies=["format", "lint", "security", "test"],
                 commands=["@echo '✅ Todo verde. El código cumple el Contrato de Calidad. Listo para el git push.'"]
             ),
+
+
+
+
+
+
             MakeTask(
                 name="install",
-                description="🚀 Toolchain SRE: Crea un Sandbox inmutable y aislado del Sistema Operativo",
+                description="🚀 Toolchain SRE: Crea un Sandbox inmutable para el Runner (CI/CD)",
                 commands=[
                     "pip install --upgrade uv setuptools --quiet",
-                    "uv venv --allow-existing .venv", # 🛡️ FIX SRE: Fuerza la cápsula en el directorio exacto
-                    "uv pip install --python .venv --no-deps --require-hashes --index-strategy unsafe-best-match $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -r requirements.lock.txt",
+                    # 🔥 SRE FIX: Forzamos la descarga y uso de Python 3.12 independiente del OS
+                    "uv venv --python 3.12 --allow-existing .venv",
+                    # 🪄 SRE FIX: El Runner usa el archivo de CI (que incluye DevSecOps), NO el de Producción
+                    "uv pip install --python .venv --no-deps --require-hashes --index-strategy unsafe-best-match $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -r requirements-ci.txt",
                     "uv pip install --python .venv $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -e .$(EXTRAS)"
                 ]
             ),
+
+
+
+
+
+
+
+
+            #
+            #MakeTask(
+            #    name="install",
+            #    description="🚀 Toolchain SRE: Crea un Sandbox inmutable y aislado del Sistema Operativo",
+            #    commands=[
+            #        "pip install --upgrade uv setuptools --quiet",
+            #        # 🔥 SRE FIX: Forzamos la descarga y uso de Python 3.12 independiente del OS
+            #        "uv venv --python 3.12 --allow-existing .venv",
+            #        #"uv venv --allow-existing .venv", # 🛡️ FIX SRE: Fuerza la cápsula en el directorio exacto
+            #        "uv pip install --python .venv --no-deps --require-hashes --index-strategy unsafe-best-match $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -r requirements.lock.txt",
+            #        "uv pip install --python .venv $(if $(EXTRA_INDEX_URL),--extra-index-url $(EXTRA_INDEX_URL),) -e .$(EXTRAS)"
+            #    ]
+            #),
+            #
+
+
+
             MakeTask(
                 name="docs-build",
                 description="📖 Construye el sitio estático de documentación dentro del Sandbox",
                 commands=["VIRTUAL_ENV=$$(pwd)/.venv uv run mkdocs build"] # 🪄 Invocación encapsulada a la fuerza
             ),
+
+
+
+
+
+
+
+
+
+
+
+
             MakeTask(
                 name="lock",
                 description="🔒 [SRE] Regenera la suite completa de dependencias",
@@ -103,6 +148,15 @@ class ModernPythonProfile(MakefileProfile):
                     "@echo '✅ Suite de archivos generada y sellada.'"
                 ]
             ),
+
+
+
+
+
+
+
+
+
             MakeTask(
                 name="install-sec-tools",
                 description="🛡️ Instala binarios de seguridad (Tolerancia a fallos y Degradación Elegante)",
@@ -116,28 +170,164 @@ class ModernPythonProfile(MakefileProfile):
             MakeTask(
                 name="fix",
                 description="🔧🧹 Auto-corrigiendo código (Objetivo: $(TARGET)) linting e imports (Ruff)...",
+                dependencies=["sync"],
                 commands=["VIRTUAL_ENV=$$(pwd)/.venv uv run ruff check $(TARGET) --fix", "VIRTUAL_ENV=$$(pwd)/.venv uv run ruff format $(TARGET)"]
             ),
+
+
+
             MakeTask(
                 name="format",
                 description="🎨 Formatea el código automáticamente",
                 dependencies=["fix"],
-                commands=["VIRTUAL_ENV=$$(pwd)/.venv uv run black src/ tests/", "VIRTUAL_ENV=$$(pwd)/.venv uv run ruff format src/ tests/"]
+                commands=[
+                    "VIRTUAL_ENV=$$(pwd)/.venv uv run black $(TARGET)",
+                    "VIRTUAL_ENV=$$(pwd)/.venv uv run ruff format $(TARGET)"
+                ]
             ),
+
+
+
+
+
+
+
+            #
+            #MakeTask(
+            #    name="format",
+            #    description="🎨 Formatea el código automáticamente",
+            #    dependencies=["fix"],
+            #    commands=["VIRTUAL_ENV=$$(pwd)/.venv uv run black src/ tests/", "VIRTUAL_ENV=$$(pwd)/.venv uv run ruff format src/ tests/"]
+            #),
+            #
+
+
+
+
             MakeTask(
                 name="lint",
                 description="🔎 Ejecutando inspección de calidad estática pura (Ruff & Mypy sin auto-corrección)...",
+                dependencies=["sync"], # 🪄 SRE FIX: Garantiza el entorno si se llama a 'make lint' directamente
                 commands=[
                     "VIRTUAL_ENV=$$(pwd)/.venv uv run ruff check $(TARGET)",
                     "VIRTUAL_ENV=$$(pwd)/.venv uv run mypy $(TARGET) --ignore-missing-imports",
-                    "VIRTUAL_ENV=$$(pwd)/.venv uv run bandit -r $(TARGET) -ll -ii --quiet"
+                    "VIRTUAL_ENV=$$(pwd)/.venv uv run bandit -r $(TARGET) -ll -ii --quiet",
+
+                    # --- 📜 NUEVO: Firma de Conformidad SRE Mejorada ---
+                    "@echo ''",
+                    "@echo '#============================================================='",
+                    "@echo '# 🛡️  CERTIFICADO DE CONFORMIDAD SRE (GATEKEEPER LOCAL)'",
+                    "@echo '#============================================================='",
+                    # Obtenemos las versiones dinámicamente desde el Sandbox
+                    "@echo '# 🐍 Entorno                : '$$(VIRTUAL_ENV=$$(pwd)/.venv uv run python --version)''",
+                    # K.I.S.S: Eliminamos los recortes (cut). Imprimimos la salida limpia y directa.
+                    "@echo '# ✅ Ruff   (Estilo)        : APROBADO ['$$(VIRTUAL_ENV=$$(pwd)/.venv uv run ruff --version)']'",
+                    "@echo '# ✅ Mypy   (Tipado)        : APROBADO ['$$(VIRTUAL_ENV=$$(pwd)/.venv uv run mypy --version)']'",
+                    #"@echo '# ✅ Ruff   (Estilo)        : APROBADO ['$$(VIRTUAL_ENV=$$(pwd)/.venv uv run ruff --version | cut -d" " -f2)']'",
+                    #"@echo '# ✅ Mypy   (Tipado)        : APROBADO ['$$(VIRTUAL_ENV=$$(pwd)/.venv uv run mypy --version | cut -d" " -f2)']'",
+                    #"@echo '# ✅ Mypy   (Tipado)        : APROBADO ['$$(VIRTUAL_ENV=$$(pwd)/.venv uv run mypy --version | awk "{print \$$2}")']'",
+                    "@echo '# ✅ Bandit (Seguridad)     : APROBADO'",
+                    "@echo '# 🎯 Objetivo               : $(TARGET)'",
+                    #"@echo '# 🕒 Fecha de validación    : '$$(TZ='America/Bogota' date +"%Y-%m-%d %I:%M:%S %p")''",
+                    "@echo '# 🕒 Fecha de validación    : '$$(TZ='America/Bogota' date +'%Y-%m-%d %I:%M:%S %p')''",
+                    "@echo '# 👤 Operador               : Miguel Gutiérrez (@Miguelepst)'",
+                    "@echo '# 👤 Entorno                : '$$(whoami)''",
+                    "@echo '#============================================================='"
+
                 ]
             ),
+
+
+
+
+
+            # Fíjate en la doble barra: \"
+            MakeTask(
+                name="check-venv",
+                description="🐍 Verifica y muestra el entorno virtual activo",
+                commands=[
+                    "@echo '🔍 Verificando entorno virtual activo...'",
+                    # Esta línea valida y LUEGO imprime la ruta del entorno activo
+                    "VIRTUAL_ENV=$$(pwd)/.venv uv run python -c 'import sys; import os; assert sys.prefix != sys.base_prefix, \"❌ NO estás en un entorno virtual\"; print(f\"✨ Entorno activo en: {os.path.basename(sys.prefix)}\")'",
+                    "@echo '✅ Validación completada con éxito'"
+                ]
+            ),
+
+
+
+
+
+
+            MakeTask(
+                name="sync",
+                description="🔄 [SRE] Reconciliación local: Sincroniza el entorno físico (Ignorado en CI/CD)",
+                dependencies=["check-venv"],
+                commands=[
+                    # 🪄 SRE FIX: Detecta si estamos en GitHub Actions. Si es así, no interfiere con 'make install'.
+                    "@if [ -z \"$$GITHUB_ACTIONS\" ]; then \\",
+                    "    echo 'Sincronizando el Sandbox físico local con dependencias inmutables...'; \\",
+                    "    VIRTUAL_ENV=$$(pwd)/.venv UV_EXTRA_INDEX_URL=$(EXTRA_INDEX_URL) $(ENGINE) sync --all-extras --frozen; \\",
+                    "else \\",
+                    "    echo '⚙️ Entorno CI detectado (GitHub Actions). Omitiendo uv sync para proteger la tarea install.'; \\",
+                    "fi"
+                ]
+            ),
+
+
+
+
+
+
+            #
+            # MakeTask(
+            #    name="sync",
+            #    description="🔄 [SRE] Reconciliación: Sincroniza el entorno físico (Incluyendo DevSecOps)",
+            #    dependencies=["check-venv"],
+            #    commands=[
+            #        "@echo 'Sincronizando el Sandbox físico con dependencias inmutables...'",
+            #        # El flag --all-extras garantiza que black, ruff, bandit, etc., no sean eliminados
+            #        "VIRTUAL_ENV=$$(pwd)/.venv $(ENGINE) sync --all-extras --frozen",
+            #        "@echo '✅ Entorno físico perfectamente alineado con el lockfile.'"
+            #     ]
+            # ),
+            #
+
+
+
             MakeTask(
                 name="test",
                 description="🧪 Ejecuta pruebas unitarias rápidas (Ignora E2E y lentas)",
-                commands=["VIRTUAL_ENV=$$(pwd)/.venv uv run pytest tests/ -m 'not e2e and not slow' -v"]
+                dependencies=["sync"],                  # dependencies=["check-venv", "sync"], # 🪄 AQUÍ ESTÁ LA MAGIA SRE (Ambas en una lista)
+                commands=[
+                    "@echo '🚀 Iniciando pruebas unitarias...'",
+                    # Imprimimos el Python que se está usando para total transparencia
+                    "VIRTUAL_ENV=$$(pwd)/.venv uv run python -c 'import sys; print(f\"📂 Usando intérprete: {sys.executable}\")'",
+                    "VIRTUAL_ENV=$$(pwd)/.venv uv run pytest $(TARGET) -m 'not e2e and not slow' -v"
+                ]
             ),
+
+
+            #
+            #MakeTask(
+            #    name="test",
+            #    description="🧪 Ejecuta pruebas unitarias rápidas (Ignora E2E y lentas)",
+            #    dependencies=["check-venv"],
+            #    commands=[
+            #        "VIRTUAL_ENV=$$(pwd)/.venv uv run pytest $(TARGET) -m 'not e2e and not slow' -v"
+            #    ]
+            #),
+            #
+
+
+
+            #
+            #MakeTask(
+            #    name="test",
+            #    description="🧪 Ejecuta pruebas unitarias rápidas (Ignora E2E y lentas)",
+            #    commands=["VIRTUAL_ENV=$$(pwd)/.venv uv run pytest tests/ -m 'not e2e and not slow' -v"]
+            #),
+            #
+
             MakeTask(
                 name="test-all",
                 description="🚀 Ejecuta TODA la suite de pruebas (Incluyendo Integración/E2E)",
@@ -148,16 +338,49 @@ class ModernPythonProfile(MakefileProfile):
                 description="🔐 [Step 1] Escanea credenciales (Degradación Elegante)",
                 commands=["@if command -v gitleaks >/dev/null 2>&1; then gitleaks detect -v --source . --no-git; else echo '⚠️ Gitleaks no instalado. Saltando.'; fi"]
             ),
+
+
+
             MakeTask(
                 name="sast",
                 description="🧠 [Step 2] Análisis SAST del Código (Bandit)",
-                commands=["VIRTUAL_ENV=$$(pwd)/.venv uv run python -m bandit -r src/ -ll -i"]
+                commands=["VIRTUAL_ENV=$$(pwd)/.venv uv run python -m bandit -r $(TARGET) -ll -i"]
             ),
+
+
+
+
+            #
+            #MakeTask(
+            #    name="sast",
+            #    description="🧠 [Step 2] Análisis SAST del Código (Bandit)",
+            #    commands=["VIRTUAL_ENV=$$(pwd)/.venv uv run python -m bandit -r src/ -ll -i"]
+            #),
+            #
+
+
+
+
             MakeTask(
                 name="sca",
                 description="📦 [Step 3] Auditoría de Dependencias de Terceros (pip-audit)",
+                dependencies=["sync"], # 🪄 AQUÍ ESTÁ LA MAGIA SRE
                 commands=["VIRTUAL_ENV=$$(pwd)/.venv uv run python -m pip_audit || echo '⚠️ pip-audit detectó vulnerabilidades. Revisa el reporte.'"]
             ),
+
+            # Nota: También podrías poner "sync" como dependencia de la tarea test,
+            # para asegurarte de que nunca corres pruebas con dependencias desactualizadas.
+
+
+            #
+            #MakeTask(
+            #    name="sca",
+            #    description="📦 [Step 3] Auditoría de Dependencias de Terceros (pip-audit)",
+            #    commands=["VIRTUAL_ENV=$$(pwd)/.venv uv run python -m pip_audit || echo '⚠️ pip-audit detectó vulnerabilidades. Revisa el reporte.'"]
+            #),
+            #
+
+
             MakeTask(
                 name="image-scan",
                 description="🐳 [Step 4] Escaneo de vulnerabilidades del FS (Trivy)",
@@ -234,19 +457,44 @@ class MakefileBuilder:
         #phony_targets = " ".join(sorted({t.name for t in tasks}))
         #
 
+
+
+        #Mejora sugerida:
+        #tasks = self.profile.tasks
+        #
+        #phony_targets = " ".join(sorted({t.name for t in tasks}))
+        #
+        #content = [
+        #    "SHELL := bash",
+        #    ".DEFAULT_GOAL := help",
+        #    ".ONESHELL:",
+        #    "",
+        #    f".PHONY: {phony_targets}",
+        #    ""
+        #]
+        #
+
+
         #1 org
         tasks = self.profile.tasks
         phony_targets = " ".join([task.name for task in tasks])
-
 
         content = [
             "# ====================================================================",
             "# 🤖 MAKEFILE AUTOGENERADO (Universal API para el Desarrollador y CI)",
             "# ====================================================================",
+
+            #"SHELL := bash",
+            #".DEFAULT_GOAL := help",
+            #".ONESHELL:",
+            #"",
+
             f".PHONY: {phony_targets}\n",
+            #"",
             "# 🔥 FIX SRE: Asegurar que los binarios locales sean detectados",
             "export PATH := $(HOME)/.local/bin:$(PATH)\n",
             "# ⚙️ VARIABLES GLOBALES SRE",
+            #"TARGET ?= tests/modules/orchestration/domain/test_value_objects.py", #(test:ok) Ya sabemos que esta archivo esta ok, necesitamos ver que el flujo completo termina.
             "TARGET ?= src/ tests/",
             "ENGINE ?= uv",
             "EXTRA_INDEX_URL ?= $(shell jq -r \".extra_index_url // empty\" ci-metadata.json 2>/dev/null)\n",
@@ -280,7 +528,7 @@ if __name__ == "__main__":
     # Cuando se ejecuta, asume que la raíz del proyecto es 4 niveles arriba del script
     # src/english_editor/infrastructure/tools/makefile_builder.py -> root
     project_root = Path(__file__).resolve().parent.parent.parent.parent.parent
-    
+
     perfil = ModernPythonProfile()
     builder = MakefileBuilder(profile=perfil, output_dir=str(project_root))
     #builder = MakefileBuilder(profile=perfil, output_dir="/content/english-editor") # codigo anterior desde la celda colab.
