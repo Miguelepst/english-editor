@@ -1,3 +1,14 @@
+
+# @title 📦 __init__.py — [Facade] Contrato Público del Dominio Renderer
+
+# ⚠️  __init__.py ya existe (preservado): /content/english-editor/src/english_editor/modules/renderer/domain/__init__.py
+#   💡 Para actualizar manualmente: edita el archivo directamente
+
+# 📦 Repo GitHub:    'english-editor'  (kebab-case → github.com/.../english-editor)
+# 📦 Paquete Python: 'english_editor'  (snake_case → imports: from english_editor.modules...)
+# ✨ Protocolo clave: __init__.py es un CONTRATO, no un lugar para lógica
+
+
 # src/english_editor/modules/renderer/domain/__init__.py
 """
 Contrato Público del Dominio Renderer.
@@ -12,6 +23,7 @@ Contrato Público del Dominio Renderer.
 • Anti-Circular: Imports dentro de TYPE_CHECKING para evitar dependencias cíclicas
 • Version Safety: Metadata estática (nunca lee __version__ desde otro módulo aquí)
 """
+
 from __future__ import annotations
 
 # === 🚫 PROTOCOLO ZERO LOGIC (ENFORZADO) ===
@@ -23,16 +35,16 @@ from __future__ import annotations
 #   ❌ side effects (ej: print(), logging.basicConfig())
 #
 # ✅ Única excepción permitida: imports de re-exportación
-
 # === 🔁 PROTOCOLO ANTI-CIRCULAR IMPORTS ===
 # Para tipos en anotaciones sin romper dependencias:
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     pass
 
 # === 📦 IMPORTS DE RE-EXPORTACIÓN (FACADE) ===
 # Aplana la estructura interna para consumidores externos
-from .value_objects import Padding, MediaSegment
+from .value_objects import MediaSegment, Padding
 
 # === 🌐 DEFINICIÓN DE INTERFAZ PÚBLICA (API CONTRACT) ===
 # __all__ es el contrato estable: cambiarlo = breaking change semver
@@ -40,3 +52,5 @@ __all__ = [
     "Padding",
     "MediaSegment",
 ]
+
+

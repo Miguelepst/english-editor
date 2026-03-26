@@ -1,3 +1,5 @@
+
+#@title 🧪 test_value_objects.py — [Test] Actualizado (Protección Bidireccional)
 # tests/modules/renderer/domain/test_value_objects.py
 """
 Tests para: value_objects.py
@@ -5,20 +7,21 @@ Tipo: Unitario
 Arquitectura: AAA (Arrange-Act-Assert) + Given-When-Then
 Protocolos: Pureza de dominio, Aislamiento, Determinismo
 """
+
 import pytest
 
 # === 🧪 Protocolos de Calidad Obligatorios ===
 # 🔒 DOMINIO PURO: Tests sin I/O ni mocks. Solo lógica de negocio.
 # 🔤 DETERMINISMO: Sin aleatoriedad sin seed controlado.
-
 # === Imports del SUT (System Under Test) ===
-# Nota: Importamos asumiendo la existencia (TDD). 
+# Nota: Importamos asumiendo la existencia (TDD).
 # Python 3.12 syntax native.
-from english_editor.modules.renderer.domain.value_objects import Padding, MediaSegment
+from english_editor.modules.renderer.domain.value_objects import MediaSegment, Padding
 
 # ==============================================================================
 # === Casos de Prueba: Padding ===
 # ==============================================================================
+
 
 def test_padding_should_initialize_with_valid_duration():
     """
@@ -28,12 +31,13 @@ def test_padding_should_initialize_with_valid_duration():
     """
     # ─── ARRANGE ────────────────────────────────────────────────────────────────
     valid_ms = 1500.5
-    
+
     # ─── ACT ────────────────────────────────────────────────────────────────────
     padding = Padding(duration_ms=valid_ms)
-    
+
     # ─── ASSERT ─────────────────────────────────────────────────────────────────
     assert padding.duration_ms == valid_ms
+
 
 def test_padding_should_reject_negative_duration():
     """
@@ -44,19 +48,21 @@ def test_padding_should_reject_negative_duration():
     """
     # ─── ARRANGE ────────────────────────────────────────────────────────────────
     invalid_ms = -500.0
-    
+
     # ─── ACT & ASSERT ───────────────────────────────────────────────────────────
     with pytest.raises(ValueError) as exc_info:
         Padding(duration_ms=invalid_ms)
-        
+
     # Validación robusta (Regla A.1): Palabras clave, no frases completas
     error_msg = str(exc_info.value).lower()
     assert "duration_ms" in error_msg
     assert "negativ" in error_msg
 
+
 # ==============================================================================
 # === Casos de Prueba: MediaSegment ===
 # ==============================================================================
+
 
 def test_media_segment_should_calculate_duration_correctly():
     """
@@ -66,12 +72,13 @@ def test_media_segment_should_calculate_duration_correctly():
     """
     # ─── ARRANGE ────────────────────────────────────────────────────────────────
     segment = MediaSegment(start_ms=10000.0, end_ms=25500.0)
-    
+
     # ─── ACT ────────────────────────────────────────────────────────────────────
     duration = segment.duration_ms
-    
+
     # ─── ASSERT ─────────────────────────────────────────────────────────────────
     assert duration == 15500.0
+
 
 def test_media_segment_should_reject_start_greater_or_equal_to_end():
     """
@@ -83,7 +90,7 @@ def test_media_segment_should_reject_start_greater_or_equal_to_end():
     start = 5000.0
     end_equal = 5000.0
     end_less = 4000.0
-    
+
     # ─── ACT & ASSERT ───────────────────────────────────────────────────────────
     # Caso 1: Iguales
     with pytest.raises(ValueError) as exc_info_eq:
@@ -100,6 +107,7 @@ def test_media_segment_should_reject_start_greater_or_equal_to_end():
     assert "start_ms" in msg_less
     assert "end_ms" in msg_less
 
+
 def test_media_segment_should_reject_negative_timestamps():
     """
     Given: Un tiempo de inicio negativo.
@@ -109,14 +117,15 @@ def test_media_segment_should_reject_negative_timestamps():
     # ─── ARRANGE ────────────────────────────────────────────────────────────────
     invalid_start = -100.0
     valid_end = 5000.0
-    
+
     # ─── ACT & ASSERT ───────────────────────────────────────────────────────────
     with pytest.raises(ValueError) as exc_info:
         MediaSegment(start_ms=invalid_start, end_ms=valid_end)
-        
+
     msg = str(exc_info.value).lower()
     assert "start_ms" in msg
     assert "negativ" in msg
+
 
 def test_media_segment_should_apply_padding_safely_without_going_below_zero():
     """
@@ -128,15 +137,20 @@ def test_media_segment_should_apply_padding_safely_without_going_below_zero():
     # ─── ARRANGE ────────────────────────────────────────────────────────────────
     segment = MediaSegment(start_ms=500.0, end_ms=5000.0)
     pad = Padding(duration_ms=1000.0)
-    
+
     # ─── ACT ────────────────────────────────────────────────────────────────────
     padded_segment = segment.apply_padding(pad)
-    
+
     # ─── ASSERT ─────────────────────────────────────────────────────────────────
-    assert padded_segment.start_ms == 0.0, "El inicio no puede ser negativo, debe 'clipearse' a 0"
-    assert padded_segment.end_ms == 6000.0, "El final debe extenderse sumando el padding"
+    assert padded_segment.start_ms == 0.0, (
+        "El inicio no puede ser negativo, debe 'clipearse' a 0"
+    )
+    assert padded_segment.end_ms == 6000.0, (
+        "El final debe extenderse sumando el padding"
+    )
     # Inmutabilidad: el segmento original no debe alterarse
     assert segment.start_ms == 500.0
+
 
 def test_media_segment_should_apply_padding_normally():
     """
@@ -147,10 +161,11 @@ def test_media_segment_should_apply_padding_normally():
     # ─── ARRANGE ────────────────────────────────────────────────────────────────
     segment = MediaSegment(start_ms=10000.0, end_ms=20000.0)
     pad = Padding(duration_ms=1000.0)
-    
+
     # ─── ACT ────────────────────────────────────────────────────────────────────
     padded_segment = segment.apply_padding(pad)
-    
+
     # ─── ASSERT ─────────────────────────────────────────────────────────────────
     assert padded_segment.start_ms == 9000.0
     assert padded_segment.end_ms == 21000.0
+
