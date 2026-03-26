@@ -1,7 +1,6 @@
-
-#=============================================================
+# =============================================================
 # 🛡️  CERTIFICADO DE CONFORMIDAD SRE (GATEKEEPER LOCAL)
-#=============================================================
+# =============================================================
 # 🐍 Entorno                : Python 3.12.13
 # ✅ Ruff   (Estilo)        : APROBADO [ruff 0.15.6]
 # ✅ Mypy   (Tipado)        : APROBADO [mypy 1.19.1 (compiled: yes)]
@@ -10,11 +9,11 @@
 # 🕒 Fecha de validación    : 2026-03-25 01:25:57 PM
 # 👤 Operador               : Miguel Gutiérrez (@Miguelepst)
 # 👤 Entorno                : root
-#=============================================================
+# =============================================================
 
 
-#@title 📄 cli.py v0.1.2 GateKeeperLocal(ok) — [Composition Root] Orquestador SRE (Fix: In-Memory Adapters)
-#✅ Orquestador parcheado con éxito: /content/english-editor/src/english_editor/cli.py
+# @title 📄 cli.py v0.1.2 GateKeeperLocal(ok) — [Composition Root] Orquestador SRE (Fix: In-Memory Adapters)
+# ✅ Orquestador parcheado con éxito: /content/english-editor/src/english_editor/cli.py
 
 # src/english_editor/cli.py
 
@@ -204,5 +203,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
