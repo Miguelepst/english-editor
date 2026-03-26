@@ -1,3 +1,8 @@
+
+# @title 📄 adapters.py — [Infrastructure / Adapters] Implementación de FFmpeg
+
+# ✅ Archivo creado: /content/english-editor/src/english_editor/modules/renderer/infrastructure/adapters.py
+
 # src/english_editor/modules/renderer/infrastructure/adapters.py
 """
 Adaptadores de Infraestructura del Renderer.
@@ -99,3 +104,11 @@ class FFmpegMediaSplicer(MediaSplicerPort):
 # === Protección contra ejecución directa ===
 if __name__ == "__main__":
     pass
+
+
+
+
+
+
+
+
