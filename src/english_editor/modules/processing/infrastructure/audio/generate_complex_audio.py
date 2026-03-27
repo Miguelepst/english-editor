@@ -1,3 +1,11 @@
+
+# @title ⚙️📄 generate_complex_audio.py — [infrastructure] Script utilitario para generar audio complejo con pausas
+
+# ✅ Archivo creado: /content/english-editor/src/english_editor/modules/processing/infrastructure/audio/generate_complex_audio.py
+# 📦 Repo GitHub:    'english-editor'
+# 📦 Paquete Python: 'english_editor'
+# 💡 Import válido: from english_editor.modules.processing.infrastructure.audio.generate_complex_audio import main
+
 # src/english_editor/modules/processing/infrastructure/audio/generate_complex_audio.py
 """
 Generador de audio de prueba con segmentos y silencios.
@@ -77,3 +85,5 @@ def main() -> None:
 # === Protección contra ejecución directa ===
 if __name__ == "__main__":
     main()
+
+
