@@ -1,3 +1,8 @@
+
+#@title 📄 cli.py — [Presentation] Command Line Interface
+
+#✅ CLI creado: /content/english-editor/src/english_editor/modules/analysis/presentation/cli.py
+
 # src/english_editor/modules/analysis/presentation/cli.py
 """
 Interfaz de Línea de Comandos (CLI) para Análisis de Voz.
@@ -96,8 +101,10 @@ def format_output_json(segments):
     print(json.dumps(data, indent=2))
 
 
-# ... (código existente de tu CLI) ...
 
+
+
+# ... (código existente de tu CLI) ...
 
 def validar_archivo_seguro(ruta_archivo: str):
     """Filtro de seguridad contra Path Traversal y archivos maliciosos."""
@@ -106,22 +113,17 @@ def validar_archivo_seguro(ruta_archivo: str):
     # 1. Verificar existencia
     if not path.exists():
         print(f"Error: El archivo '{ruta_archivo}' no existe.", file=sys.stderr)
-        sys.exit(1)  # Código 1 esperado por tu test
+        sys.exit(1) # Código 1 esperado por tu test
 
     # 2. Lista blanca estricta de extensiones (¡Previene inyectar /etc/passwd!)
-    extensiones_permitidas = {".wav", ".mp3", ".flac", ".ogg"}
+    extensiones_permitidas = {'.wav', '.mp3', '.flac', '.ogg'}
     if path.suffix.lower() not in extensiones_permitidas:
-        print(
-            f"Error de seguridad: Extensión '{path.suffix}' no permitida. Solo audios.",
-            file=sys.stderr,
-        )
-        sys.exit(1)  # Código 1 esperado por tu test
-
+        print(f"Error de seguridad: Extensión '{path.suffix}' no permitida. Solo audios.", file=sys.stderr)
+        sys.exit(1) # Código 1 esperado por tu test
 
 # En tu función principal:
 # validar_archivo_seguro(args.input_file)
 # ... luego ejecutas el caso de uso ...
-
 
 def main():
     parser = setup_parser()
@@ -168,7 +170,8 @@ def main():
         # Errores inesperados (Bugs)
         print(f"❌ Error Crítico: {e}", file=sys.stderr)
         sys.exit(3)
-
-
 if __name__ == "__main__":
     main()
+
+
+

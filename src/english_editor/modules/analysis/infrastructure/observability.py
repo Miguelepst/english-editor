@@ -1,4 +1,12 @@
-"""Módulo de observabilidad para métricas y logging del sistema."""
+
+# @title 📄 observability.py — [Infra] Dual View (Dev vs Prod) SRE Edition (Logs + Metrics + RAM)
+# ✅ Observabilidad actualizada con modo 'PRETTY PRINT': /content/english-editor/src/english_editor/modules/analysis/infrastructure/observability.py
+
+# src/english_editor/modules/analysis/infrastructure/observability.py
+"""
+Servicio de Observabilidad SRE: Logs, Latency & Saturation (RAM).
+Soporta modo "Pretty Print" para depuración visual.
+"""
 
 import functools
 import json
@@ -6,37 +14,22 @@ import logging
 import os
 import time
 import uuid
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
 
-# Fallback para entornos sin psutil (CI/CD, Colab Free)
-try:
-    import psutil
+# from typing import Any, Callable, Dict
+from typing import Any, cast
 
-    _PSUTIL_AVAILABLE = True
-except ImportError:
-    psutil = None
-    _PSUTIL_AVAILABLE = False
+import psutil  # No lazy, no esta dentro de la función que quiere esta dependencia, asi se use o no es cargada siempre.
 
-try:
-    _PSUTIL_AVAILABLE = True
-except ImportError:
-    psutil = None
-    _PSUTIL_AVAILABLE = False
-try:
-    _PSUTIL_AVAILABLE = True
-except ImportError:
-    psutil = None
-    _PSUTIL_AVAILABLE = False
-"""
-Servicio de Observabilidad SRE: Logs, Latency & Saturation (RAM).
-Soporta modo "Pretty Print" para depuración visual.
-"""
+# Configuración básica
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger("english_editor")
 
 
 class ObservabilityService:
+    # 🌍 CONFIGURACIÓN GLOBAL
+    # Si esta variable de entorno existe, activamos la vista vertical
     PRETTY_PRINT = os.getenv("LOG_FORMAT") == "PRETTY"
 
     @staticmethod
@@ -46,10 +39,23 @@ class ObservabilityService:
     @staticmethod
     def _get_ram_usage_mb() -> float:
         try:
+            # ✅ DESPUÉS: Import lazy dentro de la función
+            # import psutil
             process = psutil.Process(os.getpid())
-            return round(process.memory_info().rss / 1024 / 1024, 2)  # type: ignore[no-any-return]
+            # ✅ Casting explícito para mypy: no-any-return
+            return cast(float, process.memory_info().rss / 1024 / 1024)
         except Exception:
             return 0.0
+
+    """
+    @staticmethod
+    def _get_ram_usage_mb() -> float:
+        try:
+            process = psutil.Process(os.getpid())
+            return round(process.memory_info().rss / 1024 / 1024, 2)
+        except Exception:
+            return 0.0
+    """
 
     @staticmethod
     def log_event(
@@ -59,6 +65,7 @@ class ObservabilityService:
         level: str = "INFO",
     ):
         """Emite un log estructurado en JSON (Horizontal o Vertical)."""
+
         log_entry = {
             "timestamp": time.time(),
             "level": level,
@@ -66,10 +73,16 @@ class ObservabilityService:
             "correlation_id": correlation_id,
             "data": payload,
         }
+
+        # 🎨 LÓGICA DE VISUALIZACIÓN
         if ObservabilityService.PRETTY_PRINT:
+            # MODO VERTICAL (Human-Readable)
+            # Usamos indent=4 para que se vea bonito hacia abajo
             msg = json.dumps(log_entry, indent=4)
         else:
+            # MODO HORIZONTAL (Machine-Readable - Default)
             msg = json.dumps(log_entry)
+
         if level == "ERROR":
             logger.error(msg)
         else:
@@ -83,20 +96,25 @@ class ObservabilityService:
                 start_time = time.time()
                 start_ram = ObservabilityService._get_ram_usage_mb()
                 correlation_id = ObservabilityService.get_correlation_id()
+
                 file_context = "unknown"
                 for arg in args:
                     if isinstance(arg, Path):
                         file_context = arg.name
                         break
+
                 ObservabilityService.log_event(
                     event_name=f"{operation_name}.started",
                     correlation_id=correlation_id,
                     payload={"target": file_context, "start_ram_mb": start_ram},
                 )
+
                 try:
                     result = func(*args, **kwargs)
+
                     end_time = time.time()
                     end_ram = ObservabilityService._get_ram_usage_mb()
+
                     ObservabilityService.log_event(
                         event_name=f"{operation_name}.completed",
                         correlation_id=correlation_id,
@@ -109,9 +127,11 @@ class ObservabilityService:
                         },
                     )
                     return result
+
                 except Exception as e:
                     end_time = time.time()
                     crash_ram = ObservabilityService._get_ram_usage_mb()
+
                     ObservabilityService.log_event(
                         event_name=f"{operation_name}.failed",
                         correlation_id=correlation_id,
@@ -129,3 +149,5 @@ class ObservabilityService:
             return wrapper
 
         return decorator
+
+

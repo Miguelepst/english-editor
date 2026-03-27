@@ -1,3 +1,10 @@
+
+# @title 🧪 test_observability.py — [Test] MASTER (Fixed Mocking)
+
+# ✅ Test MASTER (Fixed) creado: /content/english-editor/tests/modules/analysis/infrastructure/test_observability.py
+# 👉 Ahora psutil devuelve floats en lugar de Mocks en el test de error.
+# 🧪 Ejecutar: python -m pytest tests/modules/analysis/infrastructure/test_observability.py -v
+
 # tests/modules/analysis/infrastructure/test_observability.py
 """
 Tests para: ObservabilityService (SRE Edition)
@@ -9,6 +16,7 @@ Validación Completa:
 """
 
 import json
+import time
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -21,7 +29,6 @@ from english_editor.modules.analysis.infrastructure.observability import (
 
 
 class TestObservabilityService:
-
     # ─── 1. Pruebas de Utilidad Básica ────────────────────────────────────────
 
     def test_correlation_id_format(self):
@@ -129,3 +136,5 @@ class TestObservabilityService:
         last_call = mock_logger.info.call_args_list[-1]
         log_json = json.loads(last_call[0][0])
         assert log_json["data"]["target"] == "video.mp4"
+
+

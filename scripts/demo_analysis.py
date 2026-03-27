@@ -1,4 +1,3 @@
-#%%writefile demo_analysis.py
 
 # @title 📄 demo_analysis.py — [Demo] Interactive Speech Analysis (With Transcription)
 
@@ -21,11 +20,6 @@ Best Practices:
 - Mostrar transcripción real de Whisper (valor agregado para demo)
 """
 
-
-
-
-
-
 import math
 import struct
 import sys
@@ -35,13 +29,8 @@ from pathlib import Path
 
 # === Configuración de Path para Imports ===
 SCRIPT_ROOT = Path(__file__).parent
-PROJECT_ROOT = SCRIPT_ROOT.parent         # <-- AÑADIR .parent (para subir a la raíz)
-OUTPUT_DIR = PROJECT_ROOT / "output"      # <-- CAMBIAR a PROJECT_ROOT (para que la carpeta output no se cree dentro de scripts)
-
-# === Configuración de Path para Imports ===
-#SCRIPT_ROOT = Path(__file__).parent
-#PROJECT_ROOT = SCRIPT_ROOT
-#OUTPUT_DIR = SCRIPT_ROOT / "output"
+PROJECT_ROOT = SCRIPT_ROOT
+OUTPUT_DIR = SCRIPT_ROOT / "output"
 
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 sys.path.append(str(PROJECT_ROOT / "src"))
@@ -350,4 +339,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-SCRIPT_ROOT = Path(__file__).parent
+
