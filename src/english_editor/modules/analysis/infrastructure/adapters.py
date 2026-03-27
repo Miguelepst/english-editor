@@ -1,3 +1,7 @@
+
+#@title 📄 adapters.py — [Infrastructure] FakeSpeechEngine
+
+#✅ Adapter creado: /content/english-editor/src/english_editor/modules/analysis/infrastructure/adapters.py
 # src/english_editor/modules/analysis/infrastructure/adapters.py
 """
 Adaptadores de Infraestructura para Análisis de Audio.
@@ -5,12 +9,14 @@ Adaptadores de Infraestructura para Análisis de Audio.
 Arquitectura: Infrastructure Layer
 Responsabilidad: Implementar puertos del dominio usando tecnologías concretas (o Fakes).
 """
-
 from __future__ import annotations
 
+#from typing import Optional
 from pathlib import Path
 
 from english_editor.modules.analysis.domain.exceptions import AudioFileError
+
+#from english_editor.modules.analysis.domain.ports.engine import SpeechAnalysisEngine
 from english_editor.modules.analysis.domain.value_objects import TimeRange
 
 
@@ -24,8 +30,9 @@ class FakeSpeechEngine:
     - Si el archivo contiene "error", lanza AudioFileError.
     - Por defecto, retorna un rango fijo [0.0, 10.0].
     """
-
+    # Después
     def __init__(self, fixed_result: list[TimeRange] | None = None):
+    #def __init__(self, fixed_result: Optional[list[TimeRange]] = None):
         """
         Args:
             fixed_result: Si se provee, siempre retornará esta lista.
@@ -56,3 +63,5 @@ class FakeSpeechEngine:
 
         # Default: Un segmento de 10 segundos
         return [TimeRange(0.0, 10.0)]
+
+

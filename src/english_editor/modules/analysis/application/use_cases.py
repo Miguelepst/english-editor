@@ -1,3 +1,7 @@
+
+#@title 📄 use_cases.py — [Application] AnalyzeAudio, Instrumentado
+#✅ Caso de Uso instrumentado: /content/english-editor/src/english_editor/modules/analysis/application/use_cases.py
+
 # src/english_editor/modules/analysis/application/use_cases.py
 """
 Casos de Uso para el Análisis de Audio.
@@ -19,6 +23,7 @@ from english_editor.modules.analysis.infrastructure.observability import (
     ObservabilityService,
 )
 
+#from typing import List
 
 class AnalyzeAudio:
     """
@@ -55,7 +60,7 @@ class AnalyzeAudio:
             raise AudioFileError(f"El archivo no existe: {file_path}")
 
         if not file_path.is_file():
-            raise AudioFileError(f"La ruta no es un archivo: {file_path}")
+             raise AudioFileError(f"La ruta no es un archivo: {file_path}")
 
         # 2. Delegación al Dominio/Infraestructura
         # Nota: El motor (whisper) se encargará del chunking y la RAM internamente.
@@ -69,3 +74,4 @@ class AnalyzeAudio:
         # pero el decorador ya captura el éxito.
 
         return segments
+

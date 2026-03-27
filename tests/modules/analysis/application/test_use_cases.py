@@ -1,3 +1,8 @@
+
+# @title 🧪 test_use_cases.py — [Test] AnalyzeAudio
+
+# ✅ Test de Use Case creado: /content/english-editor/tests/modules/analysis/application/test_use_cases.py
+
 # tests/modules/analysis/application/test_use_cases.py
 """
 Tests para: AnalyzeAudio (Use Case)
@@ -5,6 +10,7 @@ Tipo: Unitario (Application)
 """
 
 from pathlib import Path
+from unittest.mock import Mock
 
 import pytest
 
@@ -102,3 +108,5 @@ def test_analyze_audio_with_fixed_result(tmp_path):
 
     # Assert
     assert result == expected
+
+
