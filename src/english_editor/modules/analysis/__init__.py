@@ -1,29 +1,22 @@
+
+# @title 📦 __init__.py — [Analysis Module]
+# ✅ Init creado: /content/english-editor/src/english_editor/modules/analysis/__init__.py
+
 # src/english_editor/modules/analysis/__init__.py
 """
 Módulo de Análisis de Audio.
+
+Responsabilidades:
+1. Inferencia local con Whisper (CPU).
+2. Segmentación de voz (VAD).
+3. Gestión de memoria eficiente (Chunking).
 """
 
 from __future__ import annotations
 
-# Application
-from .application.use_cases import AnalyzeAudio
-from .domain.exceptions import AnalysisError, AudioFileError, MemoryLimitExceeded
-from .domain.ports.engine import SpeechAnalysisEngine
-
-# Domain
+# Exponemos los Value Objects principales para otros módulos
 from .domain.value_objects import TimeRange
 
-# Infrastructure
-from .infrastructure.adapters import FakeSpeechEngine
-from .infrastructure.whisper_adapter import WhisperLocalAdapter
+__all__ = ["TimeRange"]
 
-__all__ = [
-    "TimeRange",
-    "SpeechAnalysisEngine",
-    "AnalysisError",
-    "AudioFileError",
-    "MemoryLimitExceeded",
-    "AnalyzeAudio",
-    "FakeSpeechEngine",
-    "WhisperLocalAdapter",
-]
+
