@@ -1,6 +1,6 @@
 
-# @title 📦 __init__.py — [Analysis Module]
-# ✅ Init creado: /content/english-editor/src/english_editor/modules/analysis/__init__.py
+# @title 📦 __init__.py — [Update Module Facade]
+# ✅ Facade actualizado: /content/english-editor/src/english_editor/modules/analysis/__init__.py
 
 # src/english_editor/modules/analysis/__init__.py
 """
@@ -14,9 +14,19 @@ Responsabilidades:
 
 from __future__ import annotations
 
-# Exponemos los Value Objects principales para otros módulos
+from .domain.exceptions import AnalysisError, AudioFileError, MemoryLimitExceeded
+
+# Domain Ports & Exceptions (Contrato público para Application Layer)
+from .domain.ports.engine import SpeechAnalysisEngine
+
+# Domain Primitives
 from .domain.value_objects import TimeRange
 
-__all__ = ["TimeRange"]
-
+__all__ = [
+    "TimeRange",
+    "SpeechAnalysisEngine",
+    "AnalysisError",
+    "AudioFileError",
+    "MemoryLimitExceeded",
+]
 
