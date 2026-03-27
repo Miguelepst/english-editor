@@ -1,3 +1,8 @@
+
+# @title 🧪 test_analysis_e2e.py — [E2E] Final Stable Version
+
+# ✅ Test actualizado: /content/english-editor/tests/e2e/test_analysis_e2e.py
+
 # tests/e2e/test_analysis_e2e.py
 """
 Test End-to-End (E2E): Validación de Separación de Segmentos.
@@ -30,7 +35,6 @@ except ImportError:
     DEPS_INSTALLED = False
 """
 
-
 # === CONFIGURACIÓN: Detección robusta de dependencias externas ===
 def _check_external_deps() -> bool:
     """
@@ -56,12 +60,9 @@ def _check_external_deps() -> bool:
         # Cualquier otro error (ej: CUDA sin GPU) también cuenta como "no disponible"
         return False
 
-
 DEPS_INSTALLED = _check_external_deps()
 
-
 # === Fixtures ===
-
 
 @pytest.fixture
 def pattern_audio_file(tmp_path):
@@ -91,11 +92,17 @@ def pattern_audio_file(tmp_path):
                 data.append(struct.pack("<h", val))
 
             noise_io = BytesIO()
+
             with wave.open(noise_io, "w") as wav:
                 wav.setnchannels(1)
                 wav.setsampwidth(2)
                 wav.setframerate(sample_rate)
                 wav.writeframes(b"".join(data))
+
+            # with wave.open(noise_io, 'w') as wav:
+            #    wav.setnchannels(1); wav.setsampwidth(2); wav.setframerate(sample_rate)
+            #    wav.writeframes(b''.join(data))
+
             noise_io.seek(0)
             return AudioSegment.from_wav(noise_io)
 
@@ -128,18 +135,19 @@ def pattern_audio_file(tmp_path):
         )
 
         print(
-            f"✅ Audio generado: {len(full_audio)/1000:.2f}s (Gap: {gap_duration/1000}s)"
+            f"✅ Audio generado: {len(full_audio) / 1000:.2f}s (Gap: {gap_duration / 1000}s)"
         )
 
     except ImportError:
         with open(filename, "wb") as f:
             f.write(b"RIFF")
 
+    # except ImportError:
+    #    with open(filename, 'wb') as f: f.write(b'RIFF')
+
     return filename
 
-
 # === Test ===
-
 
 @pytest.mark.e2e
 @pytest.mark.skipif(not DEPS_INSTALLED, reason="Faltan dependencias")
@@ -150,7 +158,6 @@ def test_e2e_separation_of_segments(pattern_audio_file):
     from english_editor.modules.analysis.infrastructure.whisper_adapter import (
         WhisperLocalAdapter,
     )
-
     # ─────────────────────────────────────────────────────────────────────
 
     # 1. Setup
@@ -208,8 +215,10 @@ def test_e2e_separation_of_segments(pattern_audio_file):
 
     # El silencio real es 2.0s. Whisper suele "comerse" un poco los bordes.
     # Un gap detectado de > 0.5s prueba que NO están pegados.
-    assert (
-        max_gap > 0.5
-    ), f"Fallo: Los segmentos están demasiado pegados (Gap: {max_gap}s)."
+    assert max_gap > 0.5, (
+        f"Fallo: Los segmentos están demasiado pegados (Gap: {max_gap}s)."
+    )
 
     print("✅ [E2E] Éxito: Frases correctamente separadas.")
+
+
