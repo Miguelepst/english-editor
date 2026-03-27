@@ -1,3 +1,8 @@
+
+# @title 🧪 test_dast_cli.py — [DAST] CLI Security Fuzzing
+
+# ✅ Test DAST creado en tu nueva rama: /content/english-editor/tests/security/test_dast_cli.py
+
 # tests/security/test_dast_cli.py
 """
 Dynamic Application Security Testing (DAST) / Fuzzer para la CLI.
@@ -6,6 +11,7 @@ Tipo: Integración/Seguridad (Caja Negra)
 Objetivo: Validar que la CLI maneja inputs maliciosos de forma segura (Fail Gracefully),
           sin exponer Stack Traces ni permitir acceso no autorizado al File System.
 """
+
 import subprocess
 import sys
 from pathlib import Path
@@ -45,14 +51,14 @@ def test_dast_path_traversal_attack():
 
     # ─── ASSERT ─────────────────────────────────────────────────────────────────
     # 1. Verificar código de salida (1 = Error controlado de validación en cli.py)
-    assert (
-        result.returncode == 1
-    ), "La CLI no devolvió el código de error esperado para archivo no encontrado."
+    assert result.returncode == 1, (
+        "La CLI no devolvió el código de error esperado para archivo no encontrado."
+    )
 
     # 2. Verificar fuga de información (No Stack Trace)
-    assert (
-        "Traceback" not in result.stderr
-    ), "VULNERABILIDAD: La CLI filtró un Stack Trace al atacante."
+    assert "Traceback" not in result.stderr, (
+        "VULNERABILIDAD: La CLI filtró un Stack Trace al atacante."
+    )
 
     # 3. Verificar que no se leyó el contenido (ej: root:x:0:0)
     assert "root:x" not in result.stdout
@@ -86,14 +92,14 @@ def test_dast_poisoned_file_attack(tmp_path):
 
     # ─── ASSERT ─────────────────────────────────────────────────────────────────
     # 1. Falla controlada de dominio (Código 2 según definimos en cli.py para AnalysisError)
-    assert (
-        result.returncode == 2
-    ), f"Se esperaba código 2, se obtuvo: {result.returncode}"
+    assert result.returncode == 2, (
+        f"Se esperaba código 2, se obtuvo: {result.returncode}"
+    )
 
     # 2. Prevención de fuga de información interna
-    assert (
-        "Traceback" not in result.stderr
-    ), "VULNERABILIDAD: La CLI filtró un Stack Trace profundo."
+    assert "Traceback" not in result.stderr, (
+        "VULNERABILIDAD: La CLI filtró un Stack Trace profundo."
+    )
 
     # 3. Respuesta estándar al usuario
     assert "error de análisis" in result.stderr.lower()
@@ -116,6 +122,7 @@ def test_dast_empty_file_denial_of_service(tmp_path):
     # ─── ASSERT ─────────────────────────────────────────────────────────────────
     # Aseguramos que el programa termina y no se queda colgado, fallando con gracia.
     assert result.returncode != 0, "Debería fallar al procesar un audio vacío."
-    assert (
-        "Traceback" not in result.stderr
-    ), "VULNERABILIDAD: Filtrado de Stack Trace en DoS."
+    assert "Traceback" not in result.stderr, (
+        "VULNERABILIDAD: Filtrado de Stack Trace en DoS."
+    )
+

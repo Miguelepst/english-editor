@@ -1,4 +1,12 @@
-# ruff: noqa: E402
+
+# @title 🧪 test_benchmark_whisper.py — [Test] Performance Benchmark Whisper
+
+# ✅ Test creado: /content/english-editor/tests/performance/test_benchmark_whisper.py
+# 📦 Repo GitHub:    'english-editor'  (kebab-case → github.com/.../english-editor)
+# 📦 Paquete Python: 'english_editor'  (snake_case → imports: from english_editor.modules...)
+# 🧪 Ejecutar test: cd english-editor && python -m pytest tests/performance/test_benchmark_whisper.py -m performance -v
+# 💡 Protocolo clave: Tests de DOMINIO nunca deben usar mocks — validan lógica pura
+
 # tests/performance/test_benchmark_whisper.py
 """
 Tests para: benchmark_whisper.py
@@ -17,6 +25,11 @@ from pathlib import Path
 import psutil
 import pytest
 
+# === Imports del SUT (System Under Test) ===
+from english_editor.modules.analysis.infrastructure.whisper_adapter import (
+    WhisperLocalAdapter,
+)
+
 # === 🧪 Protocolos de Calidad Obligatorios ===
 # 🔒 DOMINIO PURO: Tests sin I/O ni mocks. Solo lógica de negocio.
 # 🧪 AISLAMIENTO: Cada test es independiente (no comparte estado con otros tests).
@@ -32,9 +45,8 @@ SRC_PATH = PROJECT_ROOT_DIR / "src"
 if str(SRC_PATH) not in sys.path:
     sys.path.append(str(SRC_PATH))
 
-from english_editor.modules.analysis.infrastructure.whisper_adapter import (
-    WhisperLocalAdapter,
-)
+# === Imports del SUT (System Under Test) ===
+# from english_editor.modules.analysis.infrastructure.whisper_adapter import WhisperLocalAdapter
 
 
 # === CONFIGURACIÓN: Detección de dependencias para tests de performance ===
@@ -157,10 +169,14 @@ def test_whisper_engine_should_process_audio_within_benchmark_limits(
     assert result is not None, "El adaptador debe devolver un resultado válido"
 
     # Verificamos la RAM usando el monitor original
-    assert (
-        monitor.peak_ram_mb < 5000.0
-    ), f"Consumo de RAM excedido: {monitor.peak_ram_mb}MB > 5000MB"
+    assert monitor.peak_ram_mb < 5000.0, (
+        f"Consumo de RAM excedido: {monitor.peak_ram_mb}MB > 5000MB"
+    )
 
     # Limpieza
     if audio_path.exists():
         os.remove(audio_path)
+
+
+
+
