@@ -1,3 +1,10 @@
+
+# @title 📄 observability.py — [Infrastructure] Motor de Telemetría
+
+# ✅ Motor de Observabilidad creado: /content/english-editor/src/english_editor/modules/orchestration/infrastructure/observability.py
+# 📦 Repo GitHub:    'english-editor'  (kebab-case → github.com/.../english-editor)
+# 📦 Paquete Python: 'english_editor'  (snake_case → imports: from english_editor.modules...)
+
 # src/english_editor/modules/orchestration/infrastructure/observability.py
 """
 Configuración centralizada de Logging y Métricas.
@@ -11,8 +18,9 @@ Principios SRE:
 import logging
 import sys
 import time
+from collections.abc import Callable
 from functools import wraps
-from typing import Any, Callable
+from typing import Any
 
 # Configuración Global
 LOG_FILE = "system_execution.log"
@@ -82,3 +90,6 @@ def measure_time(metric_name: str):
         return wrapper
 
     return decorator
+
+
+

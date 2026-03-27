@@ -1,3 +1,9 @@
+
+# @title 📄 ci_pipeline.py — [DevOps] El Guardián de la Calidad
+# ✅ Pipeline CI creado: /content/english-editor/scripts/ci_pipeline.py
+# 📦 Repo GitHub:    'english-editor'  (kebab-case → github.com/.../english-editor)
+# 📦 Paquete Python: 'english_editor'  (snake_case → imports: from english_editor.modules...)
+
 #!/usr/bin/env python3
 """
 Pipeline de CI Local para el Proyecto English Editor.
@@ -6,12 +12,7 @@ Ejecuta validaciones estáticas, tests unitarios y de integración.
 Uso: python scripts/ci_pipeline.py
 """
 
-# orden incorrecto de imports
-# from datetime import datetime
-# import subprocess
-# import sys
-# import time
-
+import shlex  # 🟢 NUEVO IMPORT
 import subprocess  # ← 'import' primero, orden alfabético: s, s, t
 import sys
 import time
@@ -36,8 +37,14 @@ def print_step(step_name):
 def run_command(command, description):
     print(f"⏳ {description}...")
     start = time.time()
-    result = subprocess.run(command, shell=True, capture_output=True, text=True)
+    # shlex.split() convierte de forma segura "ls -l" en ["ls", "-l"]
+    # y eliminamos el peligroso shell=True
+    safe_command = shlex.split(command) if isinstance(command, str) else command
+    result = subprocess.run(safe_command, capture_output=True, text=True)
     duration = time.time() - start
+    # start = time.time()
+    # result = subprocess.run(command, shell=True, capture_output=True, text=True)
+    # duration = time.time() - start
 
     if result.returncode == 0:
         print(f"{Colors.OKGREEN}✅ PASÓ ({duration:.2f}s){Colors.ENDC}")
@@ -57,7 +64,6 @@ def main():
     print(f"📅 Fecha: {datetime.now()}")
 
     # steps = []   #rufus
-
     # --- PASO 1: LINTER (Estilo) ---
     # Usamos Ruff si está instalado, o skip
     print_step("1. ANÁLISIS ESTÁTICO DE CÓDIGO (LINTING)")
@@ -103,11 +109,14 @@ def main():
 
     # --- RESUMEN ---
     total_duration = time.time() - start_total
-    print(f"\n{Colors.OKGREEN}{'='*50}{Colors.ENDC}")
+    print(f"\n{Colors.OKGREEN}{'=' * 50}{Colors.ENDC}")
     print(f"{Colors.OKGREEN}🎉  BUILD SUCCESSFUL - CALIDAD CERTIFICADA{Colors.ENDC}")
-    print(f"{Colors.OKGREEN}{'='*50}{Colors.ENDC}")
+    print(f"{Colors.OKGREEN}{'=' * 50}{Colors.ENDC}")
     print(f"⏱️ Tiempo Total: {total_duration:.2f}s")
 
 
 if __name__ == "__main__":
     main()
+
+
+

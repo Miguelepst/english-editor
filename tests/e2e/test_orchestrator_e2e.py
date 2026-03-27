@@ -1,3 +1,8 @@
+
+# @title 🧪 test_orchestrator_e2e.py — [E2E] Performance & Resilience
+# ✅ Tests E2E creados: /content/english-editor/tests/e2e/test_orchestrator_e2e.py
+# 💡 Ejecuta ahora: `pytest tests/e2e -v` para ver la performance real.
+
 # tests/e2e/test_orchestrator_e2e.py
 """
 Tests End-to-End (E2E) para el subsistema de Orquestación.
@@ -51,9 +56,9 @@ def test_performance_on_huge_files(tmp_path, big_file_factory):
     assert len(jobs) == 1
     # IMPORTANTE: Si lee todo el archivo, tardaría >10s. Si tarda <1s, la optimización funciona.
     print(f"\n⏱️ Tiempo de procesamiento para 5GB: {duration:.4f}s")
-    assert (
-        duration < 1.0
-    ), "El sistema es demasiado lento, parece estar leyendo el archivo completo."
+    assert duration < 1.0, (
+        "El sistema es demasiado lento, parece estar leyendo el archivo completo."
+    )
     assert (
         jobs[0].source.file_size_bytes > 5 * 10**9
     )  # Confirmar que detecta el tamaño correcto
@@ -89,9 +94,9 @@ def test_integrity_check_tail_mutation(tmp_path, big_file_factory):
 
     # Assert
     assert fp_original.file_size_bytes == fp_modified.file_size_bytes
-    assert (
-        fp_original.content_hash != fp_modified.content_hash
-    ), "El hash no cambió tras modificar el final del archivo. ¿Estamos leyendo la cola?"
+    assert fp_original.content_hash != fp_modified.content_hash, (
+        "El hash no cambió tras modificar el final del archivo. ¿Estamos leyendo la cola?"
+    )
 
 
 def test_full_lifecycle_crash_recovery(tmp_path):
@@ -132,3 +137,4 @@ def test_full_lifecycle_crash_recovery(tmp_path):
     assert restored_job.job_id == job.job_id
     assert restored_job.status == JobStatus.IN_PROGRESS
     assert restored_job.get_checkpoints_copy() == [{"start": 0, "end": 60}]
+
