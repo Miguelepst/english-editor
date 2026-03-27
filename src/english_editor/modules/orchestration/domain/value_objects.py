@@ -1,4 +1,15 @@
+
+# @title 📄 value_objects.py — [Domain] Orquestación: Identidad e Integridad
+
+# ✅ Archivo creado: /content/english-editor/src/english_editor/modules/orchestration/domain/value_objects.py
+# 📦 Repo GitHub:    'english-editor'  (kebab-case → github.com/.../english-editor)
+# 📦 Paquete Python: 'english_editor'  (snake_case → imports: from english_editor.modules...)
+# 🧹 Clean file: %%writefile /content/english-editor/src/english_editor/modules/orchestration/domain/value_objects.py
+
+
 # src/english_editor/modules/orchestration/domain/value_objects.py
+
+
 """
 Value Objects para el Bounded Context de Orquestación.
 
@@ -47,6 +58,7 @@ class SourceFingerprint:
         ignorando cambios de nombre si el contenido es idéntico,
         o detectando colisiones de nombre con contenido distinto.
         """
+
         if not isinstance(other, SourceFingerprint):
             return False
 
@@ -74,4 +86,8 @@ class JobStatus(Enum):
 
     def can_resume(self) -> bool:
         """Indica si es válido intentar reanudar desde un checkpoint."""
+
         return self in (JobStatus.IN_PROGRESS, JobStatus.FAILED)
+
+
+

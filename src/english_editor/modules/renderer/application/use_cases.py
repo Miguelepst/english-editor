@@ -1,6 +1,6 @@
 
-#@title 📄 use_cases.py — [Application / Use Cases] Orquestador de Renderizado
-#✅ Archivo creado: /content/english-editor/src/english_editor/modules/renderer/application/use_cases.py
+# @title 📄 use_cases.py — [Application / Use Cases] Orquestador de Renderizado
+# ✅ Archivo creado: /content/english-editor/src/english_editor/modules/renderer/application/use_cases.py
 
 # src/english_editor/modules/renderer/application/use_cases.py
 """
@@ -10,14 +10,18 @@ Arquitectura: Modular Monolith + Vertical Slice
 Componente: Application / Use Cases
 Responsabilidad: Orquestar la transformación de datos crudos a objetos de dominio, aplicar reglas de negocio y delegar la ejecución I/O al puerto de infraestructura.
 """
+
 from __future__ import annotations
+
 from pathlib import Path
+
+from english_editor.modules.renderer.domain.ports.media_splicer import MediaSplicerPort
 
 # === Imports del proyecto ===
 from english_editor.modules.renderer.domain.value_objects import MediaSegment, Padding
-from english_editor.modules.renderer.domain.ports.media_splicer import MediaSplicerPort
 
 # === Definición principal ===
+
 
 class RenderMediaUseCase:
     """
@@ -31,15 +35,13 @@ class RenderMediaUseCase:
         """
         self._splicer = splicer
 
-
-
     def execute(
         self,
         source_path: Path,
         raw_segments: list[dict[str, float]],
         padding_ms: float,
         output_path: Path,
-        media_duration_ms: float | None = None  # ✅ NUEVO: Límite superior opcional
+        media_duration_ms: float | None = None,  # ✅ NUEVO: Límite superior opcional
     ) -> Path:
         """
         Ejecuta el flujo de renderizado.
@@ -62,21 +64,24 @@ class RenderMediaUseCase:
             # Si start_ms >= end_ms, esto lanzará ValueError antes de tocar la infraestructura
             segment = MediaSegment(start_ms=raw["start_ms"], end_ms=raw["end_ms"])
 
-
             # Aplicar matemática de padding (con protección inferior 0.0 y superior max_duration)
-            padded_segment = segment.apply_padding(pad, max_duration_ms=media_duration_ms)
+            padded_segment = segment.apply_padding(
+                pad, max_duration_ms=media_duration_ms
+            )
             processed_segments.append(padded_segment)
-
 
         # 3. Delegar el trabajo pesado a la infraestructura a través del Puerto
         return self._splicer.splice_and_render(
             source_path=source_path,
             segments=processed_segments,
-            output_path=output_path
+            output_path=output_path,
         )
 
 
 # === Protección contra ejecución directa ===
 if __name__ == "__main__":
     pass
+
+
+
 
