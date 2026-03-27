@@ -1,3 +1,10 @@
+
+# @title 🧪 test_adapters.py — [Test] Integración con Disco
+
+# ✅ Test de Integración creado: /content/english-editor/tests/modules/orchestration/infrastructure/test_adapters.py
+# 📦 Repo GitHub:    'english-editor'  (kebab-case → github.com/.../english-editor)
+# 📦 Paquete Python: 'english_editor'  (snake_case → imports: from english_editor.modules...)
+
 # tests/modules/orchestration/infrastructure/test_adapters.py
 """
 Tests de Integración para Adaptadores de Infraestructura.
@@ -5,6 +12,10 @@ Requieren acceso a disco (usamos tmp_path).
 """
 
 import json
+import os
+from datetime import datetime
+
+import pytest
 
 from english_editor.modules.orchestration.domain.entities import ProcessingJob
 from english_editor.modules.orchestration.domain.value_objects import SourceFingerprint
@@ -88,3 +99,14 @@ def test_fs_smart_hash_consistency(tmp_path):
     assert (
         fp1.file_size_bytes == fp3.file_size_bytes
     )  # Mismo tamaño, diferente contenido
+
+
+
+
+
+
+
+
+
+
+
