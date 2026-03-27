@@ -1,3 +1,10 @@
+
+# @title 📄 repository.py — [Domain Port] Persistencia del Job  (Interface)
+
+# ✅ Puerto creado: /content/english-editor/src/english_editor/modules/orchestration/domain/ports/repository.py
+# 📦 Repo GitHub:    'english-editor'  (kebab-case → github.com/.../english-editor)
+# 📦 Paquete Python: 'english_editor'  (snake_case → imports: from english_editor.modules...)
+
 # src/english_editor/modules/orchestration/domain/ports/repository.py
 """
 Puerto (Interface) para la persistencia de trabajos de procesamiento.
@@ -8,7 +15,6 @@ Responsabilidad: Abstraer el almacenamiento del estado (JSON, DB, Pickle).
 """
 
 from abc import ABC, abstractmethod
-from typing import Optional
 
 # === Imports de Tipos de Dominio ===
 from english_editor.modules.orchestration.domain.entities import ProcessingJob
@@ -32,9 +38,11 @@ class JobRepository(ABC):
     @abstractmethod
     def find_last_by_fingerprint(
         self, fingerprint: SourceFingerprint
-    ) -> Optional[ProcessingJob]:
+    ) -> ProcessingJob | None:
         """
         Busca si existe un trabajo previo (inconcluso o terminado) para este archivo fuente exacto.
         Clave para la funcionalidad de 'Resume'.
         """
         pass
+
+
