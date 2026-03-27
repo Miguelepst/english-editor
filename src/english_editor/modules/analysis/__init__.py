@@ -1,26 +1,26 @@
 
-# @title 📦 __init__.py — [Update Module Facade]
-# ✅ Facade actualizado: /content/english-editor/src/english_editor/modules/analysis/__init__.py
+# @title 📦 __init__.py — [Update]
+
+# ✅ Facade final actualizado: /content/english-editor/src/english_editor/modules/analysis/__init__.py
 
 # src/english_editor/modules/analysis/__init__.py
 """
 Módulo de Análisis de Audio.
-
-Responsabilidades:
-1. Inferencia local con Whisper (CPU).
-2. Segmentación de voz (VAD).
-3. Gestión de memoria eficiente (Chunking).
 """
 
 from __future__ import annotations
 
+# Application
+from .application.use_cases import AnalyzeAudio
 from .domain.exceptions import AnalysisError, AudioFileError, MemoryLimitExceeded
-
-# Domain Ports & Exceptions (Contrato público para Application Layer)
 from .domain.ports.engine import SpeechAnalysisEngine
 
-# Domain Primitives
+# Domain
 from .domain.value_objects import TimeRange
+
+# Infrastructure
+from .infrastructure.adapters import FakeSpeechEngine
+from .infrastructure.whisper_adapter import WhisperLocalAdapter
 
 __all__ = [
     "TimeRange",
@@ -28,5 +28,8 @@ __all__ = [
     "AnalysisError",
     "AudioFileError",
     "MemoryLimitExceeded",
+    "AnalyzeAudio",
+    "FakeSpeechEngine",
+    "WhisperLocalAdapter",
 ]
 

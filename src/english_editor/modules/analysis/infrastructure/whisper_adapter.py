@@ -1,3 +1,8 @@
+
+# @title 📄 whisper_adapter.py — [Infrastructure] Whisper Implementation with its test
+
+# ✅ Adapter Real (Whisper) creado: /content/english-editor/src/english_editor/modules/analysis/infrastructure/whisper_adapter.py
+
 # src/english_editor/modules/analysis/infrastructure/whisper_adapter.py
 """
 Adaptador de infraestructura para Whisper (OpenAI).
@@ -9,7 +14,8 @@ Responsabilidad: Implementar SpeechAnalysisEngine usando Whisper localmente.
 from __future__ import annotations
 
 from pathlib import Path
-#from typing import List  # (import deprecated)
+
+# from typing import List  # (import deprecated)
 
 # import math
 
@@ -47,11 +53,13 @@ class WhisperLocalAdapter:
 
     # Configuración de chunking (Constantes de Infraestructura)
     CHUNK_DURATION_SEC = 600  # 10 minutos por ventana (balance RAM/CPU)
-    OVERLAP_SEC = 30          # 30 segundos de solapamiento para continuidad
+    OVERLAP_SEC = 30  # 30 segundos de solapamiento para continuidad
 
     def __init__(self, model_size: str = "tiny.en"):
         if whisper is None:
-            raise EngineRuntimeError("Las librerías 'whisper', 'librosa' o 'torch' no están instaladas.")
+            raise EngineRuntimeError(
+                "Las librerías 'whisper', 'librosa' o 'torch' no están instaladas."
+            )
 
         self.model_size = model_size
         self._model = None  # Lazy loading
@@ -63,7 +71,7 @@ class WhisperLocalAdapter:
                 # Forzamos CPU según requerimiento
                 self._model = whisper.load_model(self.model_size, device="cpu")
             except Exception as e:
-                #raise EngineRuntimeError(f"Error cargando modelo Whisper: {e}")
+                # raise EngineRuntimeError(f"Error cargando modelo Whisper: {e}")
                 raise EngineRuntimeError(f"Error cargando modelo Whisper: {e}") from e
 
     def detect_voice_activity(self, audio_path: Path) -> list[TimeRange]:
@@ -79,7 +87,7 @@ class WhisperLocalAdapter:
         try:
             total_duration = librosa.get_duration(path=audio_path)
         except Exception as e:
-            #raise AudioFileError(f"No se pudo leer metadata del audio: {e}")
+            # raise AudioFileError(f"No se pudo leer metadata del audio: {e}")
             raise AudioFileError(f"No se pudo leer metadata del audio: {e}") from e
 
         raw_ranges: list[TimeRange] = []
@@ -91,7 +99,9 @@ class WhisperLocalAdapter:
         current_start = 0.0
         while current_start < total_duration:
             # Calcular ventana actual
-            duration_to_load = min(self.CHUNK_DURATION_SEC, total_duration - current_start)
+            duration_to_load = min(
+                self.CHUNK_DURATION_SEC, total_duration - current_start
+            )
 
             try:
                 # Carga PARCIAL del audio (streaming desde disco -> RAM baja)
@@ -100,36 +110,84 @@ class WhisperLocalAdapter:
                     audio_path,
                     sr=16000,
                     offset=current_start,
-                    duration=duration_to_load
+                    duration=duration_to_load,
                 )
             except Exception as e:
-                #raise EngineRuntimeError(f"Error leyendo chunk {current_start}s: {e}")
-                raise EngineRuntimeError(f"Error leyendo chunk {current_start}s: {e}") from e
+                # raise EngineRuntimeError(f"Error leyendo chunk {current_start}s: {e}")
+                raise EngineRuntimeError(
+                    f"Error leyendo chunk {current_start}s: {e}"
+                ) from e
 
             # 3. Inferencia (Transcribe)
             # fp16=False necesario en CPU
             try:
-
                 result = self._model.transcribe(
-                # ✅ DESPUÉS
-                #result = self._model.transcribe(  # type: ignore[attr-defined]
                     audio_chunk,
                     fp16=False,
                     language="en",
-                    verbose=False
+                    verbose=False,
+                    # --- INICIO DEL PARCHE SRE ANTI-ALUCINACIÓN ---
+                    # 1. word_timestamps: Obliga al modelo a calcular el inicio y fin
+                    # de CADA palabra individual, no solo del bloque entero.
+                    word_timestamps=True,
+                    # 2. condition_on_previous_text: Apaga la "memoria" del modelo.
+                    # Si hay un silencio de 10 minutos, evita que la IA empiece a
+                    # repetir la última frase que escuchó para rellenar el vacío.
+                    condition_on_previous_text=False,
+                    # --- FIN DEL PARCHE ---
                 )
+
+                """#
+                # 3. Inferencia (Transcribe)
+                # fp16=False necesario en CPU
+                try:
+
+                    result = self._model.transcribe(
+                    # ✅ DESPUÉS
+                    #result = self._model.transcribe(  # type: ignore[attr-defined]
+                        audio_chunk,
+                        fp16=False,
+                        language="en",
+                        verbose=False
+                    )
+                #"""
+
             except RuntimeError as e:
                 if "memory" in str(e).lower():
-                    #raise MemoryLimitExceeded(f"OOM durante inferencia: {e}")
+                    # raise MemoryLimitExceeded(f"OOM durante inferencia: {e}")
                     raise MemoryLimitExceeded(f"OOM durante inferencia: {e}") from e
-                #raise EngineRuntimeError(f"Fallo en inferencia Whisper: {e}")
+                # raise EngineRuntimeError(f"Fallo en inferencia Whisper: {e}")
                 raise EngineRuntimeError(f"Fallo en inferencia Whisper: {e}") from e
 
             # 4. Mapeo de segmentos locales a globales
             for segment in result.get("segments", []):
-                # Whisper a veces alucina timestamps fuera del rango del audio
-                seg_start = segment["start"]
-                seg_end = segment["end"]
+                # --- INICIO DEL PARCHE DE PRECISIÓN ---
+                # Extraemos la lista de palabras individuales que logramos gracias a word_timestamps=True
+                words = segment.get("words", [])
+
+                if words:
+                    # Si el modelo detectó palabras, ignoramos el tiempo del "segmento"
+                    # Tomamos el inicio de la PRIMERA palabra y el fin de la ÚLTIMA palabra.
+                    # Esto corta de tajo cualquier margen de silencio que Whisper haya añadido por error.
+                    seg_start = words[0]["start"]
+                    seg_end = words[-1]["end"]
+                else:
+                    # Fallback de seguridad: si por alguna razón no hay palabras,
+                    # usamos el tiempo general del segmento como antes.
+                    seg_start = segment["start"]
+                    seg_end = segment["end"]
+                # --- FIN DEL PARCHE ---
+
+                # Ajustar al tiempo global
+                # global_start = current_start + seg_start
+
+                """#
+                # 4. Mapeo de segmentos locales a globales
+                for segment in result.get("segments", []):
+                    # Whisper a veces alucina timestamps fuera del rango del audio
+                    seg_start = segment["start"]
+                    seg_end = segment["end"]
+                #"""
 
                 # Ajustar al tiempo global
                 global_start = current_start + seg_start
@@ -139,9 +197,12 @@ class WhisperLocalAdapter:
                 # Validamos que no sean micro-alucinaciones (< 0.1s)
                 if seg_end - seg_start > 0.1:
                     raw_ranges.append(
-                        TimeRange(round(global_start * 1000.0, 2), round(global_end * 1000.0, 2))
+                        TimeRange(
+                            round(global_start * 1000.0, 2),
+                            round(global_end * 1000.0, 2),
+                        )
                     )
-                    #raw_ranges.append(TimeRange(round(global_start, 2), round(global_end, 2)))
+                    # raw_ranges.append(TimeRange(round(global_start, 2), round(global_end, 2)))
 
             # Avanzar ventana
             current_start += step
@@ -186,3 +247,7 @@ class WhisperLocalAdapter:
 
         merged.append(current)
         return merged
+
+
+
+
