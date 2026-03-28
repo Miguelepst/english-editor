@@ -1,3 +1,11 @@
+
+# @title 📄 edge_tts_adapter.py — [Infrastructure Adapter] Adaptador síncrono para edge-tts simulando la interfaz de gTTS
+
+# ✅ Archivo creado: /content/english-editor/src/english_editor/modules/audio_generation/infrastructure/adapters/edge_tts_adapter.py
+# 📦 Repo GitHub:    'english-editor'  (kebab-case → github.com/.../english-editor)
+# 📦 Paquete Python: 'english_editor'  (snake_case → imports: from english_editor.modules...)
+# 💡 Import válido: from english_editor.modules.audio_generation.infrastructure.adapters.edge_tts_adapter import gTTS_edge as gTTS
+
 # src/english_editor/modules/audio_generation/infrastructure/adapters/edge_tts_adapter.py
 """
 Adaptador síncrono para edge-tts simulando la interfaz de gTTS.
@@ -63,3 +71,5 @@ class gTTS_edge:
 # === Protección contra ejecución directa ===
 if __name__ == "__main__":
     pass
+
+

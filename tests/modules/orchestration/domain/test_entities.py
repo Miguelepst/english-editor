@@ -1,8 +1,16 @@
+
+# @title 🧪 test_entities.py — [Test] Ciclo de Vida del Job
+# ✅ Test creado: /content/english-editor/tests/modules/orchestration/domain/test_entities.py
+# 📦 Repo GitHub:    'english-editor'  (kebab-case → github.com/.../english-editor)
+# 📦 Paquete Python: 'english_editor'  (snake_case → imports: from english_editor.modules...)
+
 # tests/modules/orchestration/domain/test_entities.py
 """
 Tests unitarios para la Entidad ProcessingJob.
 Foco: Transiciones de estado y protección de invariantes.
 """
+
+from datetime import datetime
 
 import pytest
 
@@ -79,3 +87,7 @@ def test_invalid_segment_should_raise_error(sample_fingerprint):
     # Act & Assert
     with pytest.raises(ValueError):
         job.mark_segment_processed(10.0, 5.0)  # End antes que Start
+
+
+
+

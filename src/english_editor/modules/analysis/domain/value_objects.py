@@ -1,3 +1,7 @@
+
+# @title 📄 value_objects.py — [Value Object] TimeRange
+# ✅ Archivo creado: /content/english-editor/src/english_editor/modules/analysis/domain/value_objects.py
+
 # src/english_editor/modules/analysis/domain/value_objects.py
 """
 TimeRange Value Object.
@@ -66,3 +70,5 @@ class TimeRange:
         return TimeRange(
             start=min(self.start, other.start), end=max(self.end, other.end)
         )
+
+

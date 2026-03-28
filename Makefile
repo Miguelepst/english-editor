@@ -60,6 +60,34 @@ lint: sync
 	VIRTUAL_ENV=$$(pwd)/.venv uv run ruff check $(TARGET)
 	VIRTUAL_ENV=$$(pwd)/.venv uv run mypy $(TARGET) --ignore-missing-imports
 	VIRTUAL_ENV=$$(pwd)/.venv uv run bandit -r $(TARGET) -ll -ii --quiet
+	@echo ''
+	@echo '#============================================================='
+	@echo '# 🛡️  CERTIFICADO DE CONFORMIDAD SRE (GATEKEEPER LOCAL)'
+	@echo '#============================================================='
+	@echo '# 🐍 Entorno                : '$$(VIRTUAL_ENV=$$(pwd)/.venv uv run python --version)''
+	@echo '# ✅ Ruff   (Estilo)        : APROBADO ['$$(VIRTUAL_ENV=$$(pwd)/.venv uv run ruff --version)']'
+	@echo '# ✅ Mypy   (Tipado)        : APROBADO ['$$(VIRTUAL_ENV=$$(pwd)/.venv uv run mypy --version)']'
+	@echo '# ✅ Bandit (Seguridad)     : APROBADO'
+	@echo '# 🎯 Objetivo               : $(TARGET)'
+	@echo '# 🕒 Fecha de validación    : '$$(TZ='America/Bogota' date +'%Y-%m-%d %I:%M:%S %p')''
+	@echo '# 👤 Operador               : Miguel Gutiérrez (@Miguelepst)'
+	@echo '# 👤 Entorno                : '$$(whoami)''
+	@echo '#============================================================='
+
+# 🐍 Verifica y muestra el entorno virtual activo
+check-venv:
+	@echo '🔍 Verificando entorno virtual activo...'
+	VIRTUAL_ENV=$$(pwd)/.venv uv run python -c 'import sys; import os; assert sys.prefix != sys.base_prefix, "❌ NO estás en un entorno virtual"; print(f"✨ Entorno activo en: {os.path.basename(sys.prefix)}")'
+	@echo '✅ Validación completada con éxito'
+
+# 🔄 [SRE] Reconciliación local: Sincroniza el entorno físico (Ignorado en CI/CD)
+sync: check-venv
+	@if [ -z "$$GITHUB_ACTIONS" ]; then \
+	    echo 'Sincronizando el Sandbox físico local con dependencias inmutables...'; \
+	    VIRTUAL_ENV=$$(pwd)/.venv UV_EXTRA_INDEX_URL=$(EXTRA_INDEX_URL) $(ENGINE) sync --all-extras --frozen; \
+	else \
+	    echo '⚙️ Entorno CI detectado (GitHub Actions). Omitiendo uv sync para proteger la tarea install.'; \
+	fi
 
 # 🐍 Verifica y muestra el entorno virtual activo
 check-venv:

@@ -1,3 +1,8 @@
+
+# @title 📦 __init__.py — [Update]
+
+# ✅ Facade final actualizado: /content/english-editor/src/english_editor/modules/analysis/__init__.py
+
 # src/english_editor/modules/analysis/__init__.py
 """
 Módulo de Análisis de Audio.
@@ -27,3 +32,4 @@ __all__ = [
     "FakeSpeechEngine",
     "WhisperLocalAdapter",
 ]
+

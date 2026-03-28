@@ -1,3 +1,12 @@
+
+# @title 🧪 test_value_objects.py — [Test] Integridad de Huella Digital
+
+# ✅ Test creado: /content/english-editor/tests/modules/orchestration/domain/test_value_objects.py
+# 📦 Repo GitHub:    'english-editor'  (kebab-case → github.com/.../english-editor)
+# 📦 Paquete Python: 'english_editor'  (snake_case → imports: from english_editor.modules...)
+# 💡 Import válido en tests: from english_editor.modules.orchestration.domain.value_objects import SourceFingerprint
+
+
 # tests/modules/orchestration/domain/test_value_objects.py
 """
 Tests para Value Objects de Orquestación.
@@ -29,9 +38,9 @@ def test_fingerprint_should_detect_corruption_same_filename():
     )
 
     # Act & Assert
-    assert not original.matches(
-        corrupted
-    ), "Debe detectar cambio de contenido aunque el nombre sea igual"
+    assert not original.matches(corrupted), (
+        "Debe detectar cambio de contenido aunque el nombre sea igual"
+    )
     assert original != corrupted
 
 
@@ -49,9 +58,9 @@ def test_fingerprint_should_recognize_renamed_file():
     )
 
     # Act & Assert
-    assert file_a.matches(
-        file_b
-    ), "Debe identificar que es el mismo contenido subyacente"
+    assert file_a.matches(file_b), (
+        "Debe identificar que es el mismo contenido subyacente"
+    )
 
 
 def test_fingerprint_validation_rules():
@@ -78,3 +87,12 @@ def test_job_status_logic():
     assert completed.is_terminal() is True
     assert in_progress.is_terminal() is False
     assert in_progress.can_resume() is True
+
+
+# ruff\n!.venv/bin/ruff format --diff tests/modules/orchestration/domain/test_value_objects.py\n\n\n
+
+
+
+
+
+

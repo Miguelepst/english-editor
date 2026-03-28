@@ -1,3 +1,6 @@
+
+# @title 🧪 test_value_objects.py — [Test] TimeRange
+# ✅ Test creado: /content/english-editor/tests/modules/analysis/domain/test_value_objects.py
 # tests/modules/analysis/domain/test_value_objects.py
 """
 Tests para: TimeRange
@@ -108,3 +111,5 @@ def test_timerange_merge_disjoint_raises_error():
         r1.merge(r2)
 
     assert "disjuntos" in str(exc_info.value).lower()
+
+

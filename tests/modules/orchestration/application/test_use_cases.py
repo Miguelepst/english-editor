@@ -1,3 +1,9 @@
+
+# @title 🧪 test_use_cases.py — [Test] Sincronización Final
+
+# ✅ Test de Casos de Uso corregido: /content/english-editor/tests/modules/orchestration/application/test_use_cases.py
+# 🚀 Ejecuta '!pytest' ahora. Debería estar todo VERDE.
+
 from datetime import datetime
 from unittest.mock import Mock
 
@@ -63,3 +69,5 @@ def test_resume_existing_job(orchestrator, mock_fs, mock_repo):
     assert len(jobs) == 1
     assert jobs[0].job_id == "uuid-real-123"
     assert jobs[0].status == JobStatus.FAILED
+
+

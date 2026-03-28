@@ -1,4 +1,10 @@
-# mypy: ignore-errors
+
+# @title 📄 adapters.py — [Infrastructure] Instrumentado 📊
+
+# ✅ Archivo creado (Adaptadores instrumentados): /content/english-editor/src/english_editor/modules/orchestration/infrastructure/adapters.py
+# 📦 Repo GitHub:    'english-editor'  (kebab-case → github.com/.../english-editor)
+# 📦 Paquete Python: 'english_editor'  (snake_case → imports: from english_editor.modules...)
+
 # src/english_editor/modules/orchestration/infrastructure/adapters.py
 """
 Adaptadores de Infraestructura para Orquestación.
@@ -8,13 +14,14 @@ Capa: Infrastructure (Adapters)
 Responsabilidad: Implementar los puertos del dominio usando tecnologías concretas (JSON, OS).
 """
 
+# ✅ IMPORTS ORDENADOS: stdlib 'import' antes que 'from', alfabético por módulo
 import glob
 import hashlib
 import json
-import logging  # ← IMPORTS AL INICIO (orden estándar: stdlib → third-party → local)
+import logging
 import os
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any, cast
 
 from english_editor.modules.orchestration.domain.entities import ProcessingJob
 from english_editor.modules.orchestration.domain.ports.file_system import FileSystemPort
@@ -28,6 +35,9 @@ from english_editor.modules.orchestration.domain.value_objects import (
 from english_editor.modules.orchestration.infrastructure.observability import (
     measure_time,
 )
+
+# ... (resto del código igual)
+
 
 """
 Adaptadores de Infraestructura con Telemetría.
@@ -70,7 +80,11 @@ class LocalFileSystemAdapter(FileSystemPort):
 
         hasher = hashlib.sha256()
 
+        # ❌ Antes:
         # 1. Hashear metadatos clave
+        # hasher.update(f"{filename}-{file_size}".encode('utf-8'))   # .encode("utf-8") es redundante (UTF-8 es default)
+
+        # ✅ Después:
         hasher.update(f"{filename}-{file_size}".encode())
 
         # 2. Hashear contenido parcial (Optimización)
@@ -99,6 +113,7 @@ class LocalFileSystemAdapter(FileSystemPort):
         #    content_hash=hasher.hexdigest()
         # )
 
+    # def list_files(self, directory: str, extensions: List[str]) -> List[str]:
     def list_files(self, directory: str, extensions: list[str]) -> list[str]:
         files = []
         if not os.path.isdir(directory):
@@ -137,12 +152,32 @@ class JsonFileRepository(JobRepository):
 
     def _load_db(self) -> dict[str, Any]:
         try:
-            with open(self.db_path) as f:
+            # ❌ Antes:
+            # with open(self.db_path, 'r') as f:
+            # ✅ Después:
+            with open(
+                self.db_path
+            ) as f:  # open(path, "r") no necesita "r" (es default)
+                # ✅ Casting explícito para mypy: no-any-return
+                return cast(dict[str, Any], json.load(f))
+        except json.JSONDecodeError:
+            logger.error(f"DB corrupta en {self.db_path}, iniciando vacía.")
+            return {"jobs": {}}
+
+    """
+    #def _load_db(self) -> Dict[str, Any]:
+    def _load_db(self) -> dict[str, Any]:
+        try:
+            #with open(self.db_path, 'r') as f:
+            with open(self.db_path) as f:                        # open(path, "r") no necesita "r" (es default)
                 return json.load(f)
         except json.JSONDecodeError:
             logger.error(f"DB corrupta en {self.db_path}, iniciando vacía.")
             return {"jobs": {}}
 
+    """
+
+    # def _save_db(self, data: Dict[str, Any]):
     def _save_db(self, data: dict[str, Any]):
         # Escritura atómica simulada (write + rename es mejor, pero simple aquí)
         with open(self.db_path, "w") as f:
@@ -172,7 +207,7 @@ class JsonFileRepository(JobRepository):
 
     def find_last_by_fingerprint(
         self, fingerprint: SourceFingerprint
-    ) -> Optional[ProcessingJob]:
+    ) -> ProcessingJob | None:
         data = self._load_db()
         job_data = data["jobs"].get(fingerprint.content_hash)
 
@@ -208,3 +243,8 @@ class JsonFileRepository(JobRepository):
             # o loggeamos error.
             # print(f"Warning: Error reconstruyendo job: {e}")
             return None
+
+
+
+
+

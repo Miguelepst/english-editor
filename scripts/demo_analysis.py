@@ -1,3 +1,11 @@
+
+# @title 📄 demo_analysis.py — [Demo] Interactive Speech Analysis (With Transcription)
+
+# 🎵 Generando audio de prueba...
+# ✅ Demo con transcripción creada: /content/english-editor/demo_analysis.py
+# 📂 Archivos se guardarán en: /content/english-editor/output/
+# 💡 Ejecutar con: !python /content/english-editor/demo_analysis.py
+
 # english-editor/demo_analysis.py
 """
 Demo Interactiva: Análisis de Voz (Micro-SPS 02).
@@ -18,7 +26,6 @@ import sys
 import time
 import wave
 from pathlib import Path
-from typing import Optional
 
 # === Configuración de Path para Imports ===
 SCRIPT_ROOT = Path(__file__).parent
@@ -29,7 +36,6 @@ OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 sys.path.append(str(PROJECT_ROOT / "src"))
 
 try:
-
     # === Imports del Proyecto ===
 
     from english_editor.modules.analysis.application.use_cases import AnalyzeAudio
@@ -168,7 +174,7 @@ def cleanup_old_files(max_age_hours: int = 24):
 
 
 def format_transcription_display(
-    text: Optional[str], confidence: Optional[float] = None
+    text: str | None, confidence: float | None = None
 ) -> str:
     """
     ✅ Best Practice: Formateo de texto separado de la lógica de negocio.
@@ -332,3 +338,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+

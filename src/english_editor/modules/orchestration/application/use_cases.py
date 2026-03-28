@@ -1,3 +1,11 @@
+
+# @title 📄 use_cases.py — [Application] Instrumentado 📊
+
+# ✅ Archivo creado (Casos de Uso Creado e Instrumentados): /content/english-editor/src/english_editor/modules/orchestration/application/use_cases.py
+# 📦 Repo GitHub:    'english-editor'  (kebab-case → github.com/.../english-editor)
+# 📦 Paquete Python: 'english_editor'  (snake_case → imports: from english_editor.modules...)
+# 💡 Lógica Clave: 'prepare_jobs' es un generador (yield). Esto permite procesar miles de archivos sin cargar todos los objetos Job en memoria a la vez.
+
 # src/english_editor/modules/orchestration/application/use_cases.py
 from pathlib import Path
 
@@ -18,64 +26,93 @@ class ProcessVideoWorkflow:
     Coordina la lectura (SPS-01), el análisis (SPS-02) y el renderizado (SPS-03).
     """
 
-    def __init__(
-        self,
-        file_system: FileSystemPort,
-        repository: JobRepository,
-        analysis_engine: SpeechAnalysisEngine,
-        renderer: RenderMediaUseCase
-    ):
-        self._fs = file_system
-        self._repo = repository
-        self._analyzer = analysis_engine
-        self._renderer = renderer
+    def __init__(self, repository: JobRepository, file_system: FileSystemPort):
+        # Inyección de Dependencias (DIP)
+        self.repo = repository
+        self.fs = file_system
 
-    def execute(self, input_path: Path, output_path: Path, padding_ms: float = 0.0) -> Path:
-        print("🧠 [SPS-01] Iniciando flujo maestro de orquestación...")
+    def prepare_jobs(
+        self, input_path: str, output_dir: str, force: bool = False
+    ) -> Iterator[ProcessingJob]:
+        """
+        Analiza la entrada y genera un flujo de trabajos.
+        """
+        logger.info(f"Iniciando preparación de jobs. Input: {input_path}")
+        """
+        Analiza la entrada y genera un flujo de trabajos listos para procesar.
+        """
+        # 1. Resolver lista de archivos (Batch vs Single)
+        files_to_process = self._resolve_input_files(input_path)
+        logger.info(f"Total archivos candidatos: {len(files_to_process)}")
 
-        fingerprint = self._fs.calculate_fingerprint(str(input_path))
-        job = ProcessingJob.create_new(source=fingerprint, output_path=str(output_path))
-        self._repo.save(job)
+        stats = {"processed": 0, "skipped": 0, "resumed": 0, "new": 0}
 
-        try:
-            print("🕵️‍♂️ [SPS-02] Extrayendo y analizando silencios/voz...")
-            time_ranges = self._analyzer.detect_voice_activity(input_path)
+        for source_path in files_to_process:
+            # 2. Definir ruta de salida esperada
+            filename = os.path.basename(source_path)
+            name_only, ext = os.path.splitext(filename)
+            expected_output = os.path.join(output_dir, f"{name_only}_editado{ext}")
 
-            if not time_ranges:
-                job.fail_job("No se detectó voz en el archivo.")
-                self._repo.save(job)
-                raise ValueError("No se detectó voz en el archivo. Abortando.")
+            # 3. Regla de Idempotencia: Si existe y no forzamos, saltar.
+            if self.fs.exists(expected_output) and not force:
+                logger.info(f"[SKIP] Output ya existe para: {filename}")
+                stats["skipped"] += 1
+                # Podríamos loggear aquí: "Skipping {filename}, output exists."
+                continue
 
-            print(f"🔄 [SPS-01] Mapeando {len(time_ranges)} segmentos detectados al motor de renderizado...")
+            # 4. Regla de Integridad: Calcular Fingerprint
+            # Esto garantiza que detectamos cambios de contenido (DR-05)
+            fingerprint = self.fs.calculate_fingerprint(source_path)
 
-            raw_segments_for_renderer = []
-            for tr in time_ranges:
-                # ✅ SOPORTE HÍBRIDO: Intentamos start_ms, si no, usamos start (que ya viene en ms desde el adaptador)
-                s_ms = getattr(tr, 'start_ms', getattr(tr, 'start', None))
-                e_ms = getattr(tr, 'end_ms', getattr(tr, 'end', None))
+            # 5. Regla de Recuperación: Buscar trabajo previo
+            existing_job = self.repo.find_last_by_fingerprint(fingerprint)
 
-                if s_ms is None or e_ms is None:
-                    raise AttributeError(f"El objeto TimeRange no tiene atributos de tiempo válidos: {tr}")
+            if existing_job and existing_job.status.can_resume() and not force:
+                logger.info(
+                    f"[RESUME] Job encontrado para: {filename} (ID: {existing_job.job_id})"
+                )
+                stats["resumed"] += 1
+                # REANUDAR: Devolvemos el trabajo con su progreso guardado
+                yield existing_job
+            else:
+                if existing_job:
+                    logger.info(
+                        f"[RESTART] Job previo terminado o inválido, iniciando nuevo para: {filename}"
+                    )
 
-                raw_segments_for_renderer.append({"start_ms": s_ms, "end_ms": e_ms})
-                job.mark_segment_processed(start_time=s_ms, end_time=e_ms)
+                # NUEVO: Creamos un trabajo limpio
+                new_job = ProcessingJob.create_new(fingerprint, expected_output)
+                self.repo.save(new_job)  # Persistir estado inicial inmediatamente
+                logger.info(f"[NEW] Job creado: {new_job.job_id} para {filename}")
+                stats["new"] += 1
+                yield new_job
 
-            self._repo.save(job)
+            stats["processed"] += 1
 
-            print("✂️ [SPS-03] Ejecutando corte de video por FFmpeg...")
-            final_path = self._renderer.execute(
-                source_path=input_path,
-                raw_segments=raw_segments_for_renderer,
-                padding_ms=padding_ms,
-                output_path=output_path
-            )
+        logger.info(f"Resumen de Batch: {stats}")
 
-            print("✅ [SPS-01] Flujo maestro completado con éxito.")
-            job.complete_job()
-            self._repo.save(job)
-            return final_path
+    def _resolve_input_files(self, path: str) -> list[str]:
+        """Helper para aplanar directorios o validar archivos individuales."""
+        # Nota: La lógica de "es directorio" vs "es archivo" podría delegarse al FileSystemPort
+        # para pureza total, pero os.path.isdir es aceptable en Application si asumimos POSIX.
+        # Para ser estrictos con la arquitectura, usaremos el FileSystemPort si tuviera is_dir,
+        # pero asumiremos que input_path viene validado o delegamos a una lógica simple.
 
-        except Exception as e:
-            job.fail_job(reason=str(e))
-            self._repo.save(job)
-            raise e
+        # Simplificación: Asumimos que FileSystemPort.list_files maneja la lógica de descubrimiento
+        # Si es un archivo directo, lo devolvemos en lista.
+        if path.endswith(
+            (".mp4", ".mp3", ".wav")
+        ):  # Extensiones harcodeadas por brevedad, ideal config
+            return [path]
+
+        # Si es directorio (asumimos por falta de extensión o lógica de negocio), pedimos listar.
+        return self.fs.list_files(path, extensions=[".mp4", ".mp3", ".wav"])
+
+
+
+
+
+
+
+
+

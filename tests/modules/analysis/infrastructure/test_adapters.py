@@ -1,3 +1,7 @@
+
+# @title 🧪 test_adapters.py — [Test] FakeSpeechEngine
+# ✅ Test de Adapter creado: /content/english-editor/tests/modules/analysis/infrastructure/test_adapters.py
+
 # tests/modules/analysis/infrastructure/test_adapters.py
 """
 Tests para: FakeSpeechEngine
@@ -81,3 +85,6 @@ def test_fake_engine_respects_injected_result():
 
     # Assert
     assert result == expected
+
+
+

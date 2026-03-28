@@ -1,3 +1,11 @@
+
+# @title 📄 entities.py — [Domain] Entidad Principal: ProcessingJob
+
+# ✅ Archivo creado: /content/english-editor/src/english_editor/modules/orchestration/domain/entities.py
+# 📦 Repo GitHub:    'english-editor'  (kebab-case → github.com/.../english-editor)
+# 📦 Paquete Python: 'english_editor'  (snake_case → imports: from english_editor.modules...)
+# 🧹 Clean file: %%writefile /content/english-editor/src/english_editor/modules/orchestration/domain/entities.py
+
 # src/english_editor/modules/orchestration/domain/entities.py
 """
 Entidades del dominio de Orquestación.
@@ -91,3 +99,6 @@ class ProcessingJob:
     def get_checkpoints_copy(self) -> list[dict[str, float]]:
         """Devuelve una copia inmutable de los checkpoints para persistencia."""
         return list(self._checkpoints)
+
+
+

@@ -1,3 +1,6 @@
+
+#@title 📄 engine.py — [Port] SpeechAnalysisEngine (Interfaz)
+#✅ Puerto (Interface) creado: /content/english-editor/src/english_editor/modules/analysis/domain/ports/engine.py
 # src/english_editor/modules/analysis/domain/ports/engine.py
 """
 Puerto para el Motor de Análisis de Voz.
@@ -39,3 +42,5 @@ class SpeechAnalysisEngine(Protocol):
             EngineRuntimeError: Si falla el motor de inferencia.
         """
         ...
+
+

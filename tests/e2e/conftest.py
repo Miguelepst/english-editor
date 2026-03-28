@@ -1,5 +1,11 @@
+
+# @title 📄 conftest.py (E2E Helpers) — Simulación de Big Data, Generador de Fixtures "Pesados"
+
+# ✅ Fixture Factory creado: /content/english-editor/tests/e2e/conftest.py
+
 # tests/e2e/conftest.py
 import os
+import random
 
 import pytest
 
@@ -29,3 +35,5 @@ def big_file_factory(tmp_path):
         return filepath
 
     return _create_sparse_file
+
+

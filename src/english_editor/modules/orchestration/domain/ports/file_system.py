@@ -1,3 +1,10 @@
+
+# @title 📄 file_system.py — [Domain Port] Abstracción de I/O  (Interface)
+
+# ✅ Archivo creado: /content/english-editor/src/english_editor/modules/orchestration/domain/ports/file_system.py
+# 📦 Repo GitHub:    'english-editor'  (kebab-case → github.com/.../english-editor)
+# 📦 Paquete Python: 'english_editor'  (snake_case → imports: from english_editor.modules...)
+
 # src/english_editor/modules/orchestration/domain/ports/file_system.py
 """
 Puerto (Interface) para operaciones de sistema de archivos requeridas por el dominio.
@@ -40,3 +47,6 @@ class FileSystemPort(ABC):
         Uso: Batch processing.
         """
         pass
+
+
+

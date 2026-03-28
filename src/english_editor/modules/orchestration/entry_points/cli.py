@@ -1,3 +1,8 @@
+
+# @title 📄 cli.py — [Interface] Command Line Interface
+
+# ✅ CLI creado: /content/english-editor/src/english_editor/modules/orchestration/entry_points/cli.py
+
 # src/english_editor/modules/orchestration/entry_points/cli.py
 """
 Interfaz de Línea de Comandos (CLI) para el Módulo de Orquestación.
@@ -89,7 +94,9 @@ def main():
             status_icon = (
                 "🟢"
                 if job.status == JobStatus.COMPLETED
-                else "🟡" if job.status == JobStatus.IN_PROGRESS else "⚪"
+                else "🟡"
+                if job.status == JobStatus.IN_PROGRESS
+                else "⚪"
             )
             progress = f"{job.progress_count} segm"
 
@@ -112,3 +119,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
