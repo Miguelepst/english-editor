@@ -1,7 +1,7 @@
-
-#=============================================================
+# ruff: noqa: F841
+# =============================================================
 # 🛡️  CERTIFICADO DE CONFORMIDAD SRE (GATEKEEPER LOCAL)
-#=============================================================
+# =============================================================
 # 🐍 Entorno                : Python 3.12.13
 # ✅ Ruff   (Estilo)        : APROBADO [ruff 0.15.6]
 # ✅ Mypy   (Tipado)        : APROBADO [mypy 1.19.1 (compiled: yes)]
@@ -10,11 +10,11 @@
 # 🕒 Fecha de validación    : 2026-03-25 01:25:57 PM
 # 👤 Operador               : Miguel Gutiérrez (@Miguelepst)
 # 👤 Entorno                : root
-#=============================================================
+# =============================================================
 
 
-#@title 📄 cli.py v0.1.2 GateKeeperLocal(ok) — [Composition Root] Orquestador SRE (Fix: In-Memory Adapters)
-#✅ Orquestador parcheado con éxito: /content/english-editor/src/english_editor/cli.py
+# @title 📄 cli.py v0.1.2 GateKeeperLocal(ok) — [Composition Root] Orquestador SRE (Fix: In-Memory Adapters)
+# ✅ Orquestador parcheado con éxito: /content/english-editor/src/english_editor/cli.py
 
 # src/english_editor/cli.py
 
@@ -36,9 +36,12 @@ from english_editor.modules.analysis.infrastructure.whisper_adapter import (
     WhisperLocalAdapter,
 )
 from english_editor.modules.orchestration.application.use_cases import (
-    ProcessVideoWorkflow,
+    JobOrchestrator,
 )
 
+# from english_editor.modules.orchestration.application.use_cases import (
+#    JobOrchestrator,
+# )
 # --- 1. Imports de Puertos (Para crear los Fakes) ---
 from english_editor.modules.orchestration.domain.ports.file_system import FileSystemPort
 from english_editor.modules.orchestration.domain.ports.repository import JobRepository
@@ -169,6 +172,8 @@ def main():
         splicer_engine = FFmpegMediaSplicer()
 
         # 2. Selección Dinámica del Motor (Strategy)
+        analyzer_engine: FasterWhisperAdapter | WhisperLocalAdapter
+        # 2. Selección Dinámica del Motor (Strategy)
         if args.engine == "faster":
             logging.info(
                 f"🚀 Inyectando motor SRE optimizado: Faster-Whisper (Modelo: {args.model})"
@@ -182,18 +187,16 @@ def main():
 
         # 3. Ensamblar Casos de Uso
         renderer_uc = RenderMediaUseCase(splicer=splicer_engine)
-        orchestrator = ProcessVideoWorkflow(
-            file_system=file_system,
+        orchestrator = JobOrchestrator(
             repository=repository,
-            analysis_engine=analyzer_engine,
-            renderer=renderer_uc,
+            file_system=file_system
         )
 
         logging.info(f"Procesando: {input_path.name}")
 
         # === EJECUCIÓN ===
-        orchestrator.execute(
-            input_path=input_path, output_path=output_path, padding_ms=args.padding
+        orchestrator.prepare_jobs(
+            input_path=str(input_path), output_dir=str(output_path)
         )
         logging.info("✅ Pipeline completado con éxito.")
 
@@ -204,5 +207,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
