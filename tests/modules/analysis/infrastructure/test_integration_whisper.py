@@ -1,3 +1,8 @@
+
+# @title 🧪 test_integration_whisper.py — [Integration] Real Pipeline
+
+# ✅ Test de Integración creado: /content/english-editor/tests/modules/analysis/infrastructure/test_integration_whisper.py
+
 # tests/modules/analysis/infrastructure/test_integration_whisper.py
 """
 Tests de Integración: WhisperLocalAdapter (Real)
@@ -34,7 +39,6 @@ from english_editor.modules.analysis.infrastructure.whisper_adapter import (
 
 # === Fixtures de Infraestructura ===
 
-
 @pytest.fixture
 def real_wav_file(tmp_path):
     """
@@ -68,9 +72,7 @@ def real_wav_file(tmp_path):
 
     return filename
 
-
 # === Casos de Prueba de Integración ===
-
 
 @pytest.mark.skipif(
     not DEPS_INSTALLED, reason="Requiere whisper, torch y librosa instalados"
@@ -108,9 +110,9 @@ def test_real_whisper_pipeline_execution(real_wav_file):
     assert len(result) >= 0, "Debería retornar al menos una lista vacía"
     # Opcional: verificar que detecta algo en el segundo con audio
     if len(result) > 0:
-        assert any(
-            r.start >= 1.0 for r in result
-        ), "Debería detectar voz después del segundo 1"
+        assert any(r.start >= 1.0 for r in result), (
+            "Debería detectar voz después del segundo 1"
+        )
 
     # 2. Validación de lógica básica
     # El archivo tiene audio en el segundo 1.0 - 2.0.
@@ -136,3 +138,4 @@ def test_real_adapter_fails_gracefully_on_missing_file():
 
     with pytest.raises(AudioFileError):
         adapter.detect_voice_activity(bad_path)
+
