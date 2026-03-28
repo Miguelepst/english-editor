@@ -14,6 +14,9 @@ Responsabilidad: Implementar SpeechAnalysisEngine usando Whisper localmente.
 from __future__ import annotations
 
 from pathlib import Path
+#from typing import List  # (import deprecated)
+
+# import math
 
 # from typing import List  # (import deprecated)
 
@@ -53,13 +56,11 @@ class WhisperLocalAdapter:
 
     # Configuración de chunking (Constantes de Infraestructura)
     CHUNK_DURATION_SEC = 600  # 10 minutos por ventana (balance RAM/CPU)
-    OVERLAP_SEC = 30  # 30 segundos de solapamiento para continuidad
+    OVERLAP_SEC = 30          # 30 segundos de solapamiento para continuidad
 
     def __init__(self, model_size: str = "tiny.en"):
         if whisper is None:
-            raise EngineRuntimeError(
-                "Las librerías 'whisper', 'librosa' o 'torch' no están instaladas."
-            )
+            raise EngineRuntimeError("Las librerías 'whisper', 'librosa' o 'torch' no están instaladas.")
 
         self.model_size = model_size
         self._model = None  # Lazy loading
@@ -99,9 +100,7 @@ class WhisperLocalAdapter:
         current_start = 0.0
         while current_start < total_duration:
             # Calcular ventana actual
-            duration_to_load = min(
-                self.CHUNK_DURATION_SEC, total_duration - current_start
-            )
+            duration_to_load = min(self.CHUNK_DURATION_SEC, total_duration - current_start)
 
             try:
                 # Carga PARCIAL del audio (streaming desde disco -> RAM baja)
@@ -110,7 +109,7 @@ class WhisperLocalAdapter:
                     audio_path,
                     sr=16000,
                     offset=current_start,
-                    duration=duration_to_load,
+                    duration=duration_to_load
                 )
             except Exception as e:
                 # raise EngineRuntimeError(f"Error leyendo chunk {current_start}s: {e}")

@@ -7,7 +7,7 @@
 export PATH := $(HOME)/.local/bin:$(PATH)
 
 # ⚙️ VARIABLES GLOBALES SRE
-TARGET ?= src/ tests/
+TARGET ?= tests/modules/orchestration/domain/test_value_objects.py
 ENGINE ?= uv
 EXTRA_INDEX_URL ?= $(shell jq -r ".extra_index_url // empty" ci-metadata.json 2>/dev/null)
 
@@ -73,6 +73,21 @@ lint: sync
 	@echo '# 👤 Operador               : Miguel Gutiérrez (@Miguelepst)'
 	@echo '# 👤 Entorno                : '$$(whoami)''
 	@echo '#============================================================='
+
+# 🐍 Verifica y muestra el entorno virtual activo
+check-venv:
+	@echo '🔍 Verificando entorno virtual activo...'
+	VIRTUAL_ENV=$$(pwd)/.venv uv run python -c 'import sys; import os; assert sys.prefix != sys.base_prefix, "❌ NO estás en un entorno virtual"; print(f"✨ Entorno activo en: {os.path.basename(sys.prefix)}")'
+	@echo '✅ Validación completada con éxito'
+
+# 🔄 [SRE] Reconciliación local: Sincroniza el entorno físico (Ignorado en CI/CD)
+sync: check-venv
+	@if [ -z "$$GITHUB_ACTIONS" ]; then \
+	    echo 'Sincronizando el Sandbox físico local con dependencias inmutables...'; \
+	    VIRTUAL_ENV=$$(pwd)/.venv UV_EXTRA_INDEX_URL=$(EXTRA_INDEX_URL) $(ENGINE) sync --all-extras --frozen; \
+	else \
+	    echo '⚙️ Entorno CI detectado (GitHub Actions). Omitiendo uv sync para proteger la tarea install.'; \
+	fi
 
 # 🐍 Verifica y muestra el entorno virtual activo
 check-venv:

@@ -100,6 +100,12 @@ class ModernPythonProfile(MakefileProfile):
                     "@echo '✅ Todo verde. El código cumple el Contrato de Calidad. Listo para el git push.'"
                 ],
             ),
+
+
+
+
+
+
             MakeTask(
                 name="install",
                 description="🚀 Toolchain SRE: Crea un Sandbox inmutable para el Runner (CI/CD)",
@@ -133,6 +139,18 @@ class ModernPythonProfile(MakefileProfile):
                     "VIRTUAL_ENV=$$(pwd)/.venv uv run mkdocs build"
                 ],  # 🪄 Invocación encapsulada a la fuerza
             ),
+
+
+
+
+
+
+
+
+
+
+
+
             MakeTask(
                 name="lock",
                 description="🔒 [SRE] Regenera la suite completa de dependencias",
@@ -142,6 +160,15 @@ class ModernPythonProfile(MakefileProfile):
                     "@echo '✅ Suite de archivos generada y sellada.'",
                 ],
             ),
+
+
+
+
+
+
+
+
+
             MakeTask(
                 name="install-sec-tools",
                 description="🛡️ Instala binarios de seguridad (Tolerancia a fallos y Degradación Elegante)",
@@ -161,6 +188,9 @@ class ModernPythonProfile(MakefileProfile):
                     "VIRTUAL_ENV=$$(pwd)/.venv uv run ruff format $(TARGET)",
                 ],
             ),
+
+
+
             MakeTask(
                 name="format",
                 description="🎨 Formatea el código automáticamente",
@@ -290,6 +320,9 @@ class ModernPythonProfile(MakefileProfile):
                     "@if command -v gitleaks >/dev/null 2>&1; then gitleaks detect -v --source . --no-git; else echo '⚠️ Gitleaks no instalado. Saltando.'; fi"
                 ],
             ),
+
+
+
             MakeTask(
                 name="sast",
                 description="🧠 [Step 2] Análisis SAST del Código (Bandit)",

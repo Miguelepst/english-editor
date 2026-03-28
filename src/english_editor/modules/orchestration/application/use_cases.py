@@ -7,39 +7,23 @@
 # 💡 Lógica Clave: 'prepare_jobs' es un generador (yield). Esto permite procesar miles de archivos sin cargar todos los objetos Job en memoria a la vez.
 
 # src/english_editor/modules/orchestration/application/use_cases.py
-"""
-Casos de Uso para la Orquestación de Trabajos.
+from pathlib import Path
 
-Arquitectura: Modular Monolith
-Capa: Application
-Responsabilidad: Coordinar la creación, recuperación y filtrado de trabajos (Batch/Idempotencia).
-"""
-
-import logging
-import os
-from collections.abc import Iterator
-
-# === Imports de Dominio ===
-from english_editor.modules.orchestration.domain.entities import ProcessingJob
+# Imports de Puertos de Orquestación (SPS-01)
 from english_editor.modules.orchestration.domain.ports.file_system import FileSystemPort
 from english_editor.modules.orchestration.domain.ports.repository import JobRepository
+from english_editor.modules.orchestration.domain.entities import ProcessingJob
 
-"""
-Casos de Uso con Logging Estructurado.
-"""
-# import logging
+# Imports de Contratos de Análisis (SPS-02)
+from english_editor.modules.analysis.domain.ports.engine import SpeechAnalysisEngine
 
-# Logger específico para la capa de aplicación
-logger = logging.getLogger("orchestrator.app")
+# Imports de Contratos de Renderizado (SPS-03)
+from english_editor.modules.renderer.application.use_cases import RenderMediaUseCase
 
-
-class JobOrchestrator:
+class ProcessVideoWorkflow:
     """
-    Caso de Uso Principal: Preparar la cola de trabajos.
-    Implementa:
-    1. Batch Processing (Directorios).
-    2. Idempotencia (Saltar si output existe).
-    3. Recuperación de Desastres (Buscar jobs previos).
+    El Director de Orquesta.
+    Coordina la lectura (SPS-01), el análisis (SPS-02) y el renderizado (SPS-03).
     """
 
     def __init__(self, repository: JobRepository, file_system: FileSystemPort):
