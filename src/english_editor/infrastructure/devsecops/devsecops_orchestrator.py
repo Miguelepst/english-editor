@@ -1,5 +1,4 @@
 
-# ruff: noqa: UP017
 # @title 📄 devsecops_orchestrator.py — [Infrastructure/CI-CD] Plataforma extensible para orquestación DevSecOps
 
 # ✅ Archivo creado: /content/english-editor/src/english_editor/infrastructure/devsecops/devsecops_orchestrator.py
@@ -33,6 +32,7 @@ from datetime import datetime, timezone
 from enum import Enum, auto
 from pathlib import Path
 from typing import Any, Protocol, runtime_checkable
+
 
 # rich para visualización profesional en terminal
 try:
@@ -1106,5 +1106,6 @@ if __name__ == "__main__":
     # Fundamental para CI/CD: Rompe el build si las pruebas no son exitosas
     if not success:
         sys.exit(1)
+
 
 

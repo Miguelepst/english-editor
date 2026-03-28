@@ -1,17 +1,3 @@
-# ruff: noqa: F841
-# =============================================================
-# 🛡️  CERTIFICADO DE CONFORMIDAD SRE (GATEKEEPER LOCAL)
-# =============================================================
-# 🐍 Entorno                : Python 3.12.13
-# ✅ Ruff   (Estilo)        : APROBADO [ruff 0.15.6]
-# ✅ Mypy   (Tipado)        : APROBADO [mypy 1.19.1 (compiled: yes)]
-# ✅ Bandit (Seguridad)     : APROBADO
-# 🎯 Objetivo               : src/english_editor/cli.py
-# 🕒 Fecha de validación    : 2026-03-25 01:25:57 PM
-# 👤 Operador               : Miguel Gutiérrez (@Miguelepst)
-# 👤 Entorno                : root
-# =============================================================
-
 
 # @title 📄 cli.py v0.1.2 GateKeeperLocal(ok) — [Composition Root] Orquestador SRE (Fix: In-Memory Adapters)
 # ✅ Orquestador parcheado con éxito: /content/english-editor/src/english_editor/cli.py
@@ -29,12 +15,6 @@ import logging
 import sys
 from pathlib import Path
 
-from english_editor.modules.analysis.infrastructure.faster_whisper_adapter import (
-    FasterWhisperAdapter,
-)
-from english_editor.modules.analysis.infrastructure.whisper_adapter import (
-    WhisperLocalAdapter,
-)
 from english_editor.modules.orchestration.application.use_cases import (
     JobOrchestrator,
 )
@@ -48,10 +28,8 @@ from english_editor.modules.orchestration.domain.ports.repository import JobRepo
 from english_editor.modules.orchestration.domain.value_objects import SourceFingerprint
 
 # --- 3. Imports de Aplicación (Casos de Uso) ---
-from english_editor.modules.renderer.application.use_cases import RenderMediaUseCase
 
 # --- 2. Imports de Infraestructura (Adaptadores Reales) ---
-from english_editor.modules.renderer.infrastructure.adapters import FFmpegMediaSplicer
 
 # --- Configuración de Telemetría ---
 logging.basicConfig(
@@ -169,28 +147,27 @@ def main():
         # 1. Instanciar Infraestructura
         file_system = InMemoryFileSystem()
         repository = InMemoryJobRepository()
-        splicer_engine = FFmpegMediaSplicer()
 
-        # 2. Selección Dinámica del Motor (Strategy)
-        analyzer_engine: FasterWhisperAdapter | WhisperLocalAdapter
-        # 2. Selección Dinámica del Motor (Strategy)
-        if args.engine == "faster":
-            logging.info(
-                f"🚀 Inyectando motor SRE optimizado: Faster-Whisper (Modelo: {args.model})"
-            )
-            analyzer_engine = FasterWhisperAdapter(model_size=args.model)
-        else:
-            logging.info(
-                f"🐢 Inyectando motor Legacy: OpenAI Whisper (Modelo: {args.model})"
-            )
-            analyzer_engine = WhisperLocalAdapter(model_size=args.model)
+        # splicer_engine = FFmpegMediaSplicer()
 
-        # 3. Ensamblar Casos de Uso
-        renderer_uc = RenderMediaUseCase(splicer=splicer_engine)
-        orchestrator = JobOrchestrator(
-            repository=repository,
-            file_system=file_system
-        )
+        ## 2. Selección Dinámica del Motor (Strategy)
+        # analyzer_engine: FasterWhisperAdapter | WhisperLocalAdapter
+        ## 2. Selección Dinámica del Motor (Strategy)
+        # if args.engine == "faster":
+        #    logging.info(
+        #        f"🚀 Inyectando motor SRE optimizado: Faster-Whisper (Modelo: {args.model})"
+        #    )
+        #    analyzer_engine = FasterWhisperAdapter(model_size=args.model)
+        # else:
+        #    logging.info(
+        #        f"🐢 Inyectando motor Legacy: OpenAI Whisper (Modelo: {args.model})"
+        #    )
+        #    analyzer_engine = WhisperLocalAdapter(model_size=args.model)
+        #
+        ## 3. Ensamblar Casos de Uso
+        # renderer_uc = RenderMediaUseCase(splicer=splicer_engine)
+
+        orchestrator = JobOrchestrator(repository=repository, file_system=file_system)
 
         logging.info(f"Procesando: {input_path.name}")
 
@@ -207,3 +184,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
