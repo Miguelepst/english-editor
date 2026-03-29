@@ -33,7 +33,7 @@ class GitignoreProfile(ABC):
 # ---------------------------------------------------------------------
 class EnglishEditorProfile(GitignoreProfile):
     """Perfil DevSecOps que combina Python, IA, Colab y reglas de negocio."""
-    
+
     @property
     def sections(self) -> list[GitignoreSection]:
         return [
@@ -160,7 +160,7 @@ class GitignoreBuilder:
 
     def build(self) -> None:
         print(f"🏗️ Construyendo .gitignore basado en {self.profile.__class__.__name__}...")
-        
+
         content = [
             "# ==============================================================================",
             "# 🙈 .GITIGNORE UNIVERSAL DEVSECOPS (Generado Automáticamente)",
@@ -170,9 +170,9 @@ class GitignoreBuilder:
         ]
 
         for section in self.profile.sections:
-            content.append(f"# ========================================")
+            content.append("# ========================================")
             content.append(f"# {section.name}")
-            content.append(f"# ========================================")
+            content.append("# ========================================")
             for rule in section.rules:
                 if rule.strip(): # Evita líneas vacías por error
                     content.append(rule)

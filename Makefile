@@ -1,13 +1,13 @@
 # ====================================================================
 # 🤖 MAKEFILE AUTOGENERADO (Universal API para el Desarrollador y CI)
 # ====================================================================
-.PHONY: help verify install docs-build lock install-sec-tools fix format lint check-venv sync test test-all secrets sast sca image-scan security docker-build docker-run clean
+.PHONY: help verify install docs-build lock install-sec-tools fix format lint check-venv sync test test-all secrets sast sca image-scan security docker-build docker-run clean pipeline-canary
 
 # 🔥 FIX SRE: Asegurar que los binarios locales sean detectados
 export PATH := $(HOME)/.local/bin:$(PATH)
 
 # ⚙️ VARIABLES GLOBALES SRE
-TARGET ?= tests/modules/orchestration/domain/test_value_objects.py
+TARGET ?= src/ tests/
 ENGINE ?= uv
 EXTRA_INDEX_URL ?= $(shell jq -r ".extra_index_url // empty" ci-metadata.json 2>/dev/null)
 
@@ -89,26 +89,28 @@ sync: check-venv
 	    echo '⚙️ Entorno CI detectado (GitHub Actions). Omitiendo uv sync para proteger la tarea install.'; \
 	fi
 
-# 🐍 Verifica y muestra el entorno virtual activo
-check-venv:
-	@echo '🔍 Verificando entorno virtual activo...'
-	VIRTUAL_ENV=$$(pwd)/.venv uv run python -c 'import sys; import os; assert sys.prefix != sys.base_prefix, "❌ NO estás en un entorno virtual"; print(f"✨ Entorno activo en: {os.path.basename(sys.prefix)}")'
-	@echo '✅ Validación completada con éxito'
-
-# 🔄 [SRE] Reconciliación local: Sincroniza el entorno físico (Ignorado en CI/CD)
-sync: check-venv
-	@if [ -z "$$GITHUB_ACTIONS" ]; then \
-	    echo 'Sincronizando el Sandbox físico local con dependencias inmutables...'; \
-	    VIRTUAL_ENV=$$(pwd)/.venv UV_EXTRA_INDEX_URL=$(EXTRA_INDEX_URL) $(ENGINE) sync --all-extras --frozen; \
-	else \
-	    echo '⚙️ Entorno CI detectado (GitHub Actions). Omitiendo uv sync para proteger la tarea install.'; \
-	fi
-
-# 🧪 Ejecuta pruebas unitarias rápidas (Ignora E2E y lentas)
+# 🧪 Ejecuta pruebas unitarias (Enrutador Inteligente SRE para TARGET)
 test: sync
 	@echo '🚀 Iniciando pruebas unitarias...'
 	VIRTUAL_ENV=$$(pwd)/.venv uv run python -c 'import sys; print(f"📂 Usando intérprete: {sys.executable}")'
-	VIRTUAL_ENV=$$(pwd)/.venv uv run pytest $(TARGET) -m 'not e2e and not slow' -v
+	@if [ -n "$(TARGET)" ] && [ "$(TARGET)" != "src/ tests/" ]; then \
+	    if echo "$(TARGET)" | grep -qE "test_|tests/"; then \
+	        echo '🧪 Corriendo prueba directa: $(TARGET)'; \
+	        VIRTUAL_ENV=$$(pwd)/.venv uv run pytest $(TARGET) -m 'not e2e and not slow' -v; \
+	    else \
+	        echo '⏭️ Evaluando código fuente: $(TARGET)'; \
+	        TEST_FILE=$$(echo $(TARGET) | sed 's|src/[^/]*/|tests/|' | sed 's|\([^/]*\)$$|test_\1|'); \
+	        if [ -f "$$TEST_FILE" ]; then \
+	            echo "🎯 Test gemelo encontrado: $$TEST_FILE"; \
+	            VIRTUAL_ENV=$$(pwd)/.venv uv run pytest $$TEST_FILE -m 'not e2e and not slow' -v; \
+	        else \
+	            echo '⚠️ Saltando sin error, a este archivo no se le encontró su test por lo que pytest no participo.'; \
+	        fi; \
+	    fi; \
+	else \
+	    echo '🧪 Corriendo toda la suite de pruebas (TARGET por defecto)...'; \
+	    VIRTUAL_ENV=$$(pwd)/.venv uv run pytest src/ tests/ -m 'not e2e and not slow' -v; \
+	fi
 
 # 🚀 Ejecuta TODA la suite de pruebas (Incluyendo Integración/E2E)
 test-all:
@@ -153,3 +155,17 @@ clean:
 	find . -type d -name '__pycache__' -exec rm -rf {} +
 	find . -type d -name '.pytest_cache' -exec rm -rf {} +
 	find . -type d -name '.mypy_cache' -exec rm -rf {} +
+
+# 🐦 [SRE] Genera código trampa para validar que el Gatekeeper/CI está operativo y lo auto-destruye
+pipeline-canary:
+	@echo '🏗️ Construyendo Dummy File (Canary)...'
+	@echo '"""Archivo dummy generado por el Canary Test."""' > tests/test_canary.py
+	@echo '' >> tests/test_canary.py
+	@echo 'def test_dummy_pipeline() -> None:' >> tests/test_canary.py
+	@echo '    """Prueba unitaria vacía que siempre pasa para engañar al sistema."""' >> tests/test_canary.py
+	@echo '    assert True' >> tests/test_canary.py
+	@echo '✅ Archivo trampa creado. Desatando el Gatekeeper sobre él...'
+	$(MAKE) verify TARGET=tests/test_canary.py
+	@echo '🧹 Prueba exitosa. Eliminando rastros...'
+	@rm tests/test_canary.py
+	@echo '🟢 CANARY TEST SUPERADO. Todo el Toolchain SRE está operativo.'

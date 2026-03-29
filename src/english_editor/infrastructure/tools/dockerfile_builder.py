@@ -34,7 +34,7 @@ class DockerfileProfile(ABC):
 # ---------------------------------------------------------------------
 class MLCLIProfile(DockerfileProfile):
     """Perfil DevSecOps para aplicaciones CLI con IA (Whisper) y soporte Offline."""
-    
+
     @property
     def stages(self) -> list[DockerStage]:
         return [
@@ -123,7 +123,7 @@ class DockerfileBuilder:
 
     def build(self) -> None:
         print(f"🏗️ Construyendo Dockerfile basado en {self.profile.__class__.__name__}...")
-        
+
         content = [
             "# ==============================================================================",
             "# 🐳 DOCKERFILE UNIVERSAL DEVSECOPS (Generado Automáticamente)",
@@ -133,9 +133,9 @@ class DockerfileBuilder:
         ]
 
         for stage in self.profile.stages:
-            content.append(f"# ------------------------------------------------------------------------------")
+            content.append("# ------------------------------------------------------------------------------")
             content.append(f"# {stage.description}")
-            content.append(f"# ------------------------------------------------------------------------------")
+            content.append("# ------------------------------------------------------------------------------")
             for cmd in stage.commands:
                 content.append(cmd)
             content.append("") # Separador visual entre bloques

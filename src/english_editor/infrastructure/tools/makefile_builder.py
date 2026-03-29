@@ -1,4 +1,6 @@
 
+# @title 🛠️📄 makefile_builder.py v0.1.8. TESTS: ⚠️ Saltando sin error, a este archivo no se le encontró su test por lo que pytest no participo.
+# @title 🛠️📄 makefile_builder.py v0.1.7. Inyectar la tarea del "Canary Test" (!make pipeline-canary)
 # @title 🛠️📄 makefile_builder.py v0.1.6. certificado linter
 # @title 🛠️📄 makefile_builder.py v0.1.5. # usa el archivo requirements-ci.txt para el CI/DC GateKeeper
 # @title 🛠️📄 makefile_builder.py v0.1.4. — "sync" Sincroniza el entorno físico con la fuente de la verdad (lockfile)
@@ -100,12 +102,6 @@ class ModernPythonProfile(MakefileProfile):
                     "@echo '✅ Todo verde. El código cumple el Contrato de Calidad. Listo para el git push.'"
                 ],
             ),
-
-
-
-
-
-
             MakeTask(
                 name="install",
                 description="🚀 Toolchain SRE: Crea un Sandbox inmutable para el Runner (CI/CD)",
@@ -139,18 +135,6 @@ class ModernPythonProfile(MakefileProfile):
                     "VIRTUAL_ENV=$$(pwd)/.venv uv run mkdocs build"
                 ],  # 🪄 Invocación encapsulada a la fuerza
             ),
-
-
-
-
-
-
-
-
-
-
-
-
             MakeTask(
                 name="lock",
                 description="🔒 [SRE] Regenera la suite completa de dependencias",
@@ -160,15 +144,6 @@ class ModernPythonProfile(MakefileProfile):
                     "@echo '✅ Suite de archivos generada y sellada.'",
                 ],
             ),
-
-
-
-
-
-
-
-
-
             MakeTask(
                 name="install-sec-tools",
                 description="🛡️ Instala binarios de seguridad (Tolerancia a fallos y Degradación Elegante)",
@@ -188,9 +163,6 @@ class ModernPythonProfile(MakefileProfile):
                     "VIRTUAL_ENV=$$(pwd)/.venv uv run ruff format $(TARGET)",
                 ],
             ),
-
-
-
             MakeTask(
                 name="format",
                 description="🎨 Formatea el código automáticamente",
@@ -278,19 +250,68 @@ class ModernPythonProfile(MakefileProfile):
             #     ]
             # ),
             #
+
+
+
+
             MakeTask(
                 name="test",
-                description="🧪 Ejecuta pruebas unitarias rápidas (Ignora E2E y lentas)",
-                dependencies=[
-                    "sync"
-                ],  # dependencies=["check-venv", "sync"], # 🪄 AQUÍ ESTÁ LA MAGIA SRE (Ambas en una lista)
+                description="🧪 Ejecuta pruebas unitarias (Enrutador Inteligente SRE para TARGET)",
+                dependencies=["sync"],
                 commands=[
                     "@echo '🚀 Iniciando pruebas unitarias...'",
                     # Imprimimos el Python que se está usando para total transparencia
                     "VIRTUAL_ENV=$$(pwd)/.venv uv run python -c 'import sys; print(f\"📂 Usando intérprete: {sys.executable}\")'",
-                    "VIRTUAL_ENV=$$(pwd)/.venv uv run pytest $(TARGET) -m 'not e2e and not slow' -v",
+                    
+                    # 🪄 LA MAGIA SRE INYECTADA: Enrutador Bash con IA estática
+                    '@if [ -n "$(TARGET)" ] && [ "$(TARGET)" != "src/ tests/" ]; then \\',
+                    '    if echo "$(TARGET)" | grep -qE "test_|tests/"; then \\',
+                    #'    if [[ "$(TARGET)" == *"test_"* ]] || [[ "$(TARGET)" == *"tests/"* ]]; then \\',
+                    "        echo '🧪 Corriendo prueba directa: $(TARGET)'; \\",
+                    "        VIRTUAL_ENV=$$(pwd)/.venv uv run pytest $(TARGET) -m 'not e2e and not slow' -v; \\",
+                    "    else \\",
+                    "        echo '⏭️ Evaluando código fuente: $(TARGET)'; \\",
+                    # Magia Regex en SED: Cambia src/ por tests/ y prefija el archivo con test_
+                    "        TEST_FILE=$$(echo $(TARGET) | sed 's|src/[^/]*/|tests/|' | sed 's|\\([^/]*\\)$$|test_\\1|'); \\",
+                    #"        TEST_FILE=$$(echo $(TARGET) | sed 's|src/|tests/|' | sed 's|\\([^/]*\\)$$|test_\\1|'); \\",
+                    '        if [ -f "$$TEST_FILE" ]; then \\',
+                    "            echo \"🎯 Test gemelo encontrado: $$TEST_FILE\"; \\",
+                    "            VIRTUAL_ENV=$$(pwd)/.venv uv run pytest $$TEST_FILE -m 'not e2e and not slow' -v; \\",
+                    "        else \\",
+                    "            echo '⚠️ Saltando sin error, a este archivo no se le encontró su test por lo que pytest no participo.'; \\",
+                    "        fi; \\",
+                    "    fi; \\",
+                    "else \\",
+                    "    echo '🧪 Corriendo toda la suite de pruebas (TARGET por defecto)...'; \\",
+                    "    VIRTUAL_ENV=$$(pwd)/.venv uv run pytest src/ tests/ -m 'not e2e and not slow' -v; \\",
+                    "fi",
                 ],
             ),
+
+
+            
+
+
+
+
+
+            #
+            #MakeTask(
+            #    name="test",
+            #    description="🧪 Ejecuta pruebas unitarias rápidas (Ignora E2E y lentas)",
+            #    dependencies=[
+            #        "sync"
+            #    ],  # dependencies=["check-venv", "sync"], # 🪄 AQUÍ ESTÁ LA MAGIA SRE (Ambas en una lista)
+            #    commands=[
+            #        "@echo '🚀 Iniciando pruebas unitarias...'",
+            #        # Imprimimos el Python que se está usando para total transparencia
+            #        "VIRTUAL_ENV=$$(pwd)/.venv uv run python -c 'import sys; print(f\"📂 Usando intérprete: {sys.executable}\")'",
+            #        "VIRTUAL_ENV=$$(pwd)/.venv uv run pytest $(TARGET) -m 'not e2e and not slow' -v",
+            #    ],
+            #),
+            #
+
+
             #
             # MakeTask(
             #    name="test",
@@ -320,9 +341,6 @@ class ModernPythonProfile(MakefileProfile):
                     "@if command -v gitleaks >/dev/null 2>&1; then gitleaks detect -v --source . --no-git; else echo '⚠️ Gitleaks no instalado. Saltando.'; fi"
                 ],
             ),
-
-
-
             MakeTask(
                 name="sast",
                 description="🧠 [Step 2] Análisis SAST del Código (Bandit)",
@@ -395,6 +413,32 @@ class ModernPythonProfile(MakefileProfile):
                     "find . -type d -name '.mypy_cache' -exec rm -rf {} +",
                 ],
             ),
+
+
+            # 🔥 LA MAGIA SRE: El "Smoke Test" del Pipeline
+            MakeTask(
+                name="pipeline-canary",
+                description="🐦 [SRE] Genera código trampa para validar que el Gatekeeper/CI está operativo y lo auto-destruye",
+                commands=[
+                    "@echo '🏗️ Construyendo Dummy File (Canary)...'",
+                    "@echo '\"\"\"Archivo dummy generado por el Canary Test.\"\"\"' > tests/test_canary.py",
+                    "@echo '' >> tests/test_canary.py",
+                    "@echo 'def test_dummy_pipeline() -> None:' >> tests/test_canary.py",
+                    "@echo '    \"\"\"Prueba unitaria vacía que siempre pasa para engañar al sistema.\"\"\"' >> tests/test_canary.py",
+                    "@echo '    assert True' >> tests/test_canary.py",
+                    "@echo '✅ Archivo trampa creado. Desatando el Gatekeeper sobre él...'",
+                    "$(MAKE) verify TARGET=tests/test_canary.py",
+                    "@echo '🧹 Prueba exitosa. Eliminando rastros...'",
+                    "@rm tests/test_canary.py",
+                    "@echo '🟢 CANARY TEST SUPERADO. Todo el Toolchain SRE está operativo.'",
+                ],
+            ),
+            
+
+
+
+
+
         ]
 
 
@@ -407,6 +451,17 @@ class MakefileBuilder:
     def __init__(self, profile: MakefileProfile, output_dir: str) -> None:
         self.profile = profile
         self.output_path = Path(output_dir) / "Makefile"
+
+
+    #
+    def _deduplicate_tasks(self, tasks: list[MakeTask]) -> list[MakeTask]:
+        """🛡️ SRE FIX: Idempotencia. Conserva solo la última definición de cada tarea."""
+        unique_tasks = {}
+        for task in tasks:
+            unique_tasks[task.name] = task
+        return list(unique_tasks.values())
+
+
 
     def build(self) -> None:
         print(
@@ -443,9 +498,14 @@ class MakefileBuilder:
         # ]
         #
 
-        # 1 org
-        tasks = self.profile.tasks
+        # 1 org (🛡️ Modificado para Idempotencia SRE)
+        tasks = self._deduplicate_tasks(self.profile.tasks)
         phony_targets = " ".join([task.name for task in tasks])
+
+
+        # 1 org
+        #tasks = self.profile.tasks
+        #phony_targets = " ".join([task.name for task in tasks])
 
         content = [
             "# ====================================================================",

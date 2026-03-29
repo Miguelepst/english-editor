@@ -74,9 +74,10 @@ dev = [
   "rich>=13.0",               # 🎨 Consola enriquecida: Renderiza tablas, barras de progreso y texto con formato/color en la terminal.
   "bandit",                   # 🔐 Análisis de seguridad: Escanea el código Python en busca de vulnerabilidades comunes (uso inseguro de funciones, claves hardcodeadas, exec/eval peligrosos, etc.).
   "pip-audit",                # 🛡️ Auditoría de dependencias: Revisa las librerías instaladas y detecta vulnerabilidades conocidas usando bases de datos de seguridad (PyPI / OSV).
+  "requests>=2.33.0",  # ✅ FIX SRE: Vulnerabilidad forzada a versión segura Miguel.
+  "pygments>=2.19.2",  # ✅ FIX SRE: Downgrade a max version disponible (2.19.2) por conflicto con rich
 ]
 # Trivy confirmó exactamente el mismo problema: tienes una vulnerabilidad de severidad "HIGH" en la versión 26.3.0 de black.
-
 
 # ------------------------------------------------------------
 # 🧪 GRUPO: TESTING Y CALIDAD DINÁMICA

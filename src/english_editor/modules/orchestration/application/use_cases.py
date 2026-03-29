@@ -1,4 +1,3 @@
-
 # @title 📄 use_cases.py — [Application] Instrumentado 📊
 
 # ✅ Archivo creado (Casos de Uso Creado e Instrumentados): /content/english-editor/src/english_editor/modules/orchestration/application/use_cases.py
@@ -7,23 +6,39 @@
 # 💡 Lógica Clave: 'prepare_jobs' es un generador (yield). Esto permite procesar miles de archivos sin cargar todos los objetos Job en memoria a la vez.
 
 # src/english_editor/modules/orchestration/application/use_cases.py
-from pathlib import Path
+"""
+Casos de Uso para la Orquestación de Trabajos.
 
-# Imports de Puertos de Orquestación (SPS-01)
+Arquitectura: Modular Monolith
+Capa: Application
+Responsabilidad: Coordinar la creación, recuperación y filtrado de trabajos (Batch/Idempotencia).
+"""
+
+import logging
+import os
+from collections.abc import Iterator
+
+# === Imports de Dominio ===
+from english_editor.modules.orchestration.domain.entities import ProcessingJob
 from english_editor.modules.orchestration.domain.ports.file_system import FileSystemPort
 from english_editor.modules.orchestration.domain.ports.repository import JobRepository
-from english_editor.modules.orchestration.domain.entities import ProcessingJob
 
-# Imports de Contratos de Análisis (SPS-02)
-from english_editor.modules.analysis.domain.ports.engine import SpeechAnalysisEngine
+"""
+Casos de Uso con Logging Estructurado.
+"""
+# import logging
 
-# Imports de Contratos de Renderizado (SPS-03)
-from english_editor.modules.renderer.application.use_cases import RenderMediaUseCase
+# Logger específico para la capa de aplicación
+logger = logging.getLogger("orchestrator.app")
 
-class ProcessVideoWorkflow:
+
+class JobOrchestrator:
     """
-    El Director de Orquesta.
-    Coordina la lectura (SPS-01), el análisis (SPS-02) y el renderizado (SPS-03).
+    Caso de Uso Principal: Preparar la cola de trabajos.
+    Implementa:
+    1. Batch Processing (Directorios).
+    2. Idempotencia (Saltar si output existe).
+    3. Recuperación de Desastres (Buscar jobs previos).
     """
 
     def __init__(self, repository: JobRepository, file_system: FileSystemPort):
@@ -107,12 +122,3 @@ class ProcessVideoWorkflow:
 
         # Si es directorio (asumimos por falta de extensión o lógica de negocio), pedimos listar.
         return self.fs.list_files(path, extensions=[".mp4", ".mp3", ".wav"])
-
-
-
-
-
-
-
-
-

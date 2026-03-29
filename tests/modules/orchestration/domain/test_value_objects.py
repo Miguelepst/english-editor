@@ -1,4 +1,3 @@
-
 # @title 🧪 test_value_objects.py — [Test] Integridad de Huella Digital
 
 # ✅ Test creado: /content/english-editor/tests/modules/orchestration/domain/test_value_objects.py
@@ -90,9 +89,3 @@ def test_job_status_logic():
 
 
 # ruff\n!.venv/bin/ruff format --diff tests/modules/orchestration/domain/test_value_objects.py\n\n\n
-
-
-
-
-
-
